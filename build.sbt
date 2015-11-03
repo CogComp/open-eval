@@ -13,6 +13,8 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.0",
+  "org.webjars" %% "webjars-play" % "2.4.0-1",
+  "org.webjars" % "bootstrap" % "3.1.1-2",
   javaJdbc,
   cache,
   javaWs
