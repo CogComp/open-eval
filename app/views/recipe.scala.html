@@ -1,4 +1,4 @@
-@(datasets: List[String] )
+@(viewModel: models.RecipeViewModel )
 
 
 <!DOCTYPE html>
@@ -12,11 +12,6 @@
     </head>
     <body class="body">
         <h1>Open-Eval</h1>
-        <h2>Datasets</h2>
-        <ul> 
-          @for(dataset <- datasets) {
-            <a href = "dataset?ds=@dataset"><li>@dataset</li></a>
-          } 
-        </ul>
+        <h2>@viewModel.dataset : @viewModel.solver</h2>
     </body>
 </html>
