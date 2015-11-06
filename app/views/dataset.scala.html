@@ -14,6 +14,7 @@
     <body class="body">
         <h1>Open-Eval</h1>
         <h2>Dataset @datasetViewModel.dataset</h2>
+        <h3>Solvers</h3>
         <ul> 
           @for(solver <- datasetViewModel.solvers) {
             <a href = "recipe?ds=@datasetViewModel.dataset&solver=@solver"><li>@solver</li></a>
