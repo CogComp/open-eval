@@ -17,7 +17,8 @@ libraryDependencies ++= Seq(
   "org.webjars" % "bootstrap" % "3.1.1-2",
   javaJdbc,
   cache,
-  javaWs
+  javaWs,
+  "org.apache.httpcomponents" %% "httpclient" % "4.5.1"
 )
 
 // Play provides two styles of routers, one expects its actions to be injected, the

@@ -36,8 +36,8 @@ import java.util.*;
  	 */
  	private List<TextAnnotation> solverInstances;
 
- 	public Job(DummySolver solver, List<TextAnnotation> correctInstances, Evaluator evaluator) {
- 		this.solver = solver;
+ 	public Job(String solverURL, List<TextAnnotation> correctInstances, Evaluator evaluator) {
+ 		this.solver = new DummySolver(solverURL);
  		this.correctInstances = correctInstances;
  		this.evaluator = evaluator;
  		this.unprocessedInstances = removeAnnotations(correctInstances);
