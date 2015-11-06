@@ -1,4 +1,4 @@
-package controllers.edu.illinois.cs.cogcomp;
+package controllers;
 
 import play.*;
 import play.mvc.*;

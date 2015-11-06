@@ -1,4 +1,4 @@
-package controllers.edu.illinois.cs.cogcomp;
+package controllers;
 
 /** A list of possible problem types */
 public enum Domain {

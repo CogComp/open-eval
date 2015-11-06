@@ -1,4 +1,4 @@
-package controllers.edu.illinois.cs.cogcomp.cleansers;
+package controllers.cleansers;
 
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 

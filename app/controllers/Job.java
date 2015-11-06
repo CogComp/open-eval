@@ -1,8 +1,8 @@
-package controllers.edu.illinois.cs.cogcomp;
+package controllers;
 
-import controllers.edu.illinois.cs.cogcomp.cleansers.DummyCleanser;
-import controllers.edu.illinois.cs.cogcomp.cleansers.Cleanser;
-import controllers.edu.illinois.cs.cogcomp.evaluators.Evaluator;
+import controllers.cleansers.DummyCleanser;
+import controllers.cleansers.Cleanser;
+import controllers.evaluators.Evaluator;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 
 import java.util.List;

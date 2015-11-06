@@ -1,6 +1,6 @@
-package controllers.edu.illinois.cs.cogcomp.evaluators;
+package controllers.evaluators;
 
-import controllers.edu.illinois.cs.cogcomp.Evaluation;
+import controllers.Evaluation;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import java.util.*;
 

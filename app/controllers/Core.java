@@ -1,4 +1,4 @@
-package controllers.edu.illinois.cs.cogcomp;
+package controllers;
 
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import java.util.*;
