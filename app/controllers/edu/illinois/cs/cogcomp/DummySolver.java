@@ -10,7 +10,7 @@ import java.util.*;
  */
 
 public class DummySolver {
-	
+
 	public DummySolver() {
 
 	}

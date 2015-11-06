@@ -1,7 +1,11 @@
 package controllers.edu.illinois.cs.cogcomp;
 
+import controllers.edu.illinois.cs.cogcomp.cleansers.DummyCleanser;
+import controllers.edu.illinois.cs.cogcomp.cleansers.Cleanser;
+import controllers.edu.illinois.cs.cogcomp.evaluators.Evaluator;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
-import java.util.*;
+
+import java.util.List;
 
 /**
  * Class representing one job to send to the solver.  
@@ -36,27 +40,8 @@ import java.util.*;
  		this.solver = solver;
  		this.correctInstances = correctInstances;
  		this.evaluator = evaluator;
- 		this.unprocessedInstances = removeAnnotations(correctInstances);
 		this.domain = domain;
- 	}
-
- 	/** Removes annotations from solved instances. */
- 	private List<TextAnnotation> removeAnnotations(List<TextAnnotation> textAnnotations) {
- 		List<TextAnnotation> annotationsWithoutTokens = new ArrayList<>();
- 		for (TextAnnotation textAnnotation : textAnnotations) {
- 			String corpusId = textAnnotation.getCorpusId();
- 			String id = textAnnotation.getId();
- 			String text = textAnnotation.getText();
-
- 			//TODO: Retrieve character offsets from the TextAnnotation.
- 			//TODO: Retrieve sentence end positions.
-
- 			String[] tokens = textAnnotation.getTokens();
- 			for (String token : tokens) {
- 				token = "";
- 			}
- 		}
- 		return annotationsWithoutTokens;
+		this.populateCleanedAnnotations();
  	}
 
  	/** Sends all unprocessed instances to the solver and receives the results. */
@@ -74,4 +59,29 @@ import java.util.*;
  	public void evaluateSolver() {
  		//this.evaluation = evaluator.evaluate(correctInstances, solverInstances);
  	}
+
+	/** Based on the domain type, prepares cleaned instances ready to be sent to a solver */
+	private void populateCleanedAnnotations() {
+		Cleanser cleanser;
+		switch (this.domain)
+		{
+			/*
+			case BINARY_CLASSIFICATION:
+				// TODO
+				break;
+			case MULTICLASS_CLASSIFICATION:
+				// TODO
+				break;
+			case CLUSTERING:
+				// TODO
+				break;
+			*/
+			case TOY:
+			default:
+				cleanser = new DummyCleanser();
+				System.out.println("Warning: unknown domain!");
+		}
+
+		this.unprocessedInstances = cleanser.removeAnnotations(correctInstances);
+	}
  }
