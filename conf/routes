@@ -9,3 +9,9 @@ GET        /                     controllers.Application.index()
 GET        /assets/*file         controllers.Assets.versioned(path="/public", file: Asset)
 
 GET        /webjars/*file        controllers.WebJarAssets.at(file)
+
+# for a specific dataset
+GET        /dataset             controllers.Application.dataset(ds: String)
+
+# for a specific dataset solver pair
+GET        /recipe              controllers.Application.recipe(ds: String, solver: String)
