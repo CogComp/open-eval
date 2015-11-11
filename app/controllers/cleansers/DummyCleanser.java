@@ -7,7 +7,7 @@ import java.util.List;
 
 public class DummyCleanser extends Cleanser{
 
-    /** Removes annotations from solved instances. */
+    /** Removes annotations from instances. */
     public List<TextAnnotation> removeAnnotations(List<TextAnnotation> textAnnotations) {
         List<TextAnnotation> annotationsWithoutTokens = new ArrayList<>();
         for (TextAnnotation textAnnotation : textAnnotations) {
