@@ -1,11 +1,10 @@
 package controllers.evaluators;
 
-import controllers.Evaluation;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import java.util.*;
 
-public interface Evaluator {
+public abstract class Evaluator {
 
-	public Evaluation evaluate(List<TextAnnotation> correctAnnotations, List<TextAnnotation> solverAnnotations);
+	public abstract Evaluation evaluate(List<TextAnnotation> correctAnnotations, List<TextAnnotation> solverAnnotations);
 
 }

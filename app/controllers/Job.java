@@ -2,6 +2,7 @@ package controllers;
 
 import controllers.cleansers.DummyCleanser;
 import controllers.cleansers.Cleanser;
+import controllers.evaluators.Evaluation;
 import controllers.evaluators.Evaluator;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 
