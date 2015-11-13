@@ -19,7 +19,6 @@ First, run `sbt` from the parent directory.
     - `project core` will take you inside the core package. 
     -  `project learner` will take you inside the examples package.
 - Inside each project you can `compile` it, or `run` it. 
-```
 
 If you run the core you can browse to localhost:9000
 
