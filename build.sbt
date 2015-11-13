@@ -34,6 +34,7 @@ lazy val learner = (project in file("learner")).
     name := "learner",
     libraryDependencies ++= Seq(
       "com.nanohttpd" % "nanohttpd-webserver" % "2.1.1",
-      "org.mockito" % "mockito-core" % "1.10.19"
+      "org.mockito" % "mockito-core" % "1.10.19",
+      javaWs
     )
   )

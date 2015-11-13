@@ -15,7 +15,6 @@ public class Server extends NanoHTTPD {
         super(port);
         this.learnerRunner = learnerRunner;
         this.streamReader = streamReader;
-        System.out.println( "\nRunning! \n" );
     }
 
     @Override
