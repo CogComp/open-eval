@@ -10,10 +10,17 @@
 
 # Running the App
 Your will need Java 8 in order to run App. openjdk on Ubuntu seems to have issues.
-From the parent directory, run:
+
+You will also need sbt
+
+First, run `sbt` from the parent directory. 
+
+- `projects` will show the names of the existing module names. 
+    - `project core` will take you inside the core package. 
+    -  `project learner` will take you inside the examples package.
+- Inside each project you can `compile` it, or `run` it. 
 ```
-$activator run
-```
-This should work an all platforms. You can browse to http://localhost:9000 in order to view the App.
+
+If you run the core you can browse to localhost:9000
 
 You also should not have to start it multiple times. You can just save code, and refresh the page.
