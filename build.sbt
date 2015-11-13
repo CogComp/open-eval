@@ -31,5 +31,9 @@ lazy val core = (project in file("core")).
 lazy val learner = (project in file("learner")).
   settings(commonSettings: _*).
   settings(
-    name := "learner"
+    name := "learner",
+    libraryDependencies ++= Seq(
+      "com.nanohttpd" % "nanohttpd-webserver" % "2.1.1",
+      "org.mockito" % "mockito-core" % "1.10.19"
+    )
   )
