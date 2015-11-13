@@ -12,6 +12,16 @@
     </head>
     <body class="body">
         <h1>Open-Eval</h1>
-        <h2>@viewModel.dataset : @viewModel.solver</h2>
+        <p>
+          @defining(viewModel.configuration){conf =>
+            @conf.description
+          }
+        </p>
+        <p>
+          @viewModel.history
+        </p>
+        <a href = "/addRun?conf=@viewModel.configuration.configuration_id" class="btn btn-default">
+          New run of configuration
+        </a>
     </body>
 </html>
