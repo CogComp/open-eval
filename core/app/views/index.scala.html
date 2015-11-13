@@ -1,0 +1,22 @@
+@(datasets: List[String] )
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <title>Open-eval</title>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+        <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))">
+    </head>
+    <body class="body">
+        <h1>Open-Eval</h1>
+        <h2>Datasets</h2>
+        <ul> 
+          @for(dataset <- datasets) {
+            <a href = "dataset?ds=@dataset"><li>@dataset</li></a>
+          } 
+        </ul>
+    </body>
+</html>
