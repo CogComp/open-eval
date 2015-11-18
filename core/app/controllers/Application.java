@@ -2,6 +2,7 @@ package controllers;
 
 import play.*;
 import play.mvc.*;
+import play.data.DynamicForm;
 
 import views.html.*;
 
@@ -11,45 +12,53 @@ import models.*;
 
 public class Application extends Controller {
 
-    /**
-     * Connect to db here to get the datasets
-     */
-    private List<String> getDatasets() {
-        List<String> datasets = new ArrayList<>();
-        datasets.add("dataset 1");
-        datasets.add("dataset 2");
-        datasets.add("dataset 3");
-        return datasets;
-    }
-
-    /**
-     * Connect to db here to get the solvers for a particular dataset
-     */
-    private List<String> getSolvers(String dataset) {
-        List<String> solvers = new ArrayList<>();
-        solvers.add("solver 1 for " + dataset);
-        solvers.add("solver 2 for " + dataset);
-        solvers.add("solver 3 for " + dataset);
-        return solvers;
+    private List<models.Configuration> getConfigurations() {
+        List<models.Configuration> configurations = new ArrayList<>();
+        models.Configuration conf1 = new models.Configuration("Team A", "Desc A", "dataset 1");
+        models.Configuration conf2 = new models.Configuration("Team B", "Desc B", "dataset 2");
+        configurations.add(conf1);
+        configurations.add(conf2);
+        return configurations;
     }
 
     public Result index() {
-        List<String> datasets = getDatasets();
-        return ok(index.render(datasets));
+        IndexViewModel viewModel = new IndexViewModel();
+        viewModel.configurations = getConfigurations();
+        return ok(index.render(viewModel));
     }
 
-    public Result dataset(String dataset_name) {
-        DatasetViewModel viewModel = new DatasetViewModel();
-        viewModel.dataset = dataset_name;
-        viewModel.solvers = getSolvers(dataset_name);;
-        return ok(dataset.render(viewModel));
+    public Result addConfiguration() {
+        return ok(addConfiguration.render());
     }
 
-    public Result recipe(String dataset_name, String solver_name) {
+    public Result submitConfiguration() {
+        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+
+        // Save config to db here
+        // System.out.println(bindedForm.get("dataset"));
+
+        return redirect("/");
+    }
+
+    public Result configuration(String conf) {
         RecipeViewModel viewModel = new RecipeViewModel();
-        viewModel.dataset = dataset_name;
-        viewModel.solver = solver_name;
+        // get configuration from db using configuration_id = conf
+        viewModel.configuration = new models.Configuration("Team B", "Desc B", "dataset 2");
+        viewModel.history = "history B";
         return ok(recipe.render(viewModel));
     }
 
+    public Result addRun(String configuration_id) {
+        return ok(addRun.render(configuration_id));
+    }
+
+    public Result submitRun() {
+        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+
+        String configuration_id = bindedForm.get("configuration_id");
+        // Run + Save run to db here
+        // System.out.println(bindedForm.get("url"));
+
+        return redirect("/configuration?conf="+configuration_id);
+    }
 }
