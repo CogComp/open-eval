@@ -1,4 +1,4 @@
-@(datasets: List[String] )
+@(viewModel: models.IndexViewModel )
 
 
 <!DOCTYPE html>
@@ -10,13 +10,43 @@
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
         <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))">
     </head>
-    <body class="body">
-        <h1>Open-Eval</h1>
-        <h2>Datasets</h2>
-        <ul> 
-          @for(dataset <- datasets) {
-            <a href = "dataset?ds=@dataset"><li>@dataset</li></a>
-          } 
-        </ul>
+    <body>
+        <div class="body">
+            <h1>Open-Eval</h1>
+            <div class="table-responsive">          
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th class="col-md-8">Configurations</th>
+                    <th class="col-md-4">Faqs</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <ol> 
+                        @for(configuration <- viewModel.configurations) {
+                          @defining(configuration.team_name + " | " + configuration.dataset){conf =>
+                            <a href = "configuration?conf=@configuration.configuration_id">
+                              <li>@conf</li>
+                            </a>
+                          }
+                        } 
+                      </ol>
+                      <a href = "/addConfiguration" class="btn btn-default">Add configuration</a>
+                    </td>
+                    <td>
+                        <ul>
+                        <li><a href="/">Download our thin client!</a></li>
+                        </ul>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              </div>
+            
+            <br>
+            
+        </div>
     </body>
 </html>
