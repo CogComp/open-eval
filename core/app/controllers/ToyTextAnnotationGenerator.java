@@ -1,10 +1,10 @@
 package controllers;
 
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
-import edu.illinois.cs.cogcomp.nlp.utilities.BasicTextAnnotationBuilder;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+import edu.illinois.cs.cogcomp.nlp.utilities.BasicTextAnnotationBuilder;
 
 public class ToyTextAnnotationGenerator {
     static String documentString = "Saul or Soul; that is the question";

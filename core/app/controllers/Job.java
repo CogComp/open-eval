@@ -1,12 +1,12 @@
 package controllers;
 
-import controllers.cleansers.DummyCleanser;
+import java.util.List;
+
 import controllers.cleansers.Cleanser;
+import controllers.cleansers.DummyCleanser;
 import controllers.evaluators.Evaluation;
 import controllers.evaluators.Evaluator;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
-
-import java.util.List;
 
 /**
  * Class representing one job to send to the solver.  
