@@ -6,6 +6,8 @@ import java.util.List;
 import controllers.ToyTextAnnotationGenerator;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.IResetableIterator;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+import edu.illinois.cs.cogcomp.core.io.IOUtils;
+import edu.illinois.cs.cogcomp.core.io.caches.TextAnnotationDBHandler;
 
 public class DatabaseCommunication {
 
@@ -14,7 +16,14 @@ public class DatabaseCommunication {
 	
 	/** Constructor. Initiates database communication */
 	public DatabaseCommunication() {
-		this.dbHandler = new TextAnnotationDBHandler("./datasets", datasetNames);
+		if (!IOUtils.exists("./datasets.h2.db")) {
+			this.dbHandler = new TextAnnotationDBHandler("./datasets;MV_STORE=FALSE;MVCC=FALSE", datasetNames);
+			TextAnnotation toyTextAnnotation = ToyTextAnnotationGenerator.generateToyTextAnnotation(3);
+			List<TextAnnotation> toyTextAnnotations = new ArrayList<>();
+			storeDataset("toyDataset", toyTextAnnotations);
+		} else {
+			this.dbHandler = new TextAnnotationDBHandler("./datasets", datasetNames);
+		}
 	}
 	
 	/** Queries the database for a dataset by name */
