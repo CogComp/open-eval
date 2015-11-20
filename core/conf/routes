@@ -26,4 +26,6 @@ GET        /addRun               controllers.Application.addRun(conf: String)
 POST       /submitRun            controllers.Application.submitRun()
 
 # FAQs
+GET        /thinClient           controllers.Application.thinClient()
+
 GET        /about                controllers.Application.about()

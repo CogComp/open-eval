@@ -127,4 +127,9 @@ public class Application extends Controller {
     public Result about() {
         return ok(about.render());
     }
+
+    public Result thinClient() {
+        // Change to download of thin client
+        return redirect("/");
+    }
 }
