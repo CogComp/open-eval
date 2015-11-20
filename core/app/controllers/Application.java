@@ -25,7 +25,7 @@ public class Application extends Controller {
 		if (configList != null) {
 			for (int i = 0; i < configList.size(); i++) {
 				String config[] = configList.get(i);
-				models.Configuration conf = new models.Configuration(config[0], config[1], config[2]);
+				models.Configuration conf = new models.Configuration(config[0], config[1], config[2], config[3], config[4], config[5]);
 				configurations.add(conf);
 			}
 		}
@@ -39,7 +39,28 @@ public class Application extends Controller {
     }
 
     public Result addConfiguration() {
-        return ok(addConfiguration.render());
+        AddConfigurationViewModel viewModel = new AddConfigurationViewModel();
+
+        List<String> datasets = new ArrayList<>();
+        datasets.add("dataset A");
+        datasets.add("dataset B");
+        datasets.add("dataset C");
+
+        List<String> task_variants = new ArrayList<>();
+        task_variants.add("task_variant A");
+        task_variants.add("task_variant B");
+        task_variants.add("task_variant C");
+
+        List<String> evaluators = new ArrayList<>();
+        evaluators.add("evaluator A");
+        evaluators.add("evaluator B");
+        evaluators.add("evaluator C");
+
+        viewModel.datasets = datasets;
+        viewModel.task_variants = task_variants;
+        viewModel.evaluators = evaluators;
+
+        return ok(addConfiguration.render(viewModel));
     }
 
     public Result submitConfiguration() {
@@ -65,21 +86,43 @@ public class Application extends Controller {
         return redirect("/");
     }
 
-    public Result configuration(String conf) {
+    public Result configuration(String configuration_id) {
         RecipeViewModel viewModel = new RecipeViewModel();
-		/* How do we get the id of this configuration?
+
+		
         FrontEndDatabase f = new FrontEndDatabase(); 
-		f.getConfigInformation(); 
-		*/
-        viewModel.configuration = new models.Configuration("Team B", "Desc B", "dataset 2");
+		String[] configInfo = f.getConfigInformation(Integer.parseInt(configuration_id)); 
+		//Check if null?
+		models.Configuration conf = new models.Configuration(configInfo[0], configInfo[1], configInfo[2], configInfo[3], configInfo[4], configInfo[5]);
+		
+		
+        List<Record> records = new ArrayList<>();
+        records.add(new Record("date", "comment", "repo", "author",95.1));
+        records.add(new Record("date2", "comment", "repo", "author",36.1));
+        records.add(new Record("date3", "comment", "repo", "author",97.1));
+        conf.records = records;
+        viewModel.configuration = conf;
+
         viewModel.history = "history B";
         return ok(recipe.render(viewModel));
     }
 
     public Result addRun(String configuration_id) {
-        return ok(addRun.render(configuration_id));
+        AddRunViewModel viewModel = new AddRunViewModel();
+
+        viewModel.configuration_id = configuration_id;
+        viewModel.default_url = "";
+        viewModel.default_author = "";
+        viewModel.default_repo = "";
+        viewModel.default_comment = "";
+        viewModel.error_message = "";
+
+        return ok(addRun.render(viewModel));
     }
 
+
+    // If there is a failure, it should return back to the add run page
+    // with default values set to the sent form values, and an error message
     public Result submitRun() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
 
@@ -88,5 +131,22 @@ public class Application extends Controller {
         // System.out.println(bindedForm.get("url"));
 
         return redirect("/configuration?conf="+configuration_id);
+    }
+
+    public Result record(String record_id) {
+        RecordViewModel viewModel = new RecordViewModel();
+        // should find record by lookup
+        Record associated_record = new Record();
+        viewModel.record = associated_record;
+        return ok(record.render(viewModel));
+    }
+
+    public Result about() {
+        return ok(about.render());
+    }
+
+    public Result thinClient() {
+        // Change to download of thin client
+        return redirect("/");
     }
 }
