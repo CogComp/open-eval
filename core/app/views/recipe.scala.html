@@ -27,12 +27,29 @@
         </h1>
         @for(record <- viewModel.configuration.records) {
           <hr>
-          @defining(record.date + " | " + record.comment + " | " + record.score){rec =>
-            <a href = "record?record_id=@record.record_id">
-              @record.record_id
-            </a>
-            <p>@rec</p>
-          }
+          <a href = "record?record_id=@record.record_id">
+            Record: @record.record_id
+          </a>
+          <span class="score">@record.score</span>
+          <div>
+            <p> 
+              @record.date | @record.author | <a href="@record.repo">code link</a>
+            </p>
+          </div>
+          <p>@record.comment</p>
         }
     </body>
+    <script type="text/javascript">
+      (function() {
+        var scores = document.getElementsByClassName("score");
+        for (var i = 0; i < scores.length; i++) {
+          var score = scores[i];
+          var value = +score.innerHTML;
+          var red = 200 - (value * 0.01 * 200);
+          var green = value * 0.01 * 200;
+          score.style.color = "#" + Math.round(red+20).toString(16)+Math.round(green+20).toString(16)+"33";
+          score.style.marginLeft = "2%";
+        };
+      })();
+    </script>
 </html>

@@ -12,12 +12,49 @@
     <body>
         <div class="body">
             <h1><a href="/">Open-Eval</a></h1>
-            <form action="submitRun" method="post">
-              <input type="hidden" name="configuration_id" value="@configuration_id">
-              url<input type="text" name="url"><br>
-              optional code repo link<input type="text" name="repo"><br>
-              comment<input type="text" name="comment"><br>
-              author<input type="text" name="author"><br>
+            <form action="submitRun" method="post" id="usrform">
+              <table class="table" style="width: 40%;">
+                <thead>
+                  <tr>
+                    <th class="col-md-2"></th>
+                    <th class="col-md-2"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      URL<font color="red">*</font>:
+                    </td>
+                    <td>
+                       <input type="text" name="url">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Author<font color="red">*</font>:
+                    </td>
+                    <td>
+                       <input type="text" name="author">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Code repo link:
+                    </td>
+                    <td>
+                       <input type="text" name="repo">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Comment:
+                    </td>
+                    <td>
+                       <textarea name="comment" form="usrform"></textarea>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
               <input type="submit" value="Run">
             </form>
         </div>
