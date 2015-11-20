@@ -2,8 +2,8 @@ package controllers;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+import controllers.evaluators.Evaluation;
 import controllers.evaluators.Evaluator;
 import controllers.evaluators.SpanLabelingEvaluator;
 import controllers.evaluators.SpanSplittingEvaluator;
@@ -21,9 +21,20 @@ public class Core extends Controller {
 		List<Evaluator> evaluators = getEvaluator(params.get("eval")[0]);
 		Job newJob = new Job(params.get("url")[0], instances, newEval);
 		*/
-		Job job = setUpToyJob();
+		Job job = Job.setUpToyJob();
 		job.sendAndReceiveRequestsFromSolver();
+		storeSolvedAnnotations(job.getSolverInstances());
+		job.evaluateSolver();
+		storeEvaluations(job.getEvaluations());
 		return ok("Received request");
+	}
+	
+	private void storeSolvedAnnotations(List<TextAnnotation> textAnnotations) {
+		// TODO: Implement once a database has been set up.
+	}
+	
+	private void storeEvaluations(List<Evaluation> evaluation) {
+		// TODO: Implement once a database has been set up.
 	}
 	
 	private List<TextAnnotation> dbQuery(String datasetName, String problemType){
@@ -33,19 +44,5 @@ public class Core extends Controller {
 	
 	private List<Evaluator> getEvaluator(String evalType){
 		return null;
-	}
-	
-	private Job setUpToyJob() {
-		DummySolver dummySolver = new DummySolver();
-		List<Evaluator> evaluators = new ArrayList<>();
-		List<TextAnnotation> instances = dbQuery("toyDataset", "");
-		
-		// Create evaluators for the toy job
-		SpanLabelingEvaluator spanLabelingEvaluator = new SpanLabelingEvaluator();
-		SpanSplittingEvaluator spanSplittingEvaluator = new SpanSplittingEvaluator();
-		evaluators.add(spanSplittingEvaluator);
-		evaluators.add(spanLabelingEvaluator);
-		
-		return new Job(dummySolver, instances, evaluators, Domain.TOY);
 	}
 }

@@ -1,11 +1,16 @@
 package controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import controllers.cleansers.Cleanser;
 import controllers.cleansers.DummyCleanser;
 import controllers.evaluators.Evaluation;
 import controllers.evaluators.Evaluator;
+import controllers.evaluators.SpanLabelingEvaluator;
+import controllers.evaluators.SpanSplittingEvaluator;
+import controllers.io.DatabaseCommunication;
+import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 
 /**
@@ -23,10 +28,10 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
  	private DummySolver solver;
 
 	/** A list of evaluators, used to evaluate solver using an evaluation metric specified in the implementing class. */
- 	private List<Evaluator> evaluator;
+ 	private List<Evaluator> evaluators;
 
 	/** Evaluation containing the evaluation returned by the evaluator. */
- 	private Evaluation evaluation;
+ 	private List<Evaluation> evaluations;
 
  	/** List of correct text annotation instances */
  	private List<TextAnnotation> correctInstances;
@@ -34,13 +39,15 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
  	/** List of unprocessed text annotation instances */
 	private List<TextAnnotation> unprocessedInstances;
 
- 	/** List of `TextAnnotation` instances returned by the solver */
+ 	/** List of TextAnnotation instances returned by the solver */
  	private List<TextAnnotation> solverInstances;
 
  	public Job(DummySolver solver, List<TextAnnotation> correctInstances, List<Evaluator> evaluator, Domain domain) {
  		this.solver = solver;
  		this.correctInstances = correctInstances;
- 		this.evaluator = evaluator;
+ 		this.solverInstances = new ArrayList<>();
+ 		this.evaluators = evaluator;
+ 		this.evaluations = new ArrayList<>();
 		this.domain = domain;
 		this.populateCleanedAnnotations();
  	}
@@ -54,11 +61,14 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
  	}
  	
  	/**
- 	 *	Runs the specified evaluator on the instances returned from the solver and stores
- 	 *  the results in an Evaluation object.
+ 	 *	Runs the specified evaluators on the instances returned from the solver and stores
+ 	 *  the results in Evaluation objects.
  	 */
  	public void evaluateSolver() {
- 		//this.evaluation = evaluator.evaluate(correctInstances, solverInstances);
+ 		for (Evaluator evaluator : evaluators) {
+ 			Evaluation evaluation = evaluator.evaluate(correctInstances, solverInstances);
+ 			evaluations.add(evaluation);
+ 		}
  	}
 
 	/** Based on the domain type, prepares cleaned instances ready to be sent to a solver */
@@ -84,5 +94,37 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 		}
 
 		this.unprocessedInstances = cleanser.removeAnnotations(correctInstances);
+	}
+	
+	public static Job setUpToyJob() {
+		DatabaseCommunication dbComm = new DatabaseCommunication();
+		
+		DummySolver dummySolver = new DummySolver();
+		List<Evaluator> evaluators = new ArrayList<>();
+		List<TextAnnotation> instances = dbComm.retrieveDataset("toyDataset");
+		
+		// Create evaluators for the toy job
+		SpanLabelingEvaluator spanLabelingEvaluator = new SpanLabelingEvaluator(ViewNames.SENTENCE);
+		SpanSplittingEvaluator spanSplittingEvaluator = new SpanSplittingEvaluator(ViewNames.SENTENCE);
+		evaluators.add(spanSplittingEvaluator);
+		evaluators.add(spanLabelingEvaluator);
+		
+		return new Job(dummySolver, instances, evaluators, Domain.TOY);
+	}
+
+	public Domain getDomain() {
+		return domain;
+	}
+
+	public List<Evaluation> getEvaluations() {
+		return evaluations;
+	}
+
+	public List<TextAnnotation> getSolverInstances() {
+		return solverInstances;
+	}	
+	
+	public List<TextAnnotation> getCorrectInstances() {
+		return correctInstances;
 	}
  }
