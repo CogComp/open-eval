@@ -24,3 +24,6 @@ POST       /submitConfiguration  controllers.Application.submitConfiguration()
 GET        /addRun               controllers.Application.addRun(conf: String)
 
 POST       /submitRun            controllers.Application.submitRun()
+
+# FAQs
+GET        /about                controllers.Application.about()

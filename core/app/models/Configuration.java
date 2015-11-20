@@ -21,10 +21,12 @@ public class Configuration {
 
     private static long counter = 0;;
 
-    public Configuration(String team_name, String description, String dataset) {
+    public Configuration(String team_name, String description, String dataset, String task_variant, String evaluator) {
         this.team_name = team_name;
         this.description = description;
         this.dataset = dataset;
+        this.task_variant = task_variant;
+        this.evaluator = evaluator;
         this.configuration_id = "" + (counter++);
     }
 

@@ -14,8 +14,12 @@ public class Application extends Controller {
 
     private List<models.Configuration> getConfigurations() {
         List<models.Configuration> configurations = new ArrayList<>();
-        models.Configuration conf1 = new models.Configuration("Team A", "Desc A", "dataset 1");
-        models.Configuration conf2 = new models.Configuration("Team B", "Desc B", "dataset 2");
+        models.Configuration conf1 = new models.Configuration(
+            "Team A", "Description for first configuration", "dataset 1", "task_variant_a", "evaluator_a"
+        );
+        models.Configuration conf2 = new models.Configuration(
+            "Team B", "Description for second configuration", "dataset 2", "task_variant_b", "evaluator_b"
+        );
         configurations.add(conf1);
         configurations.add(conf2);
         return configurations;
@@ -28,7 +32,28 @@ public class Application extends Controller {
     }
 
     public Result addConfiguration() {
-        return ok(addConfiguration.render());
+        AddConfigurationViewModel viewModel = new AddConfigurationViewModel();
+
+        List<String> datasets = new ArrayList<>();
+        datasets.add("dataset A");
+        datasets.add("dataset B");
+        datasets.add("dataset C");
+
+        List<String> task_variants = new ArrayList<>();
+        task_variants.add("task_variant A");
+        task_variants.add("task_variant B");
+        task_variants.add("task_variant C");
+
+        List<String> evaluators = new ArrayList<>();
+        evaluators.add("evaluator A");
+        evaluators.add("evaluator B");
+        evaluators.add("evaluator C");
+
+        viewModel.datasets = datasets;
+        viewModel.task_variants = task_variants;
+        viewModel.evaluators = evaluators;
+
+        return ok(addConfiguration.render(viewModel));
     }
 
     public Result submitConfiguration() {
@@ -43,7 +68,9 @@ public class Application extends Controller {
     public Result configuration(String configuration_id) {
         RecipeViewModel viewModel = new RecipeViewModel();
         // get configuration from db using configuration_id = conf
-        models.Configuration conf = new models.Configuration("Team B", "Desc B", "dataset 2");
+        models.Configuration conf = new models.Configuration(
+            "Team B", "Description for second configuration", "dataset 2", "task_variant_b", "evaluator_b"
+        );
         List<Record> records = new ArrayList<>();
         records.add(new Record("date", "comment", "repo", "author",95.1));
         records.add(new Record("date2", "comment", "repo", "author",96.1));
@@ -75,5 +102,9 @@ public class Application extends Controller {
         Record associated_record = new Record();
         viewModel.record = associated_record;
         return ok(record.render(viewModel));
+    }
+
+    public Result about() {
+        return ok(about.render());
     }
 }
