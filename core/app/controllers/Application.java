@@ -20,8 +20,16 @@ public class Application extends Controller {
         models.Configuration conf2 = new models.Configuration(
             "Team B", "Description for second configuration", "dataset 2", "task_variant_b", "evaluator_b"
         );
+        models.Configuration conf3 = new models.Configuration(
+            "Team C", "Description for second configuration", "dataset 3", "task_variant_c", "evaluator_c"
+        );
+        models.Configuration conf4 = new models.Configuration(
+            "Team D", "Description for fourth configuration", "dataset 4", "task_variant_d", "evaluator_d"
+        );
         configurations.add(conf1);
         configurations.add(conf2);
+        configurations.add(conf3);
+        configurations.add(conf4);
         return configurations;
     }
 
@@ -73,7 +81,7 @@ public class Application extends Controller {
         );
         List<Record> records = new ArrayList<>();
         records.add(new Record("date", "comment", "repo", "author",95.1));
-        records.add(new Record("date2", "comment", "repo", "author",96.1));
+        records.add(new Record("date2", "comment", "repo", "author",36.1));
         records.add(new Record("date3", "comment", "repo", "author",97.1));
         conf.records = records;
         viewModel.configuration = conf;
@@ -95,6 +103,9 @@ public class Application extends Controller {
         return ok(addRun.render(viewModel));
     }
 
+
+    // If there is a failure, it should return back to the add run page
+    // with default values set to the sent form values, and an error message
     public Result submitRun() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
 

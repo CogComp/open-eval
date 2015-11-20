@@ -22,9 +22,10 @@
         <a href = "/addRun?conf=@viewModel.configuration.configuration_id" class="btn btn-default">
           New run of configuration
         </a>
+        <div style="display:none">
         <h1 width="400px" height="400px">
         GRAPH
-        </h1>
+        </h1></div>
         @for(record <- viewModel.configuration.records) {
           <hr>
           <a href = "record?record_id=@record.record_id">
