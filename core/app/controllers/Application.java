@@ -40,10 +40,17 @@ public class Application extends Controller {
         return redirect("/");
     }
 
-    public Result configuration(String conf) {
+    public Result configuration(String configuration_id) {
         RecipeViewModel viewModel = new RecipeViewModel();
         // get configuration from db using configuration_id = conf
-        viewModel.configuration = new models.Configuration("Team B", "Desc B", "dataset 2");
+        models.Configuration conf = new models.Configuration("Team B", "Desc B", "dataset 2");
+        List<Record> records = new ArrayList<>();
+        records.add(new Record("date", "comment", "repo", "author",95.1));
+        records.add(new Record("date2", "comment", "repo", "author",96.1));
+        records.add(new Record("date3", "comment", "repo", "author",97.1));
+        conf.records = records;
+        viewModel.configuration = conf;
+
         viewModel.history = "history B";
         return ok(recipe.render(viewModel));
     }
@@ -60,5 +67,13 @@ public class Application extends Controller {
         // System.out.println(bindedForm.get("url"));
 
         return redirect("/configuration?conf="+configuration_id);
+    }
+
+    public Result record(String record_id) {
+        RecordViewModel viewModel = new RecordViewModel();
+        // should find record by lookup
+        Record associated_record = new Record();
+        viewModel.record = associated_record;
+        return ok(record.render(viewModel));
     }
 }

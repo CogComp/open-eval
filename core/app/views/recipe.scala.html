@@ -1,6 +1,5 @@
 @(viewModel: models.RecipeViewModel )
 
-
 <!DOCTYPE html>
 
 <html lang="en">
@@ -23,5 +22,17 @@
         <a href = "/addRun?conf=@viewModel.configuration.configuration_id" class="btn btn-default">
           New run of configuration
         </a>
+        <h1 width="400px" height="400px">
+        GRAPH
+        </h1>
+        @for(record <- viewModel.configuration.records) {
+          <hr>
+          @defining(record.date + " | " + record.comment + " | " + record.score){rec =>
+            <a href = "record?record_id=@record.record_id">
+              @record.record_id
+            </a>
+            <p>@rec</p>
+          }
+        }
     </body>
 </html>

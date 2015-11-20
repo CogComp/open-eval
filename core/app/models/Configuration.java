@@ -11,6 +11,7 @@ public class Configuration {
     public String team_name;
     public String description;
     public String dataset;
+    public List<Record> records;
 
     /*These should eventually not be strings, but im not positive how all of it is set up*/
     public String task_variant;
