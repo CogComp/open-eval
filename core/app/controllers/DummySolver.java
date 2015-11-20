@@ -10,6 +10,9 @@ import play.libs.ws.*;
 import play.libs.F.Function;
 import play.libs.F.Promise;
 import play.libs.Json;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
 /**
  * Temporary class to represent a dummy solver that lives within the evaluation framework
  *
@@ -27,12 +30,10 @@ public class DummySolver {
 	}
 
 	public TextAnnotation processRequest(TextAnnotation textAnnotation) {
-	/*
-		Promise<Json> jsonPromise = sender.post(textAnnotation.json()).map(response -> {
+		Promise<JsonNode> jsonPromise = sender.post(Json.toJson(textAnnotation)).map(response -> {
 											return response.asJson();
 										});
-		return TextAnnotation.decode(jsonPromise.get(5000));
-	*/ 
-		return textAnnotation;
+		TextAnnotation result = Json.fromJson(jsonPromise.get(5000), TextAnnotation.class);
+		return result;
 	}
 }

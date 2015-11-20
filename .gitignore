@@ -7,3 +7,5 @@
 */.settings
 */RUNNING_PID
 *.class
+project/project/target/*
+target/.history
