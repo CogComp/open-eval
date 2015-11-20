@@ -10,14 +10,25 @@ import java.util.*;
 
 import models.*;
 
+//import FrontEndDatabase;
+import play.Logger;
+
+
 public class Application extends Controller {
 
     private List<models.Configuration> getConfigurations() {
         List<models.Configuration> configurations = new ArrayList<>();
-        models.Configuration conf1 = new models.Configuration("Team A", "Desc A", "dataset 1");
-        models.Configuration conf2 = new models.Configuration("Team B", "Desc B", "dataset 2");
-        configurations.add(conf1);
-        configurations.add(conf2);
+		
+		FrontEndDatabase f = new FrontEndDatabase(); 
+		ArrayList<String[]> configList = f.getConfigList();
+	
+		if (configList != null) {
+			for (int i = 0; i < configList.size(); i++) {
+				String config[] = configList.get(i);
+				models.Configuration conf = new models.Configuration(config[0], config[1], config[2]);
+				configurations.add(conf);
+			}
+		}
         return configurations;
     }
 
@@ -33,16 +44,33 @@ public class Application extends Controller {
 
     public Result submitConfiguration() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
-
-        // Save config to db here
-        // System.out.println(bindedForm.get("dataset"));
+		FrontEndDatabase f = new FrontEndDatabase(); 
+		
+		String json = "{"
+				+ "\"configuration\" : {"
+				+ "\"datasetName\": \"" + bindedForm.get("dataset") + "\","
+				+ "\"teamName\" : \"" + bindedForm.get("teamname")+ "\","
+				+ "\"description\" : \"" + bindedForm.get("description")+ "\","
+				+ "\"evaluator\" : \"" + bindedForm.get("evaluator")+ "\","
+				+ "\"taskType\" : \"Text Annotation\""
+				+ "},"
+				+ "\"taskVariants\" : ["
+				+ "\"tskVar1\","
+				+ "\"tskVar2\","
+				+ "\"tskVar3\""
+				+ "]"
+				+ "}";
+		f.storeConfig(json);
 
         return redirect("/");
     }
 
     public Result configuration(String conf) {
         RecipeViewModel viewModel = new RecipeViewModel();
-        // get configuration from db using configuration_id = conf
+		/* How do we get the id of this configuration?
+        FrontEndDatabase f = new FrontEndDatabase(); 
+		f.getConfigInformation(); 
+		*/
         viewModel.configuration = new models.Configuration("Team B", "Desc B", "dataset 2");
         viewModel.history = "history B";
         return ok(recipe.render(viewModel));
