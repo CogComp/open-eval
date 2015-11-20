@@ -1,4 +1,4 @@
-@(configuration_id: String)
+@(viewModel: models.AddRunViewModel )
 
 <!DOCTYPE html>
 
@@ -12,6 +12,7 @@
     <body>
         <div class="body">
             <h1><a href="/">Open-Eval</a></h1>
+            <font color="red">@viewModel.error_message</font>
             <form action="submitRun" method="post" id="usrform">
               <table class="table" style="width: 40%;">
                 <thead>
@@ -26,7 +27,7 @@
                       URL<font color="red">*</font>:
                     </td>
                     <td>
-                       <input type="text" name="url">
+                       <input type="text" name="url" value="@viewModel.default_url">
                     </td>
                   </tr>
                   <tr>
@@ -34,7 +35,7 @@
                       Author<font color="red">*</font>:
                     </td>
                     <td>
-                       <input type="text" name="author">
+                       <input type="text" name="author" value="@viewModel.default_author">
                     </td>
                   </tr>
                   <tr>
@@ -42,7 +43,7 @@
                       Code repo link:
                     </td>
                     <td>
-                       <input type="text" name="repo">
+                       <input type="text" name="repo" value="@viewModel.default_repo">
                     </td>
                   </tr>
                   <tr>
@@ -50,7 +51,7 @@
                       Comment:
                     </td>
                     <td>
-                       <textarea name="comment" form="usrform"></textarea>
+                       <textarea name="comment" form="usrform">@viewModel.default_comment</textarea>
                     </td>
                   </tr>
                 </tbody>

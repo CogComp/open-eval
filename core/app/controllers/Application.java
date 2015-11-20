@@ -83,7 +83,16 @@ public class Application extends Controller {
     }
 
     public Result addRun(String configuration_id) {
-        return ok(addRun.render(configuration_id));
+        AddRunViewModel viewModel = new AddRunViewModel();
+
+        viewModel.configuration_id = configuration_id;
+        viewModel.default_url = "";
+        viewModel.default_author = "";
+        viewModel.default_repo = "";
+        viewModel.default_comment = "";
+        viewModel.error_message = "";
+
+        return ok(addRun.render(viewModel));
     }
 
     public Result submitRun() {
