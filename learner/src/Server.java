@@ -2,18 +2,19 @@
  * Created by rnkelch on 11/7/2015.
  */
 
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import fi.iki.elonen.NanoHTTPD;
 
 import java.io.IOException;
 
 public class Server extends NanoHTTPD {
 
-    private LearnerRunner learnerRunner;
+    private TextAnnotator textAnnotator;
     StreamReader streamReader;
 
-    public Server(int port, LearnerRunner learnerRunner, StreamReader streamReader) throws IOException {
+    public Server(int port, TextAnnotator textAnnotator, StreamReader streamReader) throws IOException {
         super(port);
-        this.learnerRunner = learnerRunner;
+        this.textAnnotator = textAnnotator;
         this.streamReader = streamReader;
     }
 
@@ -21,6 +22,7 @@ public class Server extends NanoHTTPD {
     public Response serve(IHTTPSession session){
         Method httpMethod = session.getMethod();
         if (httpMethod.equals(Method.POST)) {
+
             String json;
             try {
                 json = streamReader.readAll(session.getInputStream());
@@ -30,11 +32,15 @@ public class Server extends NanoHTTPD {
                 errorResponse.setStatus(Response.Status.INTERNAL_ERROR);
                 return errorResponse;
             }
-            LearnerResult learnerResult = learnerRunner.runCommand(json);
-            if (learnerResult.successful){
-                return new Response(learnerResult.result);
+
+            TextAnnotation partial = TextAnnotationSerializer.deserialize(json);
+            TextAnnotatorResult textAnnotatorResult = textAnnotator.run(partial);
+
+            if (textAnnotatorResult.successful){
+                String resultJson = TextAnnotationSerializer.serialize(textAnnotatorResult.textAnnotation);
+                return new Response(resultJson);
             } else {
-                Response errorResponse = new Response(learnerResult.errorMessage);
+                Response errorResponse = new Response(textAnnotatorResult.errorMessage);
                 errorResponse.setStatus(Response.Status.INTERNAL_ERROR);
                 return errorResponse;
             }
