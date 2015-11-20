@@ -1,0 +1,82 @@
+@(viewModel: models.AddConfigurationViewModel)
+
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <title>Open-eval</title>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+        <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))">
+    </head>
+    <body>
+        <div class="body">
+            <h1><a href="/">Open-Eval</a></h1>
+            <form action="submitConfiguration" method="post" id="usrform">
+              <table class="table" style="width: 40%;">
+                <thead>
+                  <tr>
+                    <th class="col-md-2"></th>
+                    <th class="col-md-2"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      Team name:
+                    </td>
+                    <td>
+                       <input type="text" name="teamname">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Description:
+                    </td>
+                    <td>
+                       <textarea name="description" form="usrform"></textarea>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Dataset:
+                    </td>
+                    <td>
+                      <select name="dataset">
+                        @for(dataset <- viewModel.datasets) {
+                          <option value="@dataset">@dataset</option>
+                        }
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Task variant (sub-domain):
+                    </td>
+                    <td>
+                      <select name="taskvariant">
+                        @for(task_variant <- viewModel.task_variants) {
+                          <option value="@task_variant">@task_variant</option>
+                        }
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Evaluator:
+                    </td>
+                    <td>
+                       <select name="evaluator">
+                        @for(evaluator <- viewModel.evaluators) {
+                          <option value="@evaluator">@evaluator</option>
+                        }
+                      </select>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <input type="submit">
+            </form>
+        </div>
+    </body>
+</html>
