@@ -23,6 +23,8 @@ public class DummyCleanser extends Cleanser{
                 token = "";
             }
         }
-        return annotationsWithoutTokens;
+        /** Until we define a way to clean annotations we simply return the annotations that were passed in */
+        return textAnnotations;
+        //return annotationsWithoutTokens;
     }
 }
