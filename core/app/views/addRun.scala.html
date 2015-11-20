@@ -1,0 +1,25 @@
+@(configuration_id: String)
+
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <title>Open-eval</title>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+        <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))">
+    </head>
+    <body>
+        <div class="body">
+            <h1>Open-Eval</h1>
+            <form action="submitRun" method="post">
+              <input type="hidden" name="configuration_id" value="@configuration_id">
+              url<input type="text" name="url"><br>
+              optional code repo link<input type="text" name="repo"><br>
+              comment<input type="text" name="comment"><br>
+              author<input type="text" name="author"><br>
+              <input type="submit" value="Run">
+            </form>
+        </div>
+    </body>
+</html>

@@ -9,3 +9,19 @@ GET        /                     controllers.Application.index()
 GET        /assets/*file         controllers.Assets.versioned(path="/public", file: Asset)
 
 GET        /webjars/*file        controllers.WebJarAssets.at(file)
+<<<<<<< HEAD:target/scala-2.11/classes/routes
+=======
+
+# for a specific configuration
+GET        /configuration              controllers.Application.configuration(conf: String)
+
+# Add configuration
+GET        /addConfiguration     controllers.Application.addConfiguration()
+
+POST       /submitConfiguration  controllers.Application.submitConfiguration()
+
+# Run a Job
+GET        /addRun               controllers.Application.addRun(conf: String)
+
+POST       /submitRun            controllers.Application.submitRun()
+>>>>>>> refs/remotes/IllinoisCogComp/master:core/conf/routes
