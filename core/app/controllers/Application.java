@@ -18,17 +18,17 @@ public class Application extends Controller {
 
     private List<models.Configuration> getConfigurations() {
         List<models.Configuration> configurations = new ArrayList<>();
-		
-		FrontEndDatabase f = new FrontEndDatabase(); 
-		ArrayList<String[]> configList = f.getConfigList();
-	
-		if (configList != null) {
-			for (int i = 0; i < configList.size(); i++) {
-				String config[] = configList.get(i);
-				models.Configuration conf = new models.Configuration(config[0], config[1], config[2], config[3], config[4], config[5]);
-				configurations.add(conf);
-			}
-		}
+        
+        FrontEndDatabase f = new FrontEndDatabase(); 
+        ArrayList<String[]> configList = f.getConfigList();
+    
+        if (configList != null) {
+            for (int i = 0; i < configList.size(); i++) {
+                String config[] = configList.get(i);
+                models.Configuration conf = new models.Configuration(config[0], config[1], config[2], config[3], config[4], config[5]);
+                configurations.add(conf);
+            }
+        }
         return configurations;
     }
 
@@ -65,23 +65,23 @@ public class Application extends Controller {
 
     public Result submitConfiguration() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
-		FrontEndDatabase f = new FrontEndDatabase(); 
-		
-		String json = "{"
-				+ "\"configuration\" : {"
-				+ "\"datasetName\": \"" + bindedForm.get("dataset") + "\","
-				+ "\"teamName\" : \"" + bindedForm.get("teamname")+ "\","
-				+ "\"description\" : \"" + bindedForm.get("description")+ "\","
-				+ "\"evaluator\" : \"" + bindedForm.get("evaluator")+ "\","
-				+ "\"taskType\" : \"Text Annotation\""
-				+ "},"
-				+ "\"taskVariants\" : ["
-				+ "\"tskVar1\","
-				+ "\"tskVar2\","
-				+ "\"tskVar3\""
-				+ "]"
-				+ "}";
-		f.storeConfig(json);
+        FrontEndDatabase f = new FrontEndDatabase(); 
+
+        String json = "{"
+            + "\"configuration\" : {"
+            + "\"datasetName\": \"" + bindedForm.get("dataset") + "\","
+            + "\"teamName\" : \"" + bindedForm.get("teamname")+ "\","
+            + "\"description\" : \"" + bindedForm.get("description")+ "\","
+            + "\"evaluator\" : \"" + bindedForm.get("evaluator")+ "\","
+            + "\"taskType\" : \"Text Annotation\""
+            + "},"
+            + "\"taskVariants\" : ["
+            + "\"tskVar1\","
+            + "\"tskVar2\","
+            + "\"tskVar3\""
+            + "]"
+            + "}";
+        f.storeConfig(json);
 
         return redirect("/");
     }
@@ -89,13 +89,13 @@ public class Application extends Controller {
     public Result configuration(String configuration_id) {
         RecipeViewModel viewModel = new RecipeViewModel();
 
-		
+        
         FrontEndDatabase f = new FrontEndDatabase(); 
-		String[] configInfo = f.getConfigInformation(Integer.parseInt(configuration_id)); 
-		//Check if null?
-		models.Configuration conf = new models.Configuration(configInfo[0], configInfo[1], configInfo[2], configInfo[3], configInfo[4], configInfo[5]);
-		
-		
+        String[] configInfo = f.getConfigInformation(Integer.parseInt(configuration_id)); 
+        //Check if null?
+        models.Configuration conf = new models.Configuration(configInfo[0], configInfo[1], configInfo[2], configInfo[3], configInfo[4], configInfo[5]);
+
+
         List<Record> records = new ArrayList<>();
         records.add(new Record("date", "comment", "repo", "author",95.1));
         records.add(new Record("date2", "comment", "repo", "author",36.1));

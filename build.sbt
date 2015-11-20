@@ -21,8 +21,8 @@ lazy val core = (project in file("core")).
       "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.0",
       "org.webjars" %% "webjars-play" % "2.4.0-1",
       "org.webjars" % "bootstrap" % "3.1.1-2",
-	  "org.json" % "json" % "20140107",
-	  "mysql" % "mysql-connector-java" % "5.1.37",
+      "org.json" % "json" % "20140107",
+      "mysql" % "mysql-connector-java" % "5.1.37",
       javaJdbc,
       cache,
       javaWs
