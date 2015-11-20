@@ -10,6 +10,8 @@ import java.util.*;
 
 import models.*;
 
+import controllers.evaluators.Evaluation;
+
 public class Application extends Controller {
 
     private List<models.Configuration> getConfigurations() {
@@ -56,9 +58,10 @@ public class Application extends Controller {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
 
         String configuration_id = bindedForm.get("configuration_id");
+		String url = bindedForm.get("url");
         // Run + Save run to db here
         // System.out.println(bindedForm.get("url"));
-
+		Evaluation eval = Core.startJob(configuration_id, url);
         return redirect("/configuration?conf="+configuration_id);
     }
 }

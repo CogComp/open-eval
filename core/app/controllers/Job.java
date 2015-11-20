@@ -8,15 +8,12 @@ import controllers.cleansers.DummyCleanser;
 import controllers.evaluators.Evaluation;
 import controllers.evaluators.Evaluator;
 import controllers.evaluators.SpanLabelingEvaluator;
-import controllers.evaluators.SpanSplittingEvaluator;
 import controllers.io.DatabaseCommunication;
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 
 /**
  * Class representing one job to send to the solver.  
- *
- * @author Joshua Camp
  */
 
  public class Job {
@@ -28,10 +25,10 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
  	private DummySolver solver;
 
 	/** A list of evaluators, used to evaluate solver using an evaluation metric specified in the implementing class. */
- 	private List<Evaluator> evaluators;
+ 	private Evaluator evaluator;
 
 	/** Evaluation containing the evaluation returned by the evaluator. */
- 	private List<Evaluation> evaluations;
+ 	private Evaluation evaluation;
 
  	/** List of correct text annotation instances */
  	private List<TextAnnotation> correctInstances;
@@ -42,12 +39,11 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
  	/** List of TextAnnotation instances returned by the solver */
  	private List<TextAnnotation> solverInstances;
 
- 	public Job(DummySolver solver, List<TextAnnotation> correctInstances, List<Evaluator> evaluator, Domain domain) {
+ 	public Job(DummySolver solver, List<TextAnnotation> correctInstances, Evaluator evaluator, Domain domain) {
  		this.solver = solver;
  		this.correctInstances = correctInstances;
  		this.solverInstances = new ArrayList<>();
- 		this.evaluators = evaluator;
- 		this.evaluations = new ArrayList<>();
+ 		this.evaluator = evaluator;
 		this.domain = domain;
 		this.populateCleanedAnnotations();
  	}
@@ -60,15 +56,20 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
  		}
  	}
  	
+ 	public void sendAndReceiveToyRequestsFromDummySolver() {
+ 		for (TextAnnotation ta : unprocessedInstances) {
+ 			TextAnnotation processedInstance = solver.processToyRequest(ta);
+ 			solverInstances.add(processedInstance);
+ 		}
+ 	}
+ 	
  	/**
  	 *	Runs the specified evaluators on the instances returned from the solver and stores
  	 *  the results in Evaluation objects.
  	 */
- 	public void evaluateSolver() {
- 		for (Evaluator evaluator : evaluators) {
- 			Evaluation evaluation = evaluator.evaluate(correctInstances, solverInstances);
- 			evaluations.add(evaluation);
- 		}
+ 	public Evaluation evaluateSolver() {
+ 		evaluation = evaluator.evaluate(correctInstances, solverInstances);
+		return evaluation;
  	}
 
 	/** Based on the domain type, prepares cleaned instances ready to be sent to a solver */
@@ -77,17 +78,17 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 		switch (this.domain)
 		{
 			/*
-			case BINARY_CLASSIFICATION:
+			case Domain.BINARY_CLASSIFICATION:
 				// TODO
 				break;
-			case MULTICLASS_CLASSIFICATION:
+			case Domain.MULTICLASS_CLASSIFICATION:
 				// TODO
 				break;
-			case CLUSTERING:
+			case Domain.CLUSTERING:
 				// TODO
 				break;
 			*/
-			case TOY:
+			//case Domain.TOY:
 			default:
 				cleanser = new DummyCleanser();
 				System.out.println("Warning: unknown domain!");
@@ -102,22 +103,17 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 		DummySolver dummySolver = new DummySolver();
 		List<Evaluator> evaluators = new ArrayList<>();
 		List<TextAnnotation> instances = dbComm.retrieveDataset("toyDataset");
-		
-		// Create evaluators for the toy job
 		SpanLabelingEvaluator spanLabelingEvaluator = new SpanLabelingEvaluator(ViewNames.SENTENCE);
-		SpanSplittingEvaluator spanSplittingEvaluator = new SpanSplittingEvaluator(ViewNames.SENTENCE);
-		evaluators.add(spanSplittingEvaluator);
-		evaluators.add(spanLabelingEvaluator);
 		
-		return new Job(dummySolver, instances, evaluators, Domain.TOY);
+		return new Job(dummySolver, instances, spanLabelingEvaluator, Domain.TOY);
 	}
 
 	public Domain getDomain() {
 		return domain;
 	}
 
-	public List<Evaluation> getEvaluations() {
-		return evaluations;
+	public Evaluation getEvaluation() {
+		return evaluation;
 	}
 
 	public List<TextAnnotation> getSolverInstances() {
