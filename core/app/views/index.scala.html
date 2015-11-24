@@ -12,7 +12,7 @@
     </head>
     <body>
         <div class="body">
-            <h1>Open-Eval</h1>
+            <h1><a href="/">Open-Eval</a></h1>
             <div class="table-responsive">          
               <table class="table">
                 <thead>
@@ -26,10 +26,15 @@
                     <td>
                       <ol> 
                         @for(configuration <- viewModel.configurations) {
-                          @defining(configuration.team_name + " | " + configuration.dataset){conf =>
-                            <a href = "configuration?conf=@configuration.configuration_id">
-                              <li>@conf</li>
-                            </a>
+                          @defining(configuration.team_name + " | " + configuration.dataset + " | " +
+                              configuration.task_variant + " | " + configuration.evaluator){conf =>
+                            <li>
+                              <a href = "configuration?conf=@configuration.configuration_id">
+                                Configuration @configuration.configuration_id
+                              </a>
+                              <div><b>@conf</b></div>
+                              <p>@configuration.description</p>
+                            </li>
                           }
                         } 
                       </ol>
@@ -37,16 +42,15 @@
                     </td>
                     <td>
                         <ul>
-                        <li><a href="/">Download our thin client!</a></li>
+                          <li><a href="/thinClient">Download our thin client!</a></li>
+                          <li><a href="/about">About Team</a></li>
                         </ul>
                     </td>
                   </tr>
                 </tbody>
               </table>
-              </div>
-            
+            </div>
             <br>
-            
         </div>
     </body>
 </html>
