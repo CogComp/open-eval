@@ -22,18 +22,21 @@ public class Core{
 		 * @param url - url of the server to send the instances through API calls to
 		 * @return - The evaluation on the solver result
 		 */
-		public static Evaluation startJob(String conf_id, String url) {
+		public static int startJob(String conf_id, String url) {
 			Configuration runConfig = getConfigurationFromDb(conf_id);
 			
 			Evaluator newEval = getEvaluator(runConfig.evaluator);
 			List<TextAnnotation> instances = getInstancesFromDb(runConfig.dataset);
 			
 			DummySolver solver = new DummySolver(url);
-			
+			int status = solver.testURL();
+			if(status != 200)
+				return status;
 			Job newJob = new Job(solver, instances, newEval);
 			newJob.sendAndReceiveRequestsFromSolver();
 			Evaluation eval = newJob.evaluateSolver();
-			return eval;
+			//TODO: Add new evaluation to database
+			return 200;
 		}
 		
 		/**

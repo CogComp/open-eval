@@ -40,9 +40,24 @@ public class DummySolver {
 	 */
 	public TextAnnotation processRequest(TextAnnotation textAnnotation) {
 		Promise<JsonNode> jsonPromise = sender.post(Json.toJson(textAnnotation)).map(response -> {
-											return response.asJson();
+											if(response.getStatus()==200)
+												return response.asJson();
+											else
+												return Json.parse(""+response.getStatus());
 										});
-		TextAnnotation result = Json.fromJson(jsonPromise.get(5000), TextAnnotation.class);
-		return result;
+		JsonNode result = jsonPromise.get(5000);
+		int error = result.asInt();
+		TextAnnotation ta;
+		if(error == 0)
+			ta = Json.fromJson(result, TextAnnotation.class);
+		else	
+			ta = null;
+		return ta;
+	}
+	
+	public int testURL(){
+		Promise<WSResponse> responsePromise = sender.get();
+		WSResponse response = responsePromise.get(5000);
+		return response.getStatus();
 	}
 }
