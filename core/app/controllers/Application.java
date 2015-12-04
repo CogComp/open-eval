@@ -20,13 +20,11 @@ public class Application extends Controller {
         List<models.Configuration> configurations = new ArrayList<>();
         
         FrontEndDatabase f = new FrontEndDatabase(); 
-        ArrayList<String[]> configList = f.getConfigList();
+        List<models.Configuration> configList = f.getConfigList();
     
         if (configList != null) {
             for (int i = 0; i < configList.size(); i++) {
-                String config[] = configList.get(i);
-                models.Configuration conf = new models.Configuration(config[0], config[1], config[2], config[3], config[4], config[5]);
-                configurations.add(conf);
+                configurations.add(configList.get(i));
             }
         }
         return configurations;
@@ -91,9 +89,7 @@ public class Application extends Controller {
 
         
         FrontEndDatabase f = new FrontEndDatabase(); 
-        String[] configInfo = f.getConfigInformation(Integer.parseInt(configuration_id)); 
-        //Check if null?
-        models.Configuration conf = new models.Configuration(configInfo[0], configInfo[1], configInfo[2], configInfo[3], configInfo[4], configInfo[5]);
+        models.Configuration conf = f.getConfigInformation(Integer.parseInt(configuration_id)); 
 
 
         List<Record> records = new ArrayList<>();

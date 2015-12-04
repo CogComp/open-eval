@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import play.*;
@@ -115,7 +116,7 @@ public class FrontEndDatabase {
     }
     
     /** Returns a list of all the configurations in the database to be displayed on landing page. */
-    public ArrayList<String[]> getConfigList() {
+    public List<models.Configuration> getConfigList() {
         try {
             try {
                 Class.forName(jdbcDriver);
@@ -130,10 +131,10 @@ public class FrontEndDatabase {
             ResultSet configList = insertStmt.executeQuery();
             
             //Return Configuration List as an ArrayList of Arrays. 
-            ArrayList<String[]> configs = new ArrayList<>();
+            List<models.Configuration> configs = new ArrayList<>();
             
             while (configList.next()) {
-                String config[] = {configList.getString(1), configList.getString(2), configList.getString(3), "We're displaying task variants?", configList.getString(4), Integer.toString(configList.getInt(5))};  
+                models.Configuration config = new models.Configuration(configList.getString(1), configList.getString(2), configList.getString(3), "We're displaying task variants?", configList.getString(4), Integer.toString(configList.getInt(5))); 
                 configs.add(config);
             }
         
@@ -146,7 +147,7 @@ public class FrontEndDatabase {
     }
     
     /** Returns all the information about a single configuration, to be used displayed on the configuration page. */
-    public String[] getConfigInformation(int id) {
+    public models.Configuration getConfigInformation(int id) {
         //id = 30; //Temporary id to be used for testing purposes.  
         try {
             try {
@@ -162,16 +163,11 @@ public class FrontEndDatabase {
             ResultSet configInfoList = insertStmt.executeQuery();
             configInfoList.next();
             
-            //Return List of information for configuration.
-            String configInfo[] = new String[6];
-            configInfo[0] = configInfoList.getString(1);
-            configInfo[1] = configInfoList.getString(2);
-            configInfo[2] = configInfoList.getString(3);
-            configInfo[3] = "task_variant_b";
-            configInfo[4] = configInfoList.getString(4);
-            configInfo[5] = Integer.toString(configInfoList.getInt(5)); 
+            //Return information about configuration.
+            models.Configuration config = new models.Configuration(configInfoList.getString(1), configInfoList.getString(2), configInfoList.getString(3),
+                "task_variant_b", configInfoList.getString(4), Integer.toString(configInfoList.getInt(5))); 
             connection.close(); 
-            return configInfo; 
+            return config; 
             
         } catch (SQLException e) {
             e.printStackTrace();
