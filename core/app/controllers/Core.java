@@ -25,11 +25,12 @@ public class Core{
 		public static int startJob(String conf_id, String url) {
 			Configuration runConfig = getConfigurationFromDb(conf_id);
 			
-			Evaluator newEval = getEvaluator(runConfig.evaluator);
-			List<TextAnnotation> instances = getInstancesFromDb(runConfig.dataset);
+			Evaluator newEval = getEvaluator(runConfig);
+			List<TextAnnotation> instances = getInstancesFromDb(runConfig);
 			
 			DummySolver solver = new DummySolver(url);
 			int status = solver.testURL();
+			System.out.println(status);
 			if(status != 200)
 				return status;
 			Job newJob = new Job(solver, instances, newEval);
@@ -55,7 +56,7 @@ public class Core{
 		 * @param dataset - database key for the dataset to use as test data
 		 * @return -  list of TextAnnotation instances from the database
 		 */
-		private static List<TextAnnotation> getInstancesFromDb(String dataset){
+		private static List<TextAnnotation> getInstancesFromDb(Configuration runConfig){
 			return null;
 		}
 		
@@ -65,7 +66,7 @@ public class Core{
 		 * @param evalType - Defines the type of evaluator the user needs
 		 * @return - Evaluator object to be used
 		 */
-		private static Evaluator getEvaluator(String evalType){
+		private static Evaluator getEvaluator(Configuration runConfig){
 			return null;
 		}
 }

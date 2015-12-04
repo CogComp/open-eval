@@ -30,7 +30,7 @@ public class DummySolver {
 	 * @param url - Url of the server to send instances to
 	 */
 	public DummySolver(String url) {
-		this.sender = ws.url(url);
+		this.sender = WS.url(url);
 	}
 
 	/**
@@ -56,8 +56,16 @@ public class DummySolver {
 	}
 	
 	public int testURL(){
-		Promise<WSResponse> responsePromise = sender.get();
-		WSResponse response = responsePromise.get(5000);
-		return response.getStatus();
+		int status=200; 
+		try{
+			Promise<WSResponse> responsePromise = sender.get();
+			WSResponse response = responsePromise.get(5000);
+			status = response.getStatus();
+		}	
+		catch(Exception e){
+			status = 404;
+			System.out.println(e);
+		}
+		return status;
 	}
 }

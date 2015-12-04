@@ -9,3 +9,4 @@
 *.class
 project/project/target/*
 target/.history
+target/
