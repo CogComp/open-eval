@@ -47,15 +47,23 @@ public class Application extends Controller {
         datasets.add("dataset B");
         datasets.add("dataset C");
 
-        List<String> task_variants = new ArrayList<>();
-        task_variants.add("task_variant A");
-        task_variants.add("task_variant B");
-        task_variants.add("task_variant C");
+        Map<String, List<String>> task_variants = new HashMap<>();
+        Map<String, List<String>> evaluators = new HashMap<>();
 
-        List<String> evaluators = new ArrayList<>();
-        evaluators.add("evaluator A");
-        evaluators.add("evaluator B");
-        evaluators.add("evaluator C");
+        for (int i = 65; i < 65+3; i++) {
+            List<String> task_variants_i = new ArrayList<>();
+            task_variants_i.add("task_variant A" + (char) i);
+            task_variants_i.add("task_variant B" + (char) i);
+            task_variants_i.add("task_variant C" + (char) i);
+            task_variants.put("dataset "+(char) i, task_variants_i);
+
+            List<String> evaluator_i = new ArrayList<>();
+            evaluator_i.add("evaluator A" + (char) i);
+            evaluator_i.add("evaluator B" + (char) i);
+            evaluator_i.add("evaluator C" + (char) i);
+            for (int j = 65; j < 65+3; j++) 
+                evaluators.put("task_variant "+(char)i+(char)j, evaluator_i);
+        }
 
         viewModel.datasets = datasets;
         viewModel.task_variants = task_variants;
