@@ -33,9 +33,9 @@ lazy val learner = (project in file("learner")).
   settings(
     name := "learner",
     libraryDependencies ++= Seq(
-      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.0",
+      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.8",
       "com.nanohttpd" % "nanohttpd-webserver" % "2.1.1",
       "org.mockito" % "mockito-core" % "1.10.19",
-      javaWs
+      "org.apache.httpcomponents" % "httpclient" % "4.5.1"
     )
   )

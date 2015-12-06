@@ -1,44 +1,52 @@
-/**
- * Created by rnkelch on 11/7/2015.
- */
-
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 import fi.iki.elonen.NanoHTTPD;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Server extends NanoHTTPD {
 
     private TextAnnotator textAnnotator;
-    StreamReader streamReader;
 
-    public Server(int port, TextAnnotator textAnnotator, StreamReader streamReader) throws IOException {
+    public Server(int port, TextAnnotator textAnnotator) throws IOException {
         super(port);
         this.textAnnotator = textAnnotator;
-        this.streamReader = streamReader;
     }
 
     @Override
     public Response serve(IHTTPSession session){
+        Map<String, String> files = new HashMap<String, String>();
         Method httpMethod = session.getMethod();
         if (httpMethod.equals(Method.POST)) {
-
             String json;
             try {
-                json = streamReader.readAll(session.getInputStream());
+                session.parseBody(files);
             } catch (IOException ex) {
-                ex.printStackTrace(System.err);
-                Response errorResponse = new Response("Error reading request");
-                errorResponse.setStatus(Response.Status.INTERNAL_ERROR);
+                Response errorResponse = generateErrorResonse(ex, "Error reading request");
+                return errorResponse;
+            } catch (ResponseException e)
+            {
+                Response errorResponse = generateErrorResonse(e,"Error reading request");
                 return errorResponse;
             }
+            json = files.get("postData");
 
-            TextAnnotation partial = TextAnnotationSerializer.deserialize(json);
+            TextAnnotation partial = null;
+            try
+            {
+                partial = SerializationHelper.deserializeFromJson(json);
+            } catch (Exception e)
+            {
+                Response errorResponse = generateErrorResonse(e, "Error parsing text annotation");
+                return errorResponse;
+            }
             TextAnnotatorResult textAnnotatorResult = textAnnotator.run(partial);
 
             if (textAnnotatorResult.successful){
-                String resultJson = TextAnnotationSerializer.serialize(textAnnotatorResult.textAnnotation);
-                return new Response(resultJson);
+                String jsonResult = SerializationHelper.serializeToJson(textAnnotatorResult.textAnnotation);
+                return new Response(jsonResult);
             } else {
                 Response errorResponse = new Response(textAnnotatorResult.errorMessage);
                 errorResponse.setStatus(Response.Status.INTERNAL_ERROR);
@@ -50,5 +58,13 @@ public class Server extends NanoHTTPD {
             badRequestResponse.setStatus(Response.Status.METHOD_NOT_ALLOWED);
             return badRequestResponse;
         }
+    }
+
+    private Response generateErrorResonse(Exception e, String msg)
+    {
+        e.printStackTrace(System.err);
+        Response errorResponse = new Response(msg);
+        errorResponse.setStatus(Response.Status.INTERNAL_ERROR);
+        return errorResponse;
     }
 }
