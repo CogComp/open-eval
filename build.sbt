@@ -9,7 +9,8 @@ lazy val commonSettings = Seq(
   resolvers ++= Seq(
     Resolver.mavenLocal,
     "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
-  )
+  ), 
+  javaOptions += "-Xmx1G"
 )
 
 lazy val core = (project in file("core")).
