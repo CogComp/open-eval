@@ -10,6 +10,8 @@ import java.util.*;
 
 import models.*;
 
+import controllers.evaluators.Evaluation;
+
 public class Application extends Controller {
 
     private List<models.Configuration> getConfigurations() {
@@ -110,10 +112,14 @@ public class Application extends Controller {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
 
         String configuration_id = bindedForm.get("configuration_id");
+		String url = bindedForm.get("url");
         // Run + Save run to db here
         // System.out.println(bindedForm.get("url"));
-
-        return redirect("/configuration?conf="+configuration_id);
+		int status = Core.startJob(configuration_id, url);
+		if(status == 200)
+			return redirect("/configuration?conf="+configuration_id);
+		else
+			return status(status);
     }
 
     public Result record(String record_id) {
