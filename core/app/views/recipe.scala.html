@@ -1,6 +1,5 @@
 @(viewModel: models.RecipeViewModel )
 
-
 <!DOCTYPE html>
 
 <html lang="en">
@@ -11,7 +10,47 @@
         <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))">
     </head>
     <body class="body">
-        <h1>Open-Eval</h1>
-        <h2>@viewModel.dataset : @viewModel.solver</h2>
+        <h1><a href="/">Open-Eval</a></h1>
+        <p>
+          @defining(viewModel.configuration){conf =>
+            @conf.description
+          }
+        </p>
+        <p>
+          @viewModel.history
+        </p>
+        <a href = "/addRun?conf=@viewModel.configuration.configuration_id" class="btn btn-default">
+          New run of configuration
+        </a>
+        <div style="display:none">
+        <h1 width="400px" height="400px">
+        GRAPH
+        </h1></div>
+        @for(record <- viewModel.configuration.records) {
+          <hr>
+          <a href = "record?record_id=@record.record_id">
+            Record: @record.record_id
+          </a>
+          <span class="score">@record.score</span>
+          <div>
+            <p> 
+              @record.date | @record.author | <a href="@record.repo">code link</a>
+            </p>
+          </div>
+          <p>@record.comment</p>
+        }
     </body>
+    <script type="text/javascript">
+      (function() {
+        var scores = document.getElementsByClassName("score");
+        for (var i = 0; i < scores.length; i++) {
+          var score = scores[i];
+          var value = +score.innerHTML;
+          var red = 200 - (value * 0.01 * 200);
+          var green = value * 0.01 * 200;
+          score.style.color = "#" + Math.round(red+20).toString(16)+Math.round(green+20).toString(16)+"33";
+          score.style.marginLeft = "2%";
+        };
+      })();
+    </script>
 </html>

@@ -1,4 +1,4 @@
-@(datasets: List[String] )
+@(viewModel: models.IndexViewModel )
 
 
 <!DOCTYPE html>
@@ -10,13 +10,47 @@
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
         <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))">
     </head>
-    <body class="body">
-        <h1>Open-Eval</h1>
-        <h2>Datasets</h2>
-        <ul> 
-          @for(dataset <- datasets) {
-            <a href = "dataset?ds=@dataset"><li>@dataset</li></a>
-          } 
-        </ul>
+    <body>
+        <div class="body">
+            <h1><a href="/">Open-Eval</a></h1>
+            <div class="table-responsive">          
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th class="col-md-8">Configurations</th>
+                    <th class="col-md-4">Faqs</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <ol> 
+                        @for(configuration <- viewModel.configurations) {
+                          @defining(configuration.team_name + " | " + configuration.dataset + " | " +
+                              configuration.task_variant + " | " + configuration.evaluator){conf =>
+                            <li>
+                              <a href = "configuration?conf=@configuration.configuration_id">
+                                Configuration @configuration.configuration_id
+                              </a>
+                              <div><b>@conf</b></div>
+                              <p>@configuration.description</p>
+                            </li>
+                          }
+                        } 
+                      </ol>
+                      <a href = "/addConfiguration" class="btn btn-default">Add configuration</a>
+                    </td>
+                    <td>
+                        <ul>
+                          <li><a href="/thinClient">Download our thin client!</a></li>
+                          <li><a href="/about">About Team</a></li>
+                        </ul>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <br>
+        </div>
     </body>
 </html>

@@ -23,7 +23,7 @@ import java.util.List;
  	private DummySolver solver;
 
 	/** A list of evaluators, used to evaluate solver using an evaluation metric specified in the implementing class. */
- 	private List<Evaluator> evaluator;
+ 	private Evaluator evaluator;
 
 	/** Evaluation containing the evaluation returned by the evaluator. */
  	private Evaluation evaluation;
@@ -37,11 +37,11 @@ import java.util.List;
  	/** List of `TextAnnotation` instances returned by the solver */
  	private List<TextAnnotation> solverInstances;
 
- 	public Job(DummySolver solver, List<TextAnnotation> correctInstances, List<Evaluator> evaluator, Domain domain) {
+ 	public Job(DummySolver solver, List<TextAnnotation> correctInstances, Evaluator evaluator) {
  		this.solver = solver;
  		this.correctInstances = correctInstances;
  		this.evaluator = evaluator;
-		this.domain = domain;
+		this.domain = Domain.TOY;
 		this.populateCleanedAnnotations();
  	}
 
@@ -57,8 +57,10 @@ import java.util.List;
  	 *	Runs the specified evaluator on the instances returned from the solver and stores
  	 *  the results in an Evaluation object.
  	 */
- 	public void evaluateSolver() {
+ 	public Evaluation evaluateSolver() {
  		//this.evaluation = evaluator.evaluate(correctInstances, solverInstances);
+		return evaluation;
+
  	}
 
 	/** Based on the domain type, prepares cleaned instances ready to be sent to a solver */
@@ -67,17 +69,17 @@ import java.util.List;
 		switch (this.domain)
 		{
 			/*
-			case BINARY_CLASSIFICATION:
+			case Domain.BINARY_CLASSIFICATION:
 				// TODO
 				break;
-			case MULTICLASS_CLASSIFICATION:
+			case Domain.MULTICLASS_CLASSIFICATION:
 				// TODO
 				break;
-			case CLUSTERING:
+			case Domain.CLUSTERING:
 				// TODO
 				break;
 			*/
-			case TOY:
+			//case Domain.TOY:
 			default:
 				cleanser = new DummyCleanser();
 				System.out.println("Warning: unknown domain!");

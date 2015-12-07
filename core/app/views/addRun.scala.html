@@ -1,0 +1,63 @@
+@(viewModel: models.AddRunViewModel )
+
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <title>Open-eval</title>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+        <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))">
+    </head>
+    <body>
+        <div class="body">
+            <h1><a href="/">Open-Eval</a></h1>
+            <font color="red">@viewModel.error_message</font>
+            <form action="submitRun" method="post" id="usrform">
+              <table class="table" style="width: 40%;">
+                <thead>
+                  <tr>
+                    <th class="col-md-2"></th>
+                    <th class="col-md-2"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      URL<font color="red">*</font>:
+                    </td>
+                    <td>
+                       <input type="text" name="url" value="@viewModel.default_url">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Author<font color="red">*</font>:
+                    </td>
+                    <td>
+                       <input type="text" name="author" value="@viewModel.default_author">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Code repo link:
+                    </td>
+                    <td>
+                       <input type="text" name="repo" value="@viewModel.default_repo">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Comment:
+                    </td>
+                    <td>
+                       <textarea name="comment" form="usrform">@viewModel.default_comment</textarea>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <input type="submit" value="Run">
+            </form>
+        </div>
+    </body>
+</html>
