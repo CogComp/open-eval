@@ -12,7 +12,9 @@ GET        /assets/*file         controllers.Assets.versioned(path="/public", fi
 GET        /webjars/*file        controllers.WebJarAssets.at(file)
 
 # for a specific configuration
-GET        /configuration              controllers.Application.configuration(conf: String)
+GET        /configuration        controllers.Application.configuration(conf: String)
+
+GET        /record               controllers.Application.record(record_id: String)
 
 # Add configuration
 GET        /addConfiguration     controllers.Application.addConfiguration()
@@ -23,3 +25,8 @@ POST       /submitConfiguration  controllers.Application.submitConfiguration()
 GET        /addRun               controllers.Application.addRun(conf: String)
 
 POST       /submitRun            controllers.Application.submitRun()
+
+# FAQs
+GET        /thinClient           controllers.Application.thinClient()
+
+GET        /about                controllers.Application.about()
