@@ -54,8 +54,6 @@ public class ServerTest {
         verify(annotator).run(any());
         String body = IOUtils.toString(response.getData());
         assertEquals("Error",body);
-        System.out.println("Test");
-        assertEquals(1,0);
     }
 
     @Test
