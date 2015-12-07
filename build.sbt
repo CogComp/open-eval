@@ -36,6 +36,8 @@ lazy val learner = (project in file("learner")).
       "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.8",
       "com.nanohttpd" % "nanohttpd-webserver" % "2.1.1",
       "org.mockito" % "mockito-core" % "1.10.19",
-      "org.apache.httpcomponents" % "httpclient" % "4.5.1"
-    )
+      "org.apache.httpcomponents" % "httpclient" % "4.5.1",
+      "com.novocode" % "junit-interface" % "0.11" % "test"
+    ),
+    testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
   )
