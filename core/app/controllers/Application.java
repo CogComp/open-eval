@@ -10,27 +10,29 @@ import java.util.*;
 
 import models.*;
 
-
-import play.Logger;
-
 import controllers.evaluators.Evaluation;
 
 public class Application extends Controller {
 
     private List<models.Configuration> getConfigurations() {
         List<models.Configuration> configurations = new ArrayList<>();
-        
-        FrontEndDatabase f = new FrontEndDatabase(); 
-		
-        List<models.Configuration> configList = f.getConfigList();
-    
-        if (configList != null) {
-            for (int i = 0; i < configList.size(); i++) {
-                configurations.add(configList.get(i));
-            }
-        }
-		
-        return configList;
+        models.Configuration conf1 = new models.Configuration(
+            "Team A", "Description for first configuration", "dataset 1", "task_variant_a", "evaluator_a"
+        );
+        models.Configuration conf2 = new models.Configuration(
+            "Team B", "Description for second configuration", "dataset 2", "task_variant_b", "evaluator_b"
+        );
+        models.Configuration conf3 = new models.Configuration(
+            "Team C", "Description for second configuration", "dataset 3", "task_variant_c", "evaluator_c"
+        );
+        models.Configuration conf4 = new models.Configuration(
+            "Team D", "Description for fourth configuration", "dataset 4", "task_variant_d", "evaluator_d"
+        );
+        configurations.add(conf1);
+        configurations.add(conf2);
+        configurations.add(conf3);
+        configurations.add(conf4);
+        return configurations;
     }
 
     public Result index() {
@@ -66,35 +68,19 @@ public class Application extends Controller {
 
     public Result submitConfiguration() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
-        FrontEndDatabase f = new FrontEndDatabase(); 
 
-        String json = "{"
-            + "\"configuration\" : {"
-            + "\"datasetName\": \"" + bindedForm.get("dataset") + "\","
-            + "\"teamName\" : \"" + bindedForm.get("teamname")+ "\","
-            + "\"description\" : \"" + bindedForm.get("description")+ "\","
-            + "\"evaluator\" : \"" + bindedForm.get("evaluator")+ "\","
-            + "\"taskType\" : \"Text Annotation\""
-            + "},"
-            + "\"taskVariants\" : ["
-            + "\"tskVar1\","
-            + "\"tskVar2\","
-            + "\"tskVar3\""
-            + "]"
-            + "}";
-        f.storeConfig(json);
+        // Save config to db here
+        // System.out.println(bindedForm.get("dataset"));
 
         return redirect("/");
     }
 
     public Result configuration(String configuration_id) {
         RecipeViewModel viewModel = new RecipeViewModel();
-
-        
-        FrontEndDatabase f = new FrontEndDatabase(); 
-        models.Configuration conf = f.getConfigInformation(Integer.parseInt(configuration_id)); 
-
-
+        // get configuration from db using configuration_id = conf
+        models.Configuration conf = new models.Configuration(
+            "Team B", "Description for second configuration", "dataset 2", "task_variant_b", "evaluator_b"
+        );
         List<Record> records = new ArrayList<>();
         records.add(new Record("date", "comment", "repo", "author",95.1));
         records.add(new Record("date2", "comment", "repo", "author",36.1));
