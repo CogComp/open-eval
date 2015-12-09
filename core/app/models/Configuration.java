@@ -20,15 +20,14 @@ public class Configuration {
 
     public String configuration_id;
 
-    private static long counter = 0;;
 
-    public Configuration(String team_name, String description, String dataset, String task_variant, String evaluator) {
+    public Configuration(String team_name, String description, String dataset, String task_variant, String evaluator, String configuration_id) {
         this.team_name = team_name;
         this.description = description;
         this.dataset = dataset;
         this.task_variant = task_variant;
         this.evaluator = evaluator;
-        this.configuration_id = "" + (counter++);
+        this.configuration_id = configuration_id;
     }
 
 }
