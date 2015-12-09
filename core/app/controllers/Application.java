@@ -72,6 +72,13 @@ public class Application extends Controller {
         return ok(addConfiguration.render(viewModel));
     }
 
+    public Result deleteConfiguration() {
+        // should delete stuff :S
+        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+        System.out.println(bindedForm.get("conf"));
+        return redirect("/");
+    }
+
     public Result submitConfiguration() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
 
