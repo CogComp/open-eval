@@ -20,6 +20,7 @@ public class Application extends Controller {
         List<models.Configuration> configurations = new ArrayList<>();
         
         FrontEndDatabase f = new FrontEndDatabase(); 
+		
         List<models.Configuration> configList = f.getConfigList();
     
         if (configList != null) {
@@ -27,7 +28,8 @@ public class Application extends Controller {
                 configurations.add(configList.get(i));
             }
         }
-        return configurations;
+		
+        return configList;
     }
 
     public Result index() {
