@@ -7,9 +7,6 @@ import fi.iki.elonen.router.RouterNanoHTTPD;
 
 import java.util.Map;
 
-/**
- * Created by rnkelch on 12/12/2015.
- */
 public class InfoController implements RouterNanoHTTPD.UriResponder
 {
     @Override
@@ -30,24 +27,24 @@ public class InfoController implements RouterNanoHTTPD.UriResponder
     @Override
     public NanoHTTPD.Response put(RouterNanoHTTPD.UriResource uriResource, Map<String, String> map, NanoHTTPD.IHTTPSession ihttpSession)
     {
-        return Server.generateMethodNotAllowedResponse();
+        return ResponseGenerator.generateMethodNotAllowedResponse();
     }
 
     @Override
     public NanoHTTPD.Response post(RouterNanoHTTPD.UriResource uriResource, Map<String, String> map, NanoHTTPD.IHTTPSession ihttpSession)
     {
-        return Server.generateMethodNotAllowedResponse();
+        return ResponseGenerator.generateMethodNotAllowedResponse();
     }
 
     @Override
     public NanoHTTPD.Response delete(RouterNanoHTTPD.UriResource uriResource, Map<String, String> map, NanoHTTPD.IHTTPSession ihttpSession)
     {
-        return Server.generateMethodNotAllowedResponse();
+        return ResponseGenerator.generateMethodNotAllowedResponse();
     }
 
     @Override
     public NanoHTTPD.Response other(String s, RouterNanoHTTPD.UriResource uriResource, Map<String, String> map, NanoHTTPD.IHTTPSession ihttpSession)
     {
-        return Server.generateMethodNotAllowedResponse();
+        return ResponseGenerator.generateMethodNotAllowedResponse();
     }
 }

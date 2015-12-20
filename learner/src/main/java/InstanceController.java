@@ -21,33 +21,21 @@ public class InstanceController implements RouterNanoHTTPD.UriResponder
         try {
             session.parseBody(files);
         } catch (IOException ex) {
-            Response errorResponse = generateErrorResponse(ex, "Error reading request");
+            Response errorResponse = ResponseGenerator.generateErrorResponse(ex, "Error reading request");
             return errorResponse;
         } catch (NanoHTTPD.ResponseException e)
         {
-            Response errorResponse = generateErrorResponse(e,"Error reading request");
+            Response errorResponse = ResponseGenerator.generateErrorResponse(e,"Error reading request");
             return errorResponse;
         }
         json = files.get("postData");
         ResultStruct result = this.getInstance(annotator,json);
         if (result.error){
-            return generateResponse(result.errorText, Response.Status.INTERNAL_ERROR);
+            return ResponseGenerator.generateResponse(result.errorText, Response.Status.INTERNAL_ERROR);
         }
         else {
             return NanoHTTPD.newFixedLengthResponse(result.result);
         }
-    }
-
-    private Response generateErrorResponse(Exception e, String msg)
-    {
-        e.printStackTrace(System.err);
-        Response errorResponse = generateResponse(msg, Response.Status.INTERNAL_ERROR);
-        return errorResponse;
-    }
-
-    private Response generateResponse(String body, Response.Status status){
-        Response response = NanoHTTPD.newFixedLengthResponse(status,"text/html",body);
-        return response;
     }
 
     public ResultStruct getInstance(Annotator annotator, String body){
@@ -76,24 +64,24 @@ public class InstanceController implements RouterNanoHTTPD.UriResponder
     @Override
     public Response get(RouterNanoHTTPD.UriResource uriResource, Map<String, String> map, NanoHTTPD.IHTTPSession ihttpSession)
     {
-        return Server.generateMethodNotAllowedResponse();
+        return ResponseGenerator.generateMethodNotAllowedResponse();
     }
 
     @Override
     public Response put(RouterNanoHTTPD.UriResource uriResource, Map<String, String> map, NanoHTTPD.IHTTPSession ihttpSession)
     {
-        return Server.generateMethodNotAllowedResponse();
+        return ResponseGenerator.generateMethodNotAllowedResponse();
     }
 
     @Override
     public Response delete(RouterNanoHTTPD.UriResource uriResource, Map<String, String> map, NanoHTTPD.IHTTPSession ihttpSession)
     {
-        return Server.generateMethodNotAllowedResponse();
+        return ResponseGenerator.generateMethodNotAllowedResponse();
     }
 
     @Override
     public Response other(String s, RouterNanoHTTPD.UriResource uriResource, Map<String, String> map, NanoHTTPD.IHTTPSession ihttpSession)
     {
-        return Server.generateMethodNotAllowedResponse();
+        return ResponseGenerator.generateMethodNotAllowedResponse();
     }
 }
