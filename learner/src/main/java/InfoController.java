@@ -1,7 +1,7 @@
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import edu.illinois.cs.cogcomp.annotation.Annotator;
-import edu.illinois.cs.cogcomp.core.utilities.JsonSerializer;
-import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.router.RouterNanoHTTPD;
 

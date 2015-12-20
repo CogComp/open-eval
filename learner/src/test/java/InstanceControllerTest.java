@@ -2,8 +2,6 @@ import edu.illinois.cs.cogcomp.annotation.Annotator;
 import edu.illinois.cs.cogcomp.annotation.AnnotatorException;
 import edu.illinois.cs.cogcomp.annotation.BasicTextAnnotationBuilder;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
-import edu.illinois.cs.cogcomp.core.utilities.JsonSerializer;
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.router.RouterNanoHTTPD;
@@ -16,12 +14,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
-/**
- * Created by rnkelch on 12/20/2015.
- */
 public class InstanceControllerTest
 {
 

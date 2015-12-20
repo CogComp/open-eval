@@ -1,10 +1,7 @@
 import edu.illinois.cs.cogcomp.annotation.Annotator;
-import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.router.RouterNanoHTTPD;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Server extends RouterNanoHTTPD
 {
