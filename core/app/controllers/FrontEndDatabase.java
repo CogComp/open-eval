@@ -134,7 +134,7 @@ public class FrontEndDatabase {
             List<models.Configuration> configs = new ArrayList<>();
             
             while (configList.next()) {
-                models.Configuration config = new models.Configuration(configList.getString(1), configList.getString(2), configList.getString(3), "We're displaying task variants?", configList.getString(4), Integer.toString(configList.getInt(5))); 
+                models.Configuration config = new models.Configuration(configList.getString(1), configList.getString(2), configList.getString(3), "We're displaying task variants?", configList.getString(4)); 
                 configs.add(config);
             }
         
@@ -165,7 +165,7 @@ public class FrontEndDatabase {
             
             //Return information about configuration.
             models.Configuration config = new models.Configuration(configInfoList.getString(1), configInfoList.getString(2), configInfoList.getString(3),
-                "task_variant_b", configInfoList.getString(4), Integer.toString(configInfoList.getInt(5))); 
+                "task_variant_b", configInfoList.getString(4)); 
             connection.close(); 
             return config; 
             
