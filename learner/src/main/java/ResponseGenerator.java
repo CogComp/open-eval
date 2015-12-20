@@ -24,5 +24,4 @@ public class ResponseGenerator
         NanoHTTPD.Response response = NanoHTTPD.newFixedLengthResponse(status,"text/html",body);
         return response;
     }
-
 }

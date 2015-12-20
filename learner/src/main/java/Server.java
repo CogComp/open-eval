@@ -28,4 +28,8 @@ public class Server extends RouterNanoHTTPD
         addRoute(INFO_ROUTE,InfoController.class,annotator);
     }
 
+    public Annotator getAnnotator() {
+        return annotator;
+    }
+
 }

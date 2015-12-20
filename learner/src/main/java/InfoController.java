@@ -18,9 +18,9 @@ public class InfoController implements RouterNanoHTTPD.UriResponder
         for(String view:requiredViews){
             jViews.add(new JsonPrimitive(view));
         }
-        JsonObject jobject = new JsonObject();
-        jobject.add("requiredViews", jViews);
-        String json = jobject.toString();
+        JsonObject jObject = new JsonObject();
+        jObject.add("requiredViews", jViews);
+        String json = jObject.toString();
         return NanoHTTPD.newFixedLengthResponse(json);
     }
 
