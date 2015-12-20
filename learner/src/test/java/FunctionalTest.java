@@ -12,6 +12,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.SystemDefaultCredentialsProvider;
 import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -55,34 +56,21 @@ public class FunctionalTest
         goldTextAnnotation.removeView(ViewNames.POS);
         String json = SerializationHelper.serializeToJson(goldTextAnnotation);
 
+        System.out.println("Request: " + json);
+
         HttpEntity body = EntityBuilder.create().setText(json).build();
         HttpClient client = HttpClients.createDefault();
-        HttpPost post = new HttpPost("http://localhost:5757/");
+        HttpPost post = new HttpPost("http://localhost:5757/instance");
         post.setEntity(body);
         HttpResponse response = client.execute(post);
         String responseBody = EntityUtils.toString(response.getEntity());
+
+        System.out.println("Response: " + responseBody);
 
         TextAnnotation learnerResult = SerializationHelper.deserializeFromJson(responseBody);
         goldTextAnnotation.addView(ViewNames.POS,goldPosView);
 
         assertEquals(goldTextAnnotation,learnerResult);
         assertEquals(200,response.getStatusLine().getStatusCode());
-    }
-
-    public class ToyPosAnnotator implements TextAnnotator{
-
-        @Override
-        public TextAnnotatorResult run(TextAnnotation partial)
-        {
-            String[] tokens = partial.getTokens();
-            String[] tags = {"DT","NN","IN","DT","NN","VBD","IN","NN","."};
-            View posView = new View(ViewNames.POS,"POS-annotator",partial,1.0);
-            partial.addView(ViewNames.POS,posView);
-            for(int i=0;i<tokens.length;i++){
-                posView.addConstituent(new Constituent(tags[i],ViewNames.POS,partial,i,i+1));
-            }
-            TextAnnotatorResult result = new TextAnnotatorResult(partial,true,null);
-            return result;
-        }
     }
 }
