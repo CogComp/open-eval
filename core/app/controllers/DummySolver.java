@@ -1,6 +1,7 @@
 package controllers;
 
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 import java.util.*;
 
 import javax.inject.Inject;
@@ -39,19 +40,12 @@ public class DummySolver {
 	 * @return The solved TextAnnotation instance retrieved from the solver
 	 */
 	public TextAnnotation processRequest(TextAnnotation textAnnotation) {
-		Promise<JsonNode> jsonPromise = sender.post(Json.toJson(textAnnotation)).map(response -> {
-											if(response.getStatus()==200)
-												return response.asJson();
-											else
-												return Json.parse(""+response.getStatus());
+		String taJson = SerializationHelper.serializeToJson(textAnnotation);
+		Promise<String> jsonPromise = sender.post(taJson).map(response -> {
+											return response.getBody();
 										});
-		JsonNode result = jsonPromise.get(5000);
-		int error = result.asInt();
-		TextAnnotation ta;
-		if(error == 0)
-			ta = Json.fromJson(result, TextAnnotation.class);
-		else	
-			ta = null;
+		String result = jsonPromise.get(5000);
+		TextAnnotation ta = SerializationHelper.deserializeFromJson(result);
 		return ta;
 	}
 	
