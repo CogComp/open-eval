@@ -5,6 +5,8 @@ import controllers.cleansers.Cleanser;
 import controllers.evaluators.Evaluation;
 import controllers.evaluators.Evaluator;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
+import play.libs.ws.WSResponse;
 
 import java.util.List;
 
@@ -37,7 +39,7 @@ import java.util.List;
  	/** List of `TextAnnotation` instances returned by the solver */
  	private List<TextAnnotation> solverInstances;
 
- 	public Job(DummySolver solver, List<TextAnnotation> correctInstances, Evaluator evaluator) {
+ 	public Job(DummySolver solver, List<TextAnnotation> correctInstances, Evaluator evaluator, String jsonInfo) {
  		this.solver = solver;
  		this.correctInstances = correctInstances;
  		this.evaluator = evaluator;
@@ -46,11 +48,22 @@ import java.util.List;
  	}
 
  	/** Sends all unprocessed instances to the solver and receives the results. */
- 	public void sendAndReceiveRequestsFromSolver() {
+ 	public WSResponse sendAndReceiveRequestsFromSolver() {
+		WSResponse response = null;
+		String resultJson;
+		TextAnnotation processedInstance;
  		for (TextAnnotation ta : unprocessedInstances) {
- 			TextAnnotation processedInstance = solver.processRequest(ta);
+ 			response = solver.processRequest(ta);
+			try{
+				resultJson = response.getBody();
+				processedInstance = SerializationHelper.deserializeFromJson(resultJson);
+			}
+			catch(Exception e){
+				break;
+			}
  			solverInstances.add(processedInstance);
  		}
+		return response;
  	}
  	
  	/**

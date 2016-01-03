@@ -15,14 +15,16 @@ import play.libs.F.Promise;
 
 public class DummySolver {
 	
-	WSRequest sender;
+	WSRequest info;
+	WSRequest instance;
 	
 	/**
 	 * Constructor. Initiates WSRequest object to send Http requests
 	 * @param url - Url of the server to send instances to
 	 */
 	public DummySolver(String url) {
-		this.sender = WS.url(url);
+		this.info = WS.url(url+"/info");
+		this.instance = WS.url(url+"/instance");
 	}
 
 	/**
@@ -30,30 +32,23 @@ public class DummySolver {
 	 * @param textAnnotation - The unsolved instance to send to the solver
 	 * @return The solved TextAnnotation instance retrieved from the solver
 	 */
-	public TextAnnotation processRequest(TextAnnotation textAnnotation) {
+	public WSResponse processRequest(TextAnnotation textAnnotation) {
 		String taJson = SerializationHelper.serializeToJson(textAnnotation);
-		Promise<String> jsonPromise = sender.post(taJson).map(WSResponse::getBody);
-		String result = jsonPromise.get(5000);
-        TextAnnotation ta;
-        try {
-            ta = SerializationHelper.deserializeFromJson(result);
-        }
-        catch(Exception e){
-            ta = null;
-        }
-		return ta;
+		Promise<WSResponse> jsonPromise = instance.post(taJson);
+
+		return jsonPromise.get(5000);
 	}
 	
-	public int testURL(){
-		int status;
+	public String getInfo(){
+		String jsonInfo;
 		try{
-			Promise<WSResponse> responsePromise = sender.get();
+			Promise<WSResponse> responsePromise = info.get();
 			WSResponse response = responsePromise.get(5000);
-			status = response.getStatus();
+			jsonInfo = response.getBody();
 		}	
 		catch(Exception e){
-			status = 404;
+			jsonInfo = "err";
 		}
-		return status;
+		return jsonInfo;
 	}
 }

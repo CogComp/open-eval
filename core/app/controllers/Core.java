@@ -1,6 +1,7 @@
 package controllers;
 
 import play.*;
+import play.libs.ws.WSResponse;
 import play.mvc.*;
 import play.mvc.Http.*;
 
@@ -22,22 +23,22 @@ public class Core{
 		 * @param url - url of the server to send the instances through API calls to
 		 * @return - The evaluation on the solver result
 		 */
-		public static int startJob(String conf_id, String url) {
+		public static WSResponse startJob(String conf_id, String url) {
 			Configuration runConfig = getConfigurationFromDb(conf_id);
 			
 			Evaluator newEval = getEvaluator(runConfig);
 			List<TextAnnotation> instances = getInstancesFromDb(runConfig);
 			
 			DummySolver solver = new DummySolver(url);
-			int status = solver.testURL();
-			System.out.println(status);
-			if(status != 200)
-				return status;
-			Job newJob = new Job(solver, instances, newEval);
-			newJob.sendAndReceiveRequestsFromSolver();
+			String jsonInfo = solver.getInfo();
+			System.out.println(jsonInfo);
+			if(jsonInfo.equals("err"))
+				return null;
+			Job newJob = new Job(solver, instances, newEval, jsonInfo);
+			WSResponse solverResponse = newJob.sendAndReceiveRequestsFromSolver();
 			Evaluation eval = newJob.evaluateSolver();
 			//TODO: Add new evaluation to database
-			return 200;
+			return solverResponse;
 		}
 		
 		/**
@@ -53,7 +54,7 @@ public class Core{
 		/**
 		 * UNIMPLEMENTED 
 		 * Retrieve a stored dataset from the database
-		 * @param dataset - database key for the dataset to use as test data
+		 * @param runConfig - database key for the dataset to use as test data
 		 * @return -  list of TextAnnotation instances from the database
 		 */
 		private static List<TextAnnotation> getInstancesFromDb(Configuration runConfig){
@@ -63,7 +64,7 @@ public class Core{
 		/**
 		 * UNIMPLEMENTED
 		 * Create a new Evaluator to be used on the solved instances
-		 * @param evalType - Defines the type of evaluator the user needs
+		 * @param runConfig - Defines the type of evaluator the user needs
 		 * @return - Evaluator object to be used
 		 */
 		private static Evaluator getEvaluator(Configuration runConfig){
