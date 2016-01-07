@@ -69,7 +69,7 @@ public class CoreLearnerTest
 
                 goldTextAnnotation.addView(ViewNames.POS,goldPosView);
 
-                assertEquals(goldTextAnnotation,newJob.getSolverInstance(0));
+                assertEquals(goldTextAnnotation,newJob.getSolverInstances().get(0));
                 assertEquals(200,response.getStatus());
             }
         });

@@ -36,7 +36,7 @@ public class LearnerInterface {
 		String taJson = SerializationHelper.serializeToJson(textAnnotation);
 		Promise<WSResponse> jsonPromise = instancePoster.post(taJson);
 
-		return jsonPromise.get(5000);
+		return jsonPromise.get(50000);
 	}
 	
 	public String getInfo(){
