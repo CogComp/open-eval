@@ -1,4 +1,4 @@
-package controllers;
+package models;
 
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 
@@ -13,18 +13,18 @@ import play.libs.F.Promise;
  * @author Joshua Camp
  */
 
-public class DummySolver {
+public class LearnerInterface {
 	
-	WSRequest info;
-	WSRequest instance;
+	WSRequest infoPoster;
+	WSRequest instancePoster;
 	
 	/**
 	 * Constructor. Initiates WSRequest object to send Http requests
 	 * @param url - Url of the server to send instances to
 	 */
-	public DummySolver(String url) {
-		this.info = WS.url(url+"/info");
-		this.instance = WS.url(url+"/instance");
+	public LearnerInterface(String url) {
+		this.infoPoster = WS.url(url+"info");
+		this.instancePoster = WS.url(url+"instance");
 	}
 
 	/**
@@ -34,7 +34,7 @@ public class DummySolver {
 	 */
 	public WSResponse processRequest(TextAnnotation textAnnotation) {
 		String taJson = SerializationHelper.serializeToJson(textAnnotation);
-		Promise<WSResponse> jsonPromise = instance.post(taJson);
+		Promise<WSResponse> jsonPromise = instancePoster.post(taJson);
 
 		return jsonPromise.get(5000);
 	}
@@ -42,7 +42,7 @@ public class DummySolver {
 	public String getInfo(){
 		String jsonInfo;
 		try{
-			Promise<WSResponse> responsePromise = info.get();
+			Promise<WSResponse> responsePromise = infoPoster.get();
 			WSResponse response = responsePromise.get(5000);
 			jsonInfo = response.getBody();
 		}	

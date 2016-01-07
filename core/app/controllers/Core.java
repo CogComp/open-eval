@@ -1,9 +1,8 @@
 package controllers;
 
-import play.*;
+import models.Job;
+import models.LearnerInterface;
 import play.libs.ws.WSResponse;
-import play.mvc.*;
-import play.mvc.Http.*;
 
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import java.util.*;
@@ -28,13 +27,17 @@ public class Core{
 			
 			Evaluator newEval = getEvaluator(runConfig);
 			List<TextAnnotation> instances = getInstancesFromDb(runConfig);
-			
-			DummySolver solver = new DummySolver(url);
-			String jsonInfo = solver.getInfo();
+
+			LearnerInterface learner = new LearnerInterface(url);
+
+			String jsonInfo = learner.getInfo();
 			System.out.println(jsonInfo);
 			if(jsonInfo.equals("err"))
 				return null;
-			Job newJob = new Job(solver, instances, newEval, jsonInfo);
+
+			instances = cleanseInstances(instances, jsonInfo);
+
+			Job newJob = new Job(learner, instances);
 			WSResponse solverResponse = newJob.sendAndReceiveRequestsFromSolver();
 			Evaluation eval = newJob.evaluateSolver();
 			//TODO: Add new evaluation to database
@@ -69,5 +72,16 @@ public class Core{
 		 */
 		private static Evaluator getEvaluator(Configuration runConfig){
 			return null;
+		}
+
+	/**
+	 * UNIMPLEMENTED
+	 * Cleanse the correct instances
+	 * @param correctInstances - The correct instances from the databse
+	 * @param jsonInfo - The information given by the learner
+	 * @return  - The cleansed instance
+	 */
+		private static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, String jsonInfo){
+			return correctInstances;
 		}
 }

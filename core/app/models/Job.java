@@ -1,13 +1,13 @@
-package controllers;
+package models;
 
-import controllers.cleansers.DummyCleanser;
-import controllers.cleansers.Cleanser;
+import controllers.Domain;
 import controllers.evaluators.Evaluation;
 import controllers.evaluators.Evaluator;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 import play.libs.ws.WSResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,7 +22,7 @@ import java.util.List;
 	Domain domain;
 
  	/** Solver object for processing TextAnnotation objects. */
- 	private DummySolver solver;
+ 	private LearnerInterface solver;
 
 	/** A list of evaluators, used to evaluate solver using an evaluation metric specified in the implementing class. */
  	private Evaluator evaluator;
@@ -30,25 +30,21 @@ import java.util.List;
 	/** Evaluation containing the evaluation returned by the evaluator. */
  	private Evaluation evaluation;
 
- 	/** List of correct text annotation instances */
- 	private List<TextAnnotation> correctInstances;
-
  	/** List of unprocessed text annotation instances */
 	private List<TextAnnotation> unprocessedInstances;
 
  	/** List of `TextAnnotation` instances returned by the solver */
  	private List<TextAnnotation> solverInstances;
 
- 	public Job(DummySolver solver, List<TextAnnotation> correctInstances, Evaluator evaluator, String jsonInfo) {
- 		this.solver = solver;
- 		this.correctInstances = correctInstances;
- 		this.evaluator = evaluator;
+ 	public Job(LearnerInterface learner, List<TextAnnotation> instances) {
+ 		this.solver = learner;
+ 		this.unprocessedInstances = instances;
 		this.domain = Domain.TOY;
-		this.populateCleanedAnnotations();
  	}
 
  	/** Sends all unprocessed instances to the solver and receives the results. */
  	public WSResponse sendAndReceiveRequestsFromSolver() {
+		this.solverInstances = new ArrayList<>();
 		WSResponse response = null;
 		String resultJson;
 		TextAnnotation processedInstance;
@@ -76,28 +72,11 @@ import java.util.List;
 
  	}
 
-	/** Based on the domain type, prepares cleaned instances ready to be sent to a solver */
-	private void populateCleanedAnnotations() {
-		Cleanser cleanser;
-		switch (this.domain)
-		{
-			/*
-			case Domain.BINARY_CLASSIFICATION:
-				// TODO
-				break;
-			case Domain.MULTICLASS_CLASSIFICATION:
-				// TODO
-				break;
-			case Domain.CLUSTERING:
-				// TODO
-				break;
-			*/
-			//case Domain.TOY:
-			default:
-				cleanser = new DummyCleanser();
-				System.out.println("Warning: unknown domain!");
-		}
+	public List<TextAnnotation> getSolverInstances(){
+		return this.solverInstances;
+	}
 
-		this.unprocessedInstances = cleanser.removeAnnotations(correctInstances);
+	public TextAnnotation getSolverInstance(int i) {
+		return getSolverInstances().get(i);
 	}
  }
