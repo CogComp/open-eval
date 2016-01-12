@@ -39,12 +39,12 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
  	/** List of TextAnnotation instances returned by the solver */
  	private List<TextAnnotation> solverInstances;
 
- 	public Job(DummySolver solver, List<TextAnnotation> correctInstances, Evaluator evaluator, Domain domain) {
+ 	public Job(DummySolver solver, List<TextAnnotation> correctInstances, Evaluator evaluator) {
  		this.solver = solver;
  		this.correctInstances = correctInstances;
  		this.solverInstances = new ArrayList<>();
  		this.evaluator = evaluator;
-		this.domain = domain;
+		this.domain = Domain.TOY;
 		this.populateCleanedAnnotations();
  	}
 
