@@ -23,6 +23,7 @@ lazy val core = (project in file("core")).
       "org.webjars" % "bootstrap" % "3.1.1-2",
       "org.json" % "json" % "20140107",
       "mysql" % "mysql-connector-java" % "5.1.37",
+        "org.mockito" % "mockito-core" % "1.10.19",
       javaJdbc,
       cache,
       javaWs

@@ -126,7 +126,7 @@ public class CoreLearnerTest
                 ArrayList<TextAnnotation> instances = new ArrayList<>();
                 ArrayList<View> removedViews = new ArrayList<>();
 
-                for(int i=0; i<10000; i++) {
+                for(int i=0; i<1000; i++) {
                     TextAnnotation goldTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd, false);
                     removedViews.add(goldTextAnnotation.getView(ViewNames.POS));
 
@@ -145,12 +145,27 @@ public class CoreLearnerTest
 
                 List<TextAnnotation> solverInstances = newJob.getSolverInstances();
 
-                for(int i=0; i<10000; i++) {
+                for(int i=0; i<1000; i++) {
                     TextAnnotation goldTextAnnotation = instances.get(i);
                     goldTextAnnotation.addView(ViewNames.POS, removedViews.get(i));
                     assertEquals(goldTextAnnotation, solverInstances.get(i));
                 }
                 assertEquals(200,response.getStatus());
+            }
+        });
+    }
+
+    @Test
+    public void infoTest() throws Exception
+    {
+        running(fakeApplication(), new Runnable() {
+            public void run() {
+                LearnerInterface learner = new LearnerInterface("http://localhost:5757/");
+
+                String json = learner.getInfo();
+                String expected = "{\"requiredViews\":[\"TOKENS\"]}";
+                System.out.println(json);
+                assertEquals(json, expected);
             }
         });
     }
