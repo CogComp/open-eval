@@ -1,30 +1,42 @@
 package controllers.cleansers;
 
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class DummyCleanser extends Cleanser{
+import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent;
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
 
-    /** Removes annotations from instances. */
+public class DummyCleanser extends Cleanser {
+	
+    /** Removes the TOKEN_LABEL_VIEW from an annotation by name. */
     public List<TextAnnotation> removeAnnotations(List<TextAnnotation> textAnnotations) {
-        List<TextAnnotation> annotationsWithoutTokens = new ArrayList<>();
         for (TextAnnotation textAnnotation : textAnnotations) {
-            String corpusId = textAnnotation.getCorpusId();
-            String id = textAnnotation.getId();
-            String text = textAnnotation.getText();
-
-            //TODO: Retrieve character offsets from the TextAnnotation.
-            //TODO: Retrieve sentence end positions.
-
-            String[] tokens = textAnnotation.getTokens();
-            for (String token : tokens) {
-                token = "";
-            }
+        	textAnnotation.removeView(ViewNames.TOKENS);
         }
-        /** Until we define a way to clean annotations we simply return the annotations that were passed in */
         return textAnnotations;
-        //return annotationsWithoutTokens;
     }
+    
+	/*
+	public List<TextAnnotation> removeTokenLabels(List<TextAnnotation> textAnnotations) {
+		for (TextAnnotation textAnnotation : textAnnotations) {
+			// get the TOKENS view
+			View spanLabelView = textAnnotation.getView(ViewNames.TOKENS);
+			// this list will contain the current, labelled constituents
+			List<Constituent> oldConstituents = new ArrayList<>();
+			for (Constituent cons : spanLabelView.getConstituents()) {
+				// creates a replica constituent without a label
+				Constituent noLabelConstituent = new Constituent("", cons.getConstituentScore(), 
+							cons.getViewName(), textAnnotation, cons.getStartSpan(), cons.getEndSpan());
+				oldConstituents.add(cons);
+				spanLabelView.addConstituent(noLabelConstituent);
+			}
+			for (Constituent oldConstituent : oldConstituents) {
+				spanLabelView.removeConstituent(oldConstituent);
+			}
+		}
+		
+		return textAnnotations;
+	} */
 }

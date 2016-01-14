@@ -56,13 +56,6 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
  		}
  	}
  	
- 	public void sendAndReceiveToyRequestsFromDummySolver() {
- 		for (TextAnnotation ta : unprocessedInstances) {
- 			TextAnnotation processedInstance = solver.processToyRequest(ta);
- 			solverInstances.add(processedInstance);
- 		}
- 	}
- 	
  	/**
  	 *	Runs the specified evaluators on the instances returned from the solver and stores
  	 *  the results in Evaluation objects.
@@ -95,17 +88,6 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 		}
 
 		this.unprocessedInstances = cleanser.removeAnnotations(correctInstances);
-	}
-	
-	public static Job setUpToyJob() {
-		DatabaseCommunication dbComm = new DatabaseCommunication();
-		
-		DummySolver dummySolver = new DummySolver();
-		List<Evaluator> evaluators = new ArrayList<>();
-		List<TextAnnotation> instances = dbComm.retrieveDataset("toyDataset");
-		SpanLabelingEvaluator spanLabelingEvaluator = new SpanLabelingEvaluator(ViewNames.SENTENCE);
-		
-		return new Job(dummySolver, instances, spanLabelingEvaluator, Domain.TOY);
 	}
 
 	public Domain getDomain() {
