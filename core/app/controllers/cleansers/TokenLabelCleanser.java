@@ -10,21 +10,20 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
 
 public class TokenLabelCleanser extends Cleanser {
 
-	/**
-	 * Removes the labels from the constituents of a {@code TokenLabelView}.
-	 */
-	@Override
-	public List<TextAnnotation> removeAnnotations(List<TextAnnotation> textAnnotations) {
-		for (TextAnnotation textAnnotation : textAnnotations) {
-			removeAnnotation(textAnnotation);
-		}
-		return textAnnotations;
-	}
+	/** Removes the TOKEN_LABEL_VIEW from an annotation by name. */
+    public List<TextAnnotation> removeAnnotations(List<TextAnnotation> textAnnotations) {
+        for (TextAnnotation textAnnotation : textAnnotations) {
+        	textAnnotation.removeView(ViewNames.TOKENS);
+        	textAnnotation.removeView(ViewNames.LEMMA);
+        	textAnnotation.removeView(ViewNames.POS);
+        }
+        return textAnnotations;
+    }
 	
 	/**
 	 * Removes the token label from all views for which the {@code ViewType} is {@code TokenLabelView}.	
 	 * @param textAnnotation
-	 */
+	 */ /*
 	private void removeAnnotation(TextAnnotation textAnnotation) {
 		
 		View view = textAnnotation.getView(ViewNames.TOKENS);
@@ -42,6 +41,6 @@ public class TokenLabelCleanser extends Cleanser {
 			view.addConstituent(cleansedConstituent);
 		}
 		textAnnotation.addView(view.getViewName(), view);
-	}
+	} */
 
 }
