@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -23,60 +24,14 @@ import com.mysql.jdbc.Driver;
  *
  */
 
-public class FrontEndDatabase {
-    private String datasetName;
-    private String teamName; 
-    private String description; 
-    private String evaluator; 
-    private String taskType; 
-    private ArrayList<String> taskVariants;
-    
-    String jdbcDriver = "com.mysql.jdbc.Driver";
-    String mysqlURL = "jdbc:mysql://localhost/test"; //Change this according to URL of MySQL server.
-    String username = "root"; //Username to access database.
-    String password = ""; //Password for the above username. 
-    
-    /** Reads in an HTTP POST request containg the JSON with configuration information */
-    public void storeConfig(String json) {
-        //Temporary JSON that may be used for testing. 
-        String json2 = "{"
-                + "\"configuration\" : {"
-                + "\"datasetName\": \"Sports Articles\","
-                + "\"teamName\" : \"Open Eval!\","
-                + "\"description\" : \"My description.\","
-                + "\"evaluator\" : \"F2\","
-                + "\"taskType\" : \"Text Annotation\""
-                + "},"
-                + "\"taskVariants\" : ["
-                + "\"tskVar1\","
-                + "\"tskVar2\","
-                + "\"tskVar3\""
-                + "]"
-                + "}";
-        
-        readJSON(json); 
-        insertConfigToDB(); 
-    }
-    
-    /** Reads and Parses the received JSON that contains new configuration info. */
-    private void readJSON(String json) {
-        JSONObject jsonConfig = new JSONObject(json);
-        taskVariants = new ArrayList<>();
-        
-        datasetName = jsonConfig.getJSONObject("configuration").getString("datasetName");
-        teamName = jsonConfig.getJSONObject("configuration").getString("teamName");
-        description = jsonConfig.getJSONObject("configuration").getString("description");
-        evaluator = jsonConfig.getJSONObject("configuration").getString("evaluator");
-        taskType = jsonConfig.getJSONObject("configuration").getString("taskType");
-        
-        JSONArray jsonTaskVarArr = jsonConfig.getJSONArray("taskVariants");
-        for (int i = 0; i < jsonTaskVarArr.length(); i++) {
-            taskVariants.add((String)jsonTaskVarArr.get(i));
-        }
-    }
-    
+public class FrontEndDatabase {    
+    private String jdbcDriver = "com.mysql.jdbc.Driver";
+    private String mysqlURL = "jdbc:mysql://gargamel.cs.illinois.edu/openeval_db"; //Change this according to URL of MySQL server.
+    private String username = "oeroot"; //Username to access database.
+    private String password = "Fow,10#"; //Password for the above username. 
+   
     /** Stores the received configuration in the MySQL configurations table and taskvariants table. */
-    private void insertConfigToDB() {
+    public void insertConfigToDB(String datasetName, String teamName, String description, String evaluator, String taskType, List<String> taskVariants) {
         try {
             try {
                 Class.forName(jdbcDriver);
@@ -88,25 +43,25 @@ public class FrontEndDatabase {
             
             //Storing basic configuration info. 
             String sql = "INSERT INTO configurations VALUES (?, '"+datasetName+"', '"+teamName+"', '"+description+"', '"+evaluator+"', '"+taskType+"');";
-            PreparedStatement insertStmt = connection.prepareStatement(sql);
-            insertStmt.setNull(1, Types.INTEGER); //Set null so MySQL can auto-increment the primary key (id).
-            insertStmt.execute();
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setNull(1, Types.INTEGER); //Set null so MySQL can auto-increment the primary key (id).
+            stmt.execute();
             
             //Storing info on the task-variants.
             //Have to get the ID of the newly created configuration. 
             sql = "SELECT MAX(id) from configurations;";
-            insertStmt = connection.prepareStatement(sql);
-            ResultSet idOfConfig = insertStmt.executeQuery();
+            stmt = connection.prepareStatement(sql);
+            ResultSet idOfConfig = stmt.executeQuery();
             idOfConfig.first();
             int id = idOfConfig.getInt(1);
             
             //Inserting all the task variants in to taskVariants table.
             sql = "INSERT INTO taskvariants VALUES (?, ?);";
-            insertStmt = connection.prepareStatement(sql);
+            stmt = connection.prepareStatement(sql);
             for (String taskVariant : taskVariants){
-                insertStmt.setInt(1, id);
-                insertStmt.setString(2, taskVariant);
-                insertStmt.execute();
+                stmt.setInt(1, id);
+                stmt.setString(2, taskVariant);
+                stmt.execute();
             }
             
             connection.close();
@@ -134,7 +89,7 @@ public class FrontEndDatabase {
             List<models.Configuration> configs = new ArrayList<>();
             
             while (configList.next()) {
-                models.Configuration config = new models.Configuration(configList.getString(1), configList.getString(2), configList.getString(3), "We're displaying task variants?", configList.getString(4)); 
+                models.Configuration config = new models.Configuration(configList.getString(1), configList.getString(2), configList.getString(3), "We're displaying task variants?", configList.getString(4), Integer.toString(configList.getInt(5))); 
                 configs.add(config);
             }
         
@@ -147,8 +102,7 @@ public class FrontEndDatabase {
     }
     
     /** Returns all the information about a single configuration, to be used displayed on the configuration page. */
-    public models.Configuration getConfigInformation(int id) {
-        //id = 30; //Temporary id to be used for testing purposes.  
+    public models.Configuration getConfigInformation(int id) { 
         try {
             try {
                 Class.forName(jdbcDriver);
@@ -165,7 +119,7 @@ public class FrontEndDatabase {
             
             //Return information about configuration.
             models.Configuration config = new models.Configuration(configInfoList.getString(1), configInfoList.getString(2), configInfoList.getString(3),
-                "task_variant_b", configInfoList.getString(4)); 
+                "task_variant_b", configInfoList.getString(4), Integer.toString(configInfoList.getInt(5))); 
             connection.close(); 
             return config; 
             

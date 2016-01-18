@@ -16,23 +16,18 @@ public class Application extends Controller {
 
     private List<models.Configuration> getConfigurations() {
         List<models.Configuration> configurations = new ArrayList<>();
-        models.Configuration conf1 = new models.Configuration(
-            "Team A", "Description for first configuration", "dataset 1", "task_variant_a", "evaluator_a"
-        );
-        models.Configuration conf2 = new models.Configuration(
-            "Team B", "Description for second configuration", "dataset 2", "task_variant_b", "evaluator_b"
-        );
-        models.Configuration conf3 = new models.Configuration(
-            "Team C", "Description for second configuration", "dataset 3", "task_variant_c", "evaluator_c"
-        );
-        models.Configuration conf4 = new models.Configuration(
-            "Team D", "Description for fourth configuration", "dataset 4", "task_variant_d", "evaluator_d"
-        );
-        configurations.add(conf1);
-        configurations.add(conf2);
-        configurations.add(conf3);
-        configurations.add(conf4);
-        return configurations;
+        
+        FrontEndDatabase f = new FrontEndDatabase(); 
+		
+        List<models.Configuration> configList = f.getConfigList();
+    
+        if (configList != null) { /*If we didn't get an exception.*/
+            for (int i = 0; i < configList.size(); i++) {
+                configurations.add(configList.get(i));
+            }
+        }
+		
+        return configList;
     }
 
     public Result index() {
@@ -68,19 +63,24 @@ public class Application extends Controller {
 
     public Result submitConfiguration() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+		
+		FrontEndDatabase f = new FrontEndDatabase(); 
 
-        // Save config to db here
-        // System.out.println(bindedForm.get("dataset"));
+		List<String> taskVariants = new ArrayList<>(); 
+		taskVariants.add("tskVar1"); 
+		taskVariants.add("tskVar2");
+		taskVariants.add("tskVar3");
+		f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("teamname"), bindedForm.get("description"), bindedForm.get("evaluator"), "Text Annotation", taskVariants); 
 
         return redirect("/");
     }
 
     public Result configuration(String configuration_id) {
         RecipeViewModel viewModel = new RecipeViewModel();
-        // get configuration from db using configuration_id = conf
-        models.Configuration conf = new models.Configuration(
-            "Team B", "Description for second configuration", "dataset 2", "task_variant_b", "evaluator_b"
-        );
+    
+		FrontEndDatabase f = new FrontEndDatabase(); 
+		models.Configuration conf = f.getConfigInformation(Integer.parseInt(configuration_id)); 
+		
         List<Record> records = new ArrayList<>();
         records.add(new Record("date", "comment", "repo", "author",95.1));
         records.add(new Record("date2", "comment", "repo", "author",36.1));
