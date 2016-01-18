@@ -3,6 +3,7 @@ package controllers;
 import play.*;
 import play.mvc.*;
 import play.data.DynamicForm;
+import play.Logger;
 
 import views.html.*;
 
@@ -16,17 +17,18 @@ public class Application extends Controller {
 
     private List<models.Configuration> getConfigurations() {
         List<models.Configuration> configurations = new ArrayList<>();
-        
-        FrontEndDatabase f = new FrontEndDatabase(); 
+        FrontEndDBInterface f = new FrontEndDBInterface();
+		List<models.Configuration> configList; 
 		
-        List<models.Configuration> configList = f.getConfigList();
-    
-        if (configList != null) { /*If we didn't get an exception.*/
-            for (int i = 0; i < configList.size(); i++) {
-                configurations.add(configList.get(i));
-            }
-        }
+		try {
+			configList = f.getConfigList();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 		
+		for (int i = 0; i < configList.size(); i++) {
+			configurations.add(configList.get(i));
+		}
         return configList;
     }
 
@@ -63,23 +65,32 @@ public class Application extends Controller {
 
     public Result submitConfiguration() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+		FrontEndDBInterface f = new FrontEndDBInterface(); 
 		
-		FrontEndDatabase f = new FrontEndDatabase(); 
-
 		List<String> taskVariants = new ArrayList<>(); 
 		taskVariants.add("tskVar1"); 
 		taskVariants.add("tskVar2");
 		taskVariants.add("tskVar3");
-		f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("teamname"), bindedForm.get("description"), bindedForm.get("evaluator"), "Text Annotation", taskVariants); 
+		
+		try {
+			f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("teamname"), bindedForm.get("description"), bindedForm.get("evaluator"), "Text Annotation", taskVariants); 
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 
         return redirect("/");
     }
 
     public Result configuration(String configuration_id) {
         RecipeViewModel viewModel = new RecipeViewModel();
-    
-		FrontEndDatabase f = new FrontEndDatabase(); 
-		models.Configuration conf = f.getConfigInformation(Integer.parseInt(configuration_id)); 
+		FrontEndDBInterface f = new FrontEndDBInterface(); 
+		models.Configuration conf; 
+		
+		try {
+			conf = f.getConfigInformation(Integer.parseInt(configuration_id)); 
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 		
         List<Record> records = new ArrayList<>();
         records.add(new Record("date", "comment", "repo", "author",95.1));
@@ -113,6 +124,7 @@ public class Application extends Controller {
 
         String configuration_id = bindedForm.get("configuration_id");
 		String url = bindedForm.get("url");
+		
         // Run + Save run to db here
         // System.out.println(bindedForm.get("url"));
 		int status = Core.startJob(configuration_id, url);

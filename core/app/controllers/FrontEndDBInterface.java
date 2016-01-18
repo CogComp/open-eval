@@ -4,12 +4,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
 import java.sql.SQLException;
 import java.sql.Types;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import play.*;
 import play.mvc.*;
@@ -24,7 +23,7 @@ import com.mysql.jdbc.Driver;
  *
  */
 
-public class FrontEndDatabase {    
+public class FrontEndDBInterface {    
     private String jdbcDriver = "com.mysql.jdbc.Driver";
     private String mysqlURL = "jdbc:mysql://gargamel.cs.illinois.edu/openeval_db"; //Change this according to URL of MySQL server.
     private String username = "oeroot"; //Username to access database.
@@ -32,30 +31,24 @@ public class FrontEndDatabase {
    
     /** Stores the received configuration in the MySQL configurations table and taskvariants table. */
     public void insertConfigToDB(String datasetName, String teamName, String description, String evaluator, String taskType, List<String> taskVariants) {
-        try {
-            try {
-                Class.forName(jdbcDriver);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+        try {            
+            Connection connection = getConnection();
             
-            Connection connection = DriverManager.getConnection(mysqlURL, username, password);
-            
-            //Storing basic configuration info. 
+            /*Storing basic configuration info.*/
             String sql = "INSERT INTO configurations VALUES (?, '"+datasetName+"', '"+teamName+"', '"+description+"', '"+evaluator+"', '"+taskType+"');";
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setNull(1, Types.INTEGER); //Set null so MySQL can auto-increment the primary key (id).
             stmt.execute();
             
-            //Storing info on the task-variants.
-            //Have to get the ID of the newly created configuration. 
+            /*Storing info on the task-variants.*/
+            /*Have to get the ID of the newly created configuration.*/ 
             sql = "SELECT MAX(id) from configurations;";
             stmt = connection.prepareStatement(sql);
             ResultSet idOfConfig = stmt.executeQuery();
             idOfConfig.first();
             int id = idOfConfig.getInt(1);
             
-            //Inserting all the task variants in to taskVariants table.
+            /*Inserting all the task variants in to taskVariants table.*/
             sql = "INSERT INTO taskvariants VALUES (?, ?);";
             stmt = connection.prepareStatement(sql);
             for (String taskVariant : taskVariants){
@@ -65,7 +58,7 @@ public class FrontEndDatabase {
             }
             
             connection.close();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -73,19 +66,12 @@ public class FrontEndDatabase {
     /** Returns a list of all the configurations in the database to be displayed on landing page. */
     public List<models.Configuration> getConfigList() {
         try {
-            try {
-                Class.forName(jdbcDriver);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-            
-            Connection connection = DriverManager.getConnection(mysqlURL, username, password);
+            Connection connection = getConnection();
             
             String sql = "SELECT teamName, description, datasetName, evaluator, id FROM configurations;";
             PreparedStatement insertStmt = connection.prepareStatement(sql);
             ResultSet configList = insertStmt.executeQuery();
             
-            //Return Configuration List as an ArrayList of Arrays. 
             List<models.Configuration> configs = new ArrayList<>();
             
             while (configList.next()) {
@@ -95,38 +81,49 @@ public class FrontEndDatabase {
         
             connection.close();
             return configs; 
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
+        } catch (Exception e) {
+			throw new RuntimeException(e);
         }
     }
     
     /** Returns all the information about a single configuration, to be used displayed on the configuration page. */
     public models.Configuration getConfigInformation(int id) { 
-        try {
-            try {
-                Class.forName(jdbcDriver);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-            
-            Connection connection = DriverManager.getConnection(mysqlURL, username, password);
+        try {       
+            Connection connection = getConnection();
             
             String sql = "SELECT teamName, description, datasetName, evaluator, id FROM configurations WHERE id = " + id + ";"; 
             PreparedStatement insertStmt = connection.prepareStatement(sql);
             ResultSet configInfoList = insertStmt.executeQuery();
             configInfoList.next();
             
-            //Return information about configuration.
+            /*Return information about configuration.*/
             models.Configuration config = new models.Configuration(configInfoList.getString(1), configInfoList.getString(2), configInfoList.getString(3),
                 "task_variant_b", configInfoList.getString(4), Integer.toString(configInfoList.getInt(5))); 
             connection.close(); 
             return config; 
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
+        } catch (Exception e) {
+			throw new RuntimeException(e);
         }
     }
+	
+	/** Stores information at the start of a particular run. */
+	public void storeRunInfo() {
+		Connection conn = getConnection();
+	}
+	
+	private Connection getConnection() {
+		try {
+			Class.forName(jdbcDriver);
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+		
+        try { 
+            Connection conn = DriverManager.getConnection(mysqlURL, username, password);
+			return conn;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
     
 }

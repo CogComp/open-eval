@@ -24,7 +24,7 @@ import play.twirl.api.Content;
 import static play.test.Helpers.*;
 import static org.junit.Assert.*;
 
-import controllers.FrontEndDatabase; 
+import controllers.FrontEndDBInterface; 
 
 
 /**
@@ -58,7 +58,7 @@ public class ApplicationTest {
 			int countOfRecordsInitial = ret.getInt(1);
 			
 			/*Inserting new record into database*/
-			FrontEndDatabase f = new FrontEndDatabase();
+			FrontEndDBInterface f = new FrontEndDBInterface();
 			List<String> taskVariants = new ArrayList<>();
 			taskVariants.add("testTskVar"); 
 			f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", taskVariants); 
@@ -105,7 +105,7 @@ public class ApplicationTest {
 			
 			/*Seeing if the newly inserted configuration shows up in the configuration list.*/
 			boolean inConfigList = false; 
-			FrontEndDatabase f = new FrontEndDatabase();
+			FrontEndDBInterface f = new FrontEndDBInterface();
 			List<models.Configuration> configList = f.getConfigList(); 
 			if (configList != null) {
 				 for (int i = 0; i < configList.size(); i++) {
