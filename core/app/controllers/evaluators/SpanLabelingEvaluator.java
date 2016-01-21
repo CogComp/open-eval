@@ -13,18 +13,19 @@ import java.util.Set;
 
 public class SpanLabelingEvaluator extends Evaluator {
 
-	public SpanLabelingEvaluator() {
+	private String spanViewName;
+	
+	public SpanLabelingEvaluator(String spanViewName) {
 		super();
+		this.spanViewName = spanViewName;
 	}
-
-    private String spanViewName = "";
 
     public void setSpanViewName(String spanViewName) {
         this.spanViewName = spanViewName;
     }
 
 	public Evaluation evaluate(List<TextAnnotation> correctAnnotations, List<TextAnnotation> solverAnnotations) {
-        assert( correctAnnotations.size() != solverAnnotations.size() );
+        assert( correctAnnotations.size() == solverAnnotations.size() );
 
         EvaluationRecord macroEvaluationRecord = new EvaluationRecord();
         List<EvaluationRecord> microEvaluationRecords = new ArrayList<>();

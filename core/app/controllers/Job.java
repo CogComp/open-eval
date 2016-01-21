@@ -1,17 +1,19 @@
 package controllers;
 
-import controllers.cleansers.DummyCleanser;
+import java.util.ArrayList;
+import java.util.List;
+
 import controllers.cleansers.Cleanser;
+import controllers.cleansers.DummyCleanser;
 import controllers.evaluators.Evaluation;
 import controllers.evaluators.Evaluator;
+import controllers.evaluators.SpanLabelingEvaluator;
+import controllers.io.DatabaseCommunication;
+import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
-
-import java.util.List;
 
 /**
  * Class representing one job to send to the solver.  
- *
- * @author Joshua Camp
  */
 
  public class Job {
@@ -34,12 +36,13 @@ import java.util.List;
  	/** List of unprocessed text annotation instances */
 	private List<TextAnnotation> unprocessedInstances;
 
- 	/** List of `TextAnnotation` instances returned by the solver */
+ 	/** List of TextAnnotation instances returned by the solver */
  	private List<TextAnnotation> solverInstances;
 
  	public Job(DummySolver solver, List<TextAnnotation> correctInstances, Evaluator evaluator) {
  		this.solver = solver;
  		this.correctInstances = correctInstances;
+ 		this.solverInstances = new ArrayList<>();
  		this.evaluator = evaluator;
 		this.domain = Domain.TOY;
 		this.populateCleanedAnnotations();
@@ -54,13 +57,12 @@ import java.util.List;
  	}
  	
  	/**
- 	 *	Runs the specified evaluator on the instances returned from the solver and stores
- 	 *  the results in an Evaluation object.
+ 	 *	Runs the specified evaluators on the instances returned from the solver and stores
+ 	 *  the results in Evaluation objects.
  	 */
  	public Evaluation evaluateSolver() {
- 		//this.evaluation = evaluator.evaluate(correctInstances, solverInstances);
+ 		evaluation = evaluator.evaluate(correctInstances, solverInstances);
 		return evaluation;
-
  	}
 
 	/** Based on the domain type, prepares cleaned instances ready to be sent to a solver */
@@ -86,5 +88,21 @@ import java.util.List;
 		}
 
 		this.unprocessedInstances = cleanser.removeAnnotations(correctInstances);
+	}
+
+	public Domain getDomain() {
+		return domain;
+	}
+
+	public Evaluation getEvaluation() {
+		return evaluation;
+	}
+
+	public List<TextAnnotation> getSolverInstances() {
+		return solverInstances;
+	}	
+	
+	public List<TextAnnotation> getCorrectInstances() {
+		return correctInstances;
 	}
  }

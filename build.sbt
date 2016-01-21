@@ -18,11 +18,12 @@ lazy val core = (project in file("core")).
   settings(
     name := "core",
       libraryDependencies ++= Seq(
-      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.0",
+      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.5",
       "org.webjars" %% "webjars-play" % "2.4.0-1",
       "org.webjars" % "bootstrap" % "3.1.1-2",
       "org.json" % "json" % "20140107",
       "mysql" % "mysql-connector-java" % "5.1.37",
+      "com.novocode" % "junit-interface" % "0.8" % "test->default",
       javaJdbc,
       cache,
       javaWs
