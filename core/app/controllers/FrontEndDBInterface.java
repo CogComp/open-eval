@@ -16,7 +16,6 @@ import play.mvc.*;
 import org.json.*;
 import com.mysql.jdbc.Driver;
 
-
 /**
  * Class to store and retrieve configurations and history. 
  * 
@@ -82,7 +81,7 @@ public class FrontEndDBInterface {
             connection.close();
             return configs; 
         } catch (Exception e) {
-			throw new RuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
     
@@ -102,41 +101,41 @@ public class FrontEndDBInterface {
             connection.close(); 
             return config; 
         } catch (Exception e) {
-			throw new RuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
-	
-	/** Stores information at the start of a particular run. - INCOMPLETE*/
-	public void storeRunInfo() {
-		Connection conn = getConnection();
-	}
-	
-	/** Retrives the records of a configuration - INCOMPLETE*/
-	/*
-	public List<models.Record> getRecords(int configuration_id) {
-		Connection conn = getConnection(); 
-		
-		String sql = "SELECT date, comment, repo, author, score FROM records WHERE id = " + configuration_id + ";";
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		ResultSet recordsRS = stmt.executeQuery();
-		return null;
-	}
-	*/
-	
-	/** Returns a connection to the Gargamel database.*/
-	private Connection getConnection() {
-		try {
-			Class.forName(jdbcDriver);
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
-		
+    
+    /** Stores information at the start of a particular run. - INCOMPLETE*/
+    public void storeRunInfo() {
+        Connection conn = getConnection();
+    }
+    
+    /** Retrives the records of a configuration - INCOMPLETE*/
+    /*
+    public List<models.Record> getRecords(int configuration_id) {
+        Connection conn = getConnection(); 
+        
+        String sql = "SELECT date, comment, repo, author, score FROM records WHERE id = " + configuration_id + ";";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        ResultSet recordsRS = stmt.executeQuery();
+        return null;
+    }
+    */
+    
+    /** Returns a connection to the Gargamel database.*/
+    private Connection getConnection() {
+        try {
+            Class.forName(jdbcDriver);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        
         try { 
             Connection conn = DriverManager.getConnection(mysqlURL, username, password);
-			return conn;
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+            return conn;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
     
 }
