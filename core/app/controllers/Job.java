@@ -8,7 +8,6 @@ import controllers.cleansers.DummyCleanser;
 import controllers.evaluators.Evaluation;
 import controllers.evaluators.Evaluator;
 import controllers.evaluators.SpanLabelingEvaluator;
-import controllers.io.DatabaseCommunication;
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 
