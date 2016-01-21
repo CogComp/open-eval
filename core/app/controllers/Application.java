@@ -16,7 +16,6 @@ import controllers.evaluators.Evaluation;
 public class Application extends Controller {
 
     private List<models.Configuration> getConfigurations() {
-        List<models.Configuration> configurations = new ArrayList<>();
         FrontEndDBInterface f = new FrontEndDBInterface();
 		List<models.Configuration> configList; 
 		
@@ -24,10 +23,6 @@ public class Application extends Controller {
 			configList = f.getConfigList();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
-		}
-		
-		for (int i = 0; i < configList.size(); i++) {
-			configurations.add(configList.get(i));
 		}
         return configList;
     }
@@ -125,8 +120,6 @@ public class Application extends Controller {
         String configuration_id = bindedForm.get("configuration_id");
 		String url = bindedForm.get("url");
 		
-        // Run + Save run to db here
-        // System.out.println(bindedForm.get("url"));
 		int status = Core.startJob(configuration_id, url);
 		if(status == 200)
 			return redirect("/configuration?conf="+configuration_id);
