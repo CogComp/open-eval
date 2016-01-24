@@ -22,7 +22,7 @@ import java.util.List;
 	Domain domain;
 
  	/** Solver object for processing TextAnnotation objects. */
- 	private LearnerInterface solver;
+ 	private LearnerInterface learnerInterface;
 
 	/** A list of evaluators, used to evaluate solver using an evaluation metric specified in the implementing class. */
  	private Evaluator evaluator;
@@ -37,7 +37,7 @@ import java.util.List;
  	private List<TextAnnotation> solverInstances;
 
  	public Job(LearnerInterface learner, List<TextAnnotation> instances) {
- 		this.solver = learner;
+ 		this.learnerInterface = learner;
  		this.unprocessedInstances = instances;
 		this.domain = Domain.TOY;
  	}
@@ -49,7 +49,7 @@ import java.util.List;
 		String resultJson;
 		TextAnnotation processedInstance;
  		for (TextAnnotation ta : unprocessedInstances) {
- 			response = solver.processRequest(ta);
+ 			response = learnerInterface.processRequest(ta);
 			try{
 				resultJson = response.getBody();
 				processedInstance = SerializationHelper.deserializeFromJson(resultJson);

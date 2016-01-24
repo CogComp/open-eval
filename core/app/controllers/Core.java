@@ -31,7 +31,6 @@ public class Core{
 			LearnerInterface learner = new LearnerInterface(url);
 
 			String jsonInfo = learner.getInfo();
-			System.out.println(jsonInfo);
 			if(jsonInfo.equals("err"))
 				return null;
 
