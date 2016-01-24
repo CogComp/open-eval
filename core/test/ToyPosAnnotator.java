@@ -19,7 +19,7 @@ public class ToyPosAnnotator extends Annotator
         String[] tags = {"DT","NN","IN","DT","NN","VBD","IN","NN","."};
         View posView = new View(ViewNames.POS,"POS-annotator",textAnnotation,1.0);
         textAnnotation.addView(ViewNames.POS,posView);
-        for(int i=0;i<tokens.length;i++){
+        for(int i=0;i<tags.length;i++){
             posView.addConstituent(new Constituent(tags[i],ViewNames.POS,textAnnotation,i,i+1));
         }
     }

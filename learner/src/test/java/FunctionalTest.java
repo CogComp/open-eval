@@ -61,8 +61,11 @@ public class FunctionalTest
 
         System.out.println("Response: " + responseBody);
 
+
         TextAnnotation learnerResult = SerializationHelper.deserializeFromJson(responseBody);
         goldTextAnnotation.addView(ViewNames.POS,goldPosView);
+
+        System.out.println("Solution: " + SerializationHelper.serializeToJson(goldTextAnnotation));
 
         assertEquals(goldTextAnnotation,learnerResult);
         assertEquals(200,response.getStatusLine().getStatusCode());
