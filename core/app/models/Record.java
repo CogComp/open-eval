@@ -18,15 +18,15 @@ public class Record {
 
     private static long counter = 0;;
 
-    public Record(String date, String comment, String repo, String author, double score) {
+    public Record(String record_id, String date, String comment, String repo, String author, double score) {
         this.date = date;
         this.comment = comment;
         this.repo = repo;
         this.author = author;
         this.score = score;
-        this.record_id = "" + (counter++);
+        this.record_id = record_id;
     }
-
+    
     public Record() {
         this.record_id = "" + (counter++);
     }

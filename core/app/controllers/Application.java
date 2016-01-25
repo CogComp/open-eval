@@ -87,10 +87,8 @@ public class Application extends Controller {
             throw new RuntimeException(e);
         }
         
-        List<Record> records = new ArrayList<>();
-        records.add(new Record("date", "comment", "repo", "author",95.1));
-        records.add(new Record("date2", "comment", "repo", "author",36.1));
-        records.add(new Record("date3", "comment", "repo", "author",97.1));
+        List<Record> records = f.getRecords(Integer.parseInt(configuration_id));
+     
         conf.records = records;
         viewModel.configuration = conf;
 
@@ -119,6 +117,12 @@ public class Application extends Controller {
 
         String configuration_id = bindedForm.get("configuration_id");
         String url = bindedForm.get("url");
+        String author = bindedForm.get("author"); 
+        String repo = bindedForm.get("repo");
+        String comment = bindedForm.get("comment"); 
+        
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        f.storeRunInfo(Integer.parseInt(configuration_id), url, author, repo, comment); 
         
         int status = Core.startJob(configuration_id, url);
         if(status == 200)

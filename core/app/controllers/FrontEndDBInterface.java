@@ -9,6 +9,7 @@ import java.sql.Types;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
 
 import play.*;
 import play.mvc.*;
@@ -106,21 +107,40 @@ public class FrontEndDBInterface {
     }
     
     /** Stores information at the start of a particular run. - INCOMPLETE*/
-    public void storeRunInfo() {
-        Connection conn = getConnection();
+    public void storeRunInfo(int configuration_id, String url, String author, String repo, String comment) {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "INSERT INTO records (configuration_id, url, author, repo, comment) VALUES ('"+configuration_id+"', '"+url+"', '"+author+"', '"+repo+"', '"+comment+"')";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.executeUpdate(); 
+        } catch (Exception e) {
+            throw new RuntimeException(e); 
+        }
     }
     
-    /** Retrives the records of a configuration - INCOMPLETE*/
-    /*
+    /** Retrives the records of a configuration.*/
     public List<models.Record> getRecords(int configuration_id) {
-        Connection conn = getConnection(); 
+        try {
+            Connection conn = getConnection(); 
         
-        String sql = "SELECT date, comment, repo, author, score FROM records WHERE id = " + configuration_id + ";";
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        ResultSet recordsRS = stmt.executeQuery();
-        return null;
+            String sql = "SELECT record_id, date, comment, repo, author, score FROM records WHERE configuration_id = " + configuration_id + ";";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet recordsRS = stmt.executeQuery();
+            
+            List<models.Record> records = new ArrayList<>();
+            
+            while (recordsRS.next()) {
+                models.Record record = new models.Record(Integer.toString(recordsRS.getInt(1)), recordsRS.getTimestamp(2).toString(), recordsRS.getString(3), recordsRS.getString(4), recordsRS.getString(5), recordsRS.getDouble(6)); 
+                records.add(record);
+            }
+            return records;
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e); 
+        }
     }
-    */
+    
     
     /** Returns a connection to the Gargamel database.*/
     private Connection getConnection() {
