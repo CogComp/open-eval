@@ -18,7 +18,7 @@ lazy val core = (project in file("core")).
   settings(
     name := "core",
       libraryDependencies ++= Seq(
-      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.5",
+      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.17",
       "org.webjars" %% "webjars-play" % "2.4.0-1",
       "org.webjars" % "bootstrap" % "3.1.1-2",
       "org.json" % "json" % "20140107",
@@ -36,7 +36,7 @@ lazy val learner = (project in file("learner")).
   settings(
     name := "learner",
     libraryDependencies ++= Seq(
-      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.8",
+      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.17",
       "org.nanohttpd" % "nanohttpd" % "2.2.0",
       "org.nanohttpd" % "nanohttpd-nanolets" % "2.2.0",
       "org.mockito" % "mockito-core" % "1.10.19",
