@@ -6,7 +6,6 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-import controllers.ToyTextAnnotationGenerator;
 import controllers.cleansers.TokenLabelCleanser;
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
@@ -20,7 +19,7 @@ public class CleanserTest {
 	public void cleanserTest() {
 		List<TextAnnotation> toyAnnotations = new ArrayList<>();
 		for (int i = 0; i < 3 ; i++) {
-			TextAnnotation ta = ToyTextAnnotationGenerator.generateToyTextAnnotation(3);
+			TextAnnotation ta =  DummyTextAnnotationGenerator.generateBasicTextAnnotation(1); //ToyTextAnnotationGenerator.generateToyTextAnnotation(3);
 			toyAnnotations.add(ta);
 		}
 		Set<String> uncleansed = toyAnnotations.get(0).getAvailableViews();

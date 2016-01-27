@@ -1,6 +1,7 @@
 package controllers;
 
 import play.*;
+import play.libs.ws.WSResponse;
 import play.mvc.*;
 import play.data.DynamicForm;
 import play.Logger;
@@ -118,13 +119,17 @@ public class Application extends Controller {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
 
         String configuration_id = bindedForm.get("configuration_id");
-        String url = bindedForm.get("url");
-        
-        int status = Core.startJob(configuration_id, url);
-        if(status == 200)
-            return redirect("/configuration?conf="+configuration_id);
+		String url = bindedForm.get("url");
+        // Run + Save run to db here
+        // System.out.println(bindedForm.get("url"));
+		WSResponse response = Core.startJob(configuration_id, url);
+		if(response == null)
+			return internalServerError("Server Not Found");
+		else
+		if(response.getStatus()==500)
+            return internalServerError(response.getBody());
         else
-            return status(status);
+            return redirect("/configuration?conf="+configuration_id);
     }
 
     public Result record(String record_id) {
