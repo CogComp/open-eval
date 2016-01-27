@@ -17,7 +17,6 @@ public class Configuration {
     /*These should eventually not be strings, but im not positive how all of it is set up*/
     public String task_variant;
     public String evaluator;
-
     public String configuration_id;
 
 

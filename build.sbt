@@ -18,7 +18,7 @@ lazy val core = (project in file("core")).
   settings(
     name := "core",
       libraryDependencies ++= Seq(
-      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.0",
+      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.17",
       "org.webjars" %% "webjars-play" % "2.4.0-1",
       "org.webjars" % "bootstrap" % "3.1.1-2",
       "org.json" % "json" % "20140107",
@@ -29,14 +29,16 @@ lazy val core = (project in file("core")).
     ),
     routesGenerator := InjectedRoutesGenerator
   )
+.dependsOn(learner)
 
 lazy val learner = (project in file("learner")).
   settings(commonSettings: _*).
   settings(
     name := "learner",
     libraryDependencies ++= Seq(
-      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.8",
-      "com.nanohttpd" % "nanohttpd-webserver" % "2.1.1",
+      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.17",
+      "org.nanohttpd" % "nanohttpd" % "2.2.0",
+      "org.nanohttpd" % "nanohttpd-nanolets" % "2.2.0",
       "org.mockito" % "mockito-core" % "1.10.19",
       "org.apache.httpcomponents" % "httpclient" % "4.5.1",
       "com.novocode" % "junit-interface" % "0.11" % "test"

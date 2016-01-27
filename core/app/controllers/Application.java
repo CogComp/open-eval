@@ -1,8 +1,10 @@
 package controllers;
 
 import play.*;
+import play.libs.ws.WSResponse;
 import play.mvc.*;
 import play.data.DynamicForm;
+import play.Logger;
 
 import views.html.*;
 
@@ -10,26 +12,19 @@ import java.util.*;
 
 import models.*;
 
-
-import play.Logger;
-
 import controllers.evaluators.Evaluation;
 
 public class Application extends Controller {
 
     private List<models.Configuration> getConfigurations() {
-        List<models.Configuration> configurations = new ArrayList<>();
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        List<models.Configuration> configList; 
         
-        FrontEndDatabase f = new FrontEndDatabase(); 
-		
-        List<models.Configuration> configList = f.getConfigList();
-    
-        if (configList != null) {
-            for (int i = 0; i < configList.size(); i++) {
-                configurations.add(configList.get(i));
-            }
+        try {
+            configList = f.getConfigList();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-		
         return configList;
     }
 
@@ -81,35 +76,33 @@ public class Application extends Controller {
 
     public Result submitConfiguration() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
-        FrontEndDatabase f = new FrontEndDatabase(); 
-
-        String json = "{"
-            + "\"configuration\" : {"
-            + "\"datasetName\": \"" + bindedForm.get("dataset") + "\","
-            + "\"teamName\" : \"" + bindedForm.get("teamname")+ "\","
-            + "\"description\" : \"" + bindedForm.get("description")+ "\","
-            + "\"evaluator\" : \"" + bindedForm.get("evaluator")+ "\","
-            + "\"taskType\" : \"Text Annotation\""
-            + "},"
-            + "\"taskVariants\" : ["
-            + "\"tskVar1\","
-            + "\"tskVar2\","
-            + "\"tskVar3\""
-            + "]"
-            + "}";
-        f.storeConfig(json);
+        FrontEndDBInterface f = new FrontEndDBInterface(); 
+        
+        List<String> taskVariants = new ArrayList<>(); 
+        taskVariants.add("tskVar1"); 
+        taskVariants.add("tskVar2");
+        taskVariants.add("tskVar3");
+        
+        try {
+            f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("teamname"), bindedForm.get("description"), bindedForm.get("evaluator"), "Text Annotation", taskVariants); 
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         return redirect("/");
     }
 
     public Result configuration(String configuration_id) {
         RecipeViewModel viewModel = new RecipeViewModel();
-
+        FrontEndDBInterface f = new FrontEndDBInterface(); 
+        models.Configuration conf; 
         
-        FrontEndDatabase f = new FrontEndDatabase(); 
-        models.Configuration conf = f.getConfigInformation(Integer.parseInt(configuration_id)); 
-
-
+        try {
+            conf = f.getConfigInformation(Integer.parseInt(configuration_id)); 
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        
         List<Record> records = new ArrayList<>();
         records.add(new Record("date", "comment", "repo", "author",95.1));
         records.add(new Record("date2", "comment", "repo", "author",36.1));
@@ -144,11 +137,14 @@ public class Application extends Controller {
 		String url = bindedForm.get("url");
         // Run + Save run to db here
         // System.out.println(bindedForm.get("url"));
-		int status = Core.startJob(configuration_id, url);
-		if(status == 200)
-			return redirect("/configuration?conf="+configuration_id);
+		WSResponse response = Core.startJob(configuration_id, url);
+		if(response == null)
+			return internalServerError("Server Not Found");
 		else
-			return status(status);
+		if(response.getStatus()==500)
+            return internalServerError(response.getBody());
+        else
+            return redirect("/configuration?conf="+configuration_id);
     }
 
     public Result record(String record_id) {
