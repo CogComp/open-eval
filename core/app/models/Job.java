@@ -1,17 +1,19 @@
 package models;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import controllers.Domain;
 import controllers.evaluators.Evaluation;
 import controllers.evaluators.Evaluator;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
-import play.api.libs.ws.WSResponse;
+import play.libs.ws.WSResponse;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class representing one job to send to the solver.  
+ *
+ * @author Joshua Camp
  */
 
  public class Job {
@@ -31,7 +33,7 @@ import play.api.libs.ws.WSResponse;
  	/** List of unprocessed text annotation instances */
 	private List<TextAnnotation> unprocessedInstances;
 
- 	/** List of TextAnnotation instances returned by the solver */
+ 	/** List of `TextAnnotation` instances returned by the solver */
  	private List<TextAnnotation> solverInstances;
 
  	public Job(LearnerInterface learner, List<TextAnnotation> instances) {
@@ -61,12 +63,13 @@ import play.api.libs.ws.WSResponse;
  	}
  	
  	/**
- 	 *	Runs the specified evaluators on the instances returned from the solver and stores
- 	 *  the results in Evaluation objects.
+ 	 *	Runs the specified evaluator on the instances returned from the solver and stores
+ 	 *  the results in an Evaluation object.
  	 */
  	public Evaluation evaluateSolver() {
- 		evaluation = evaluator.evaluate(correctInstances, solverInstances);
+ 		//this.evaluation = evaluator.evaluate(correctInstances, solverInstances);
 		return evaluation;
+
  	}
 
 	public List<TextAnnotation> getSolverInstances(){
@@ -75,21 +78,5 @@ import play.api.libs.ws.WSResponse;
 
 	public TextAnnotation getSolverInstance(int i) {
 		return getSolverInstances().get(i);
-	}
-
-	public Domain getDomain() {
-		return domain;
-	}
-
-	public Evaluation getEvaluation() {
-		return evaluation;
-	}
-
-	public List<TextAnnotation> getSolverInstances() {
-		return solverInstances;
-	}	
-	
-	public List<TextAnnotation> getCorrectInstances() {
-		return correctInstances;
 	}
  }

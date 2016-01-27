@@ -9,6 +9,7 @@ import org.junit.Test;
 import controllers.cleansers.TokenLabelCleanser;
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+import edu.illinois.cs.cogcomp.core.utilities.DummyTextAnnotationGenerator;
 
 public class CleanserTest {
 
