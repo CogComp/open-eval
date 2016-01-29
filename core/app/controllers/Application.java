@@ -47,9 +47,14 @@ public class Application extends Controller {
 
         for (int i = 65; i < 65+3; i++) {
             List<String> task_variants_i = new ArrayList<>();
-            task_variants_i.add("task_variant A" + (char) i);
-            task_variants_i.add("task_variant B" + (char) i);
-            task_variants_i.add("task_variant C" + (char) i);
+
+            task_variants_i.add("SPAN_IDENTIFICATION");
+            task_variants_i.add("SPAN_TAGGING");
+            task_variants_i.add("PREDICATE_ARGUMENT_LABELING");
+            task_variants_i.add("SPAN_CLUSTERING");
+            task_variants_i.add("DEPENDENCY_PARSING");
+            task_variants_i.add("CONSTITUENCY_PARSING");
+            
             task_variants.put("dataset "+(char) i, task_variants_i);
 
             List<String> evaluator_i = new ArrayList<>();
