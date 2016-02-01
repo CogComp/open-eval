@@ -8,6 +8,7 @@ import java.util.List;
  */
 public class Configuration {
 
+    public String configuration_name;
     public String team_name;
     public String description;
     public String dataset;

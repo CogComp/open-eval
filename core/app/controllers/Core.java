@@ -16,7 +16,7 @@ import models.Configuration;
 /**
  * This class connects all the back-end modules, i.e. the solver, the evaluation and the database
  */
-public class Core{
+public class Core {
 	
 		/**
 		 * Send instances to the solver and return back an evaluation on the results
