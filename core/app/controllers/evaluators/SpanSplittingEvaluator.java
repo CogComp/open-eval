@@ -10,18 +10,19 @@ import java.util.*;
 
 public class SpanSplittingEvaluator extends Evaluator {
 
-	public SpanSplittingEvaluator() {
+	private String spanViewName;
+	
+	public SpanSplittingEvaluator(String spanViewName) {
 		super();
+		this.spanViewName = spanViewName;
 	}
-
-    private String spanViewName = "";
 
     public void setSpanViewName(String spanViewName) {
         this.spanViewName = spanViewName;
     }
 
 	public Evaluation evaluate(List<TextAnnotation> correctAnnotations, List<TextAnnotation> solverAnnotations) {
-        assert( correctAnnotations.size() != solverAnnotations.size() );
+        assert( correctAnnotations.size() == solverAnnotations.size() );
 
         EvaluationRecord macroEvaluationRecord = new EvaluationRecord();
         List<EvaluationRecord> microEvaluationRecords = new ArrayList<>();
