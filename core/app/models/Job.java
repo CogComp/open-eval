@@ -61,16 +61,6 @@ import java.util.List;
  		}
 		return response;
  	}
- 	
- 	/**
- 	 *	Runs the specified evaluator on the instances returned from the solver and stores
- 	 *  the results in an Evaluation object.
- 	 */
- 	public Evaluation evaluateSolver() {
- 		//this.evaluation = evaluator.evaluate(correctInstances, solverInstances);
-		return evaluation;
-
- 	}
 
 	public List<TextAnnotation> getSolverInstances(){
 		return this.solverInstances;

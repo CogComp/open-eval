@@ -1,5 +1,9 @@
 package controllers;
 
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
+import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
+import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
+import edu.illinois.cs.cogcomp.core.experiments.evaluators.SpanLabelingEvaluator;
 import models.Job;
 import models.LearnerInterface;
 import play.libs.ws.WSResponse;
@@ -7,8 +11,6 @@ import play.libs.ws.WSResponse;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import java.util.*;
 
-import controllers.evaluators.Evaluator;
-import controllers.evaluators.Evaluation;
 import models.Configuration;
 
 /**
@@ -22,10 +24,9 @@ public class Core{
 		 * @param url - url of the server to send the instances through API calls to
 		 * @return - The evaluation on the solver result
 		 */
-		public static WSResponse startJob(String conf_id, String url) {
+		public static WSResponse startJob(int conf_id, String url) {
 			Configuration runConfig = getConfigurationFromDb(conf_id);
-			
-			Evaluator newEval = getEvaluator(runConfig);
+
 			List<TextAnnotation> instances = getInstancesFromDb(runConfig);
 
 			LearnerInterface learner = new LearnerInterface(url);
@@ -34,23 +35,24 @@ public class Core{
 			if(jsonInfo.equals("err"))
 				return null;
 
-			instances = cleanseInstances(instances, jsonInfo);
+			List<TextAnnotation> cleansedInstances = cleanseInstances(instances, jsonInfo);
 
-			Job newJob = new Job(learner, instances);
+			Job newJob = new Job(learner, cleansedInstances);
 			WSResponse solverResponse = newJob.sendAndReceiveRequestsFromSolver();
-			Evaluation eval = newJob.evaluateSolver();
-			//TODO: Add new evaluation to database
+
+			List<TextAnnotation> solvedInstances = newJob.getSolverInstances();
+			ClassificationTester eval = evaluate(runConfig, instances, solvedInstances);
 			return solverResponse;
 		}
 		
 		/**
-		 * UNIMPLEMENTED
 		 * Retrieve a stored configuration from the database
 		 * @param conf_id - database key for the configuration used to define the task
 		 * @return - The Configuration object from the database
 		 */
-		private static Configuration getConfigurationFromDb(String conf_id) {
-			return null;
+		private static Configuration getConfigurationFromDb(int conf_id) {
+			FrontEndDBInterface db = new FrontEndDBInterface();
+			return db.getConfigInformation(conf_id);
 		}
 		
 		/**
@@ -64,13 +66,20 @@ public class Core{
 		}
 		
 		/**
-		 * UNIMPLEMENTED
 		 * Create a new Evaluator to be used on the solved instances
 		 * @param runConfig - Defines the type of evaluator the user needs
 		 * @return - Evaluator object to be used
 		 */
-		private static Evaluator getEvaluator(Configuration runConfig){
-			return null;
+		private static ClassificationTester evaluate(Configuration runConfig, List<TextAnnotation> correctInstances, List<TextAnnotation> solvedInstances){
+			Evaluator evaluator = new SpanLabelingEvaluator();
+			ClassificationTester eval = new ClassificationTester();
+			for(int i=0; i<correctInstances.size(); i++){
+				View gold = correctInstances.get(i).getView("POS");
+				View predicted = solvedInstances.get(i).getView("POS");
+				evaluator.setViews(gold, predicted);
+				evaluator.evaluate(eval);
+			}
+			return eval;
 		}
 
 	/**

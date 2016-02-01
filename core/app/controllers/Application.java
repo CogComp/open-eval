@@ -120,9 +120,8 @@ public class Application extends Controller {
 
         String configuration_id = bindedForm.get("configuration_id");
 		String url = bindedForm.get("url");
-        // Run + Save run to db here
-        // System.out.println(bindedForm.get("url"));
-		WSResponse response = Core.startJob(configuration_id, url);
+        int id = Integer.parseInt(configuration_id);
+		WSResponse response = Core.startJob(id, url);
 		if(response == null)
 			return internalServerError("Server Not Found");
 		else
