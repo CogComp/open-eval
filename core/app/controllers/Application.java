@@ -41,6 +41,8 @@ public class Application extends Controller {
         //TextAnnotation ta = tas.get(0);
         //String json = SerializationHelper.serializeToJson(ta); 
         //Logger.info("json length: " + json.length());
+        //List<TextAnnotation> tas = posReader.getTextAnnotationsFromDB("22-24.br");
+        //Logger.info("Size of tas: " + tas.size());
         
         return ok(index.render(viewModel));
     }
