@@ -4,12 +4,40 @@ import edu.illinois.cs.cogcomp.nlp.corpusreaders.PennTreebankPOSReader;
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 
-import java.util.List;
+import java.util.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.ResultSet; 
 
 public class POSReader {
+    public List<TextAnnotation> getTextAnnotationsFromDB(String datasetName) {
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        Connection conn = f.getConnection();
+        
+        String sql = "SELECT textAnnotation FROM textannotations WHERE dataset_name = ?";
+        ResultSet textAnnotationsRS; 
+        List<TextAnnotation> textAnnotations = new ArrayList<>();
+        try {
+            PreparedStatement stmt = conn.prepareStatement(sql); 
+            stmt.setString(1, datasetName);
+            textAnnotationsRS = stmt.executeQuery(); 
+         
+            while (textAnnotationsRS.next()) {
+                String taJson = textAnnotationsRS.getString(1);
+                TextAnnotation ta; 
+                try {
+                    ta = SerializationHelper.deserializeFromJson(taJson);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                textAnnotations.add(ta); 
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return textAnnotations; 
+    }
     
     public List<TextAnnotation> insertDatasetIntoDB(String corpusName, String datasetPath) {
         List<TextAnnotation> textAnnotations = getTextAnnotations(corpusName, datasetPath); 
