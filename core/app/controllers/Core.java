@@ -50,7 +50,9 @@ public class Core {
 		 * @return - The Configuration object from the database
 		 */
 		private static Configuration getConfigurationFromDb(String conf_id) {
-			return null;
+            FrontEndDBInteface f = new FrontEndDBInteface(); 
+            Configuration config = f.getConfigInformation(Integer.parseInt(conf_id));
+			return config;
 		}
 		
 		/**
@@ -60,7 +62,10 @@ public class Core {
 		 * @return -  list of TextAnnotation instances from the database
 		 */
 		private static List<TextAnnotation> getInstancesFromDb(Configuration runConfig){
-			return null;
+            String datasetName = runConfig.dataset;
+            POSReader posReader = new POSReader();
+            List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB(datasetName); 
+			return TextAnnotations;
 		}
 		
 		/**
