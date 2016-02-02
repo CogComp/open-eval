@@ -36,12 +36,11 @@ public class Application extends Controller {
         IndexViewModel viewModel = new IndexViewModel();
         viewModel.configurations = getConfigurations();
         
-        //POSReader posReader = new POSReader("22-24-deepak", "C:\\Users\\Deepak\\Desktop\\Current School\\Open Eval\\Datasets\\posdata\\22-24-deepak.br");
-        POSReader posReader = new POSReader();
-        List<TextAnnotation> tas = posReader.getTAs("22-24-deepak", "C:\\Users\\Deepak\\Desktop\\Current School\\Open Eval\\Datasets\\posdata\\22-24.br"); 
-        TextAnnotation ta = tas.get(0);
-        String json = SerializationHelper.serializeToJson(ta); 
-        Logger.info("json length: " + json.length());
+        //POSReader posReader = new POSReader();
+        //List<TextAnnotation> tas = posReader.insertDatasetIntoDB("22-24.br", "C:\\Users\\Deepak\\Desktop\\Current School\\Open Eval\\Datasets\\posdata\\22-24.br"); 
+        //TextAnnotation ta = tas.get(0);
+        //String json = SerializationHelper.serializeToJson(ta); 
+        //Logger.info("json length: " + json.length());
         
         return ok(index.render(viewModel));
     }
