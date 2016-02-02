@@ -14,6 +14,10 @@ import models.*;
 
 import controllers.evaluators.Evaluation;
 
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+import play.Logger.*;
+import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
+
 public class Application extends Controller {
 
     private List<models.Configuration> getConfigurations() {
@@ -31,6 +35,14 @@ public class Application extends Controller {
     public Result index() {
         IndexViewModel viewModel = new IndexViewModel();
         viewModel.configurations = getConfigurations();
+        
+        //POSReader posReader = new POSReader("22-24-deepak", "C:\\Users\\Deepak\\Desktop\\Current School\\Open Eval\\Datasets\\posdata\\22-24-deepak.br");
+        POSReader posReader = new POSReader();
+        List<TextAnnotation> tas = posReader.getTAs("22-24-deepak", "C:\\Users\\Deepak\\Desktop\\Current School\\Open Eval\\Datasets\\posdata\\22-24.br"); 
+        TextAnnotation ta = tas.get(0);
+        String json = SerializationHelper.serializeToJson(ta); 
+        Logger.info("json length: " + json.length());
+        
         return ok(index.render(viewModel));
     }
 

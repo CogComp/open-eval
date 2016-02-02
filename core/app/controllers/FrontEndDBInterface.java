@@ -143,7 +143,7 @@ public class FrontEndDBInterface {
     
     
     /** Returns a connection to the Gargamel database.*/
-    private Connection getConnection() {
+    public Connection getConnection() {
         try {
             Class.forName(jdbcDriver);
         } catch (ClassNotFoundException e) {

@@ -168,4 +168,8 @@ public class ApplicationTest {
                 return;
         }
     } 
+    
+    @Test
+    public void testGetRecords() {
+    }
 }
