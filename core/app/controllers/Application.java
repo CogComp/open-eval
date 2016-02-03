@@ -143,7 +143,7 @@ public class Application extends Controller {
         int id = Integer.parseInt(configuration_id);
 		WSResponse response = Core.startJob(id, url);
 		if(response == null)
-			return internalServerError("Server Not Found");
+			return internalServerError("Server incorrectly configured");
 		else
 		if(response.getStatus()==500)
             return internalServerError(response.getBody());

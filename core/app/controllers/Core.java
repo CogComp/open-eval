@@ -1,11 +1,17 @@
 package controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
 import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.SpanLabelingEvaluator;
 import models.Job;
 import models.LearnerInterface;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import play.libs.Json;
 import play.libs.ws.WSResponse;
 
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
@@ -36,6 +42,9 @@ public class Core {
 				return null;
 
 			List<TextAnnotation> cleansedInstances = cleanseInstances(instances, jsonInfo);
+			if(cleansedInstances == null){
+				return null;
+			}
 
 			Job newJob = new Job(learner, cleansedInstances);
 			WSResponse solverResponse = newJob.sendAndReceiveRequestsFromSolver();
@@ -89,7 +98,16 @@ public class Core {
 	 * @param jsonInfo - The information given by the learner
 	 * @return  - The cleansed instance
 	 */
-		private static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, String jsonInfo){
-			return correctInstances;
+		public static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, String jsonInfo){
+			JSONParser parser = new JSONParser();
+			List<String> requiredViews = null;
+			try{
+				JSONObject obj = (JSONObject) parser.parse(jsonInfo);
+				requiredViews = (List<String>) obj.get("requiredViews");
+			}catch(Exception pe) {
+				pe.printStackTrace();
+				return null;
+			}
+			return Redactor.removeAnnotations(correctInstances, requiredViews);
 		}
 }

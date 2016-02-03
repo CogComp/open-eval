@@ -30,12 +30,16 @@ public class Redactor {
 		if (viewsToKeep == null) {
 			viewsToKeep = Collections.EMPTY_LIST;
 		}
-		
+
+		List<String> viewsToRemove = new ArrayList<>();
 		for (TextAnnotation textAnnotation : textAnnotations) {
 			for (String viewName : textAnnotation.getAvailableViews()) {
 				if (!viewsToKeep.contains(viewName)) {
-					textAnnotation.removeView(viewName);
+					viewsToRemove.add(viewName);
 				}
+			}
+			for(String viewName: viewsToRemove){
+				textAnnotation.removeView(viewName);
 			}
 		}
 		return textAnnotations;

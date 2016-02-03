@@ -34,7 +34,7 @@ public class CoreTest extends WithApplication {
     public void invalidUrl() {
 		System.out.println("Test Running");
         String url = "fakeurl:9000";
-		String conf_id = "1";
+		int conf_id = 1;
 		WSResponse status = Core.startJob(conf_id, url);
 		assertEquals(null, status);
     }
