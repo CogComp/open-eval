@@ -156,8 +156,18 @@ public class Application extends Controller {
         RecordViewModel viewModel = new RecordViewModel();
         // should find record by lookup
         Record associated_record = new Record();
+        associated_record.metrics = new Metrics(
+            1.1,2.2,3.3,4,5,6,7,8
+        );
         viewModel.record = associated_record;
         return ok(record.render(viewModel));
+    }
+
+    public Result deleteRecord() {
+        // should delete record from db
+        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+        System.out.println(bindedForm.get("record_id"));
+        return redirect("/");
     }
 
     public Result about() {
