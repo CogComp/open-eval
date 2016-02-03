@@ -115,7 +115,6 @@ public class Application extends Controller {
         conf.records = records;
         viewModel.configuration = conf;
 
-        viewModel.history = "history B";
         return ok(recipe.render(viewModel));
     }
 
