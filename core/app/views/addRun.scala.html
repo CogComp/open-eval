@@ -12,6 +12,7 @@
     <body>
         <div class="body">
             <h1><a href="/">Open-Eval</a></h1>
+            <h3>New run of configuration</h3>
             <font color="red">@viewModel.error_message</font>
             <form action="submitRun" method="post" id="usrform">
               <table class="table" style="width: 40%;">
@@ -22,9 +23,10 @@
                   </tr>
                 </thead>
                 <tbody>
+                  <input type="hidden" value=@viewModel.configuration_id name="configuration_id">
                   <tr>
                     <td>
-                      URL<font color="red">*</font>:
+                      URL (Solver address)<font color="red">*</font>:
                     </td>
                     <td>
                        <input type="text" name="url" value="@viewModel.default_url">

@@ -8,6 +8,37 @@
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
         <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))">
+        <script type="text/javascript">
+        var tvs = {
+         @for((k,v) <- viewModel.task_variants) {
+          "@k":
+          @for(l<-v) {
+            ' <option value="@l">@l</option>'+
+          }
+          ' ',
+         }
+        }
+
+        var evs = {
+          @for((k,v) <- viewModel.evaluators) {
+            "@k":
+            @for(l<-v) {
+              ' <option value="@l">@l</option>'+
+            }
+            ' ',
+          }
+        };
+
+        function alter_tv(selected) {
+          var s = document.getElementById('ds').children[selected].innerHTML;
+          document.getElementById('tv').innerHTML = tvs[s];
+        }
+
+        function alter_ev(selected) {
+          var s = document.getElementById('tv').children[selected].innerHTML;
+          document.getElementById('ev').innerHTML = evs[s];
+        }
+        </script>
     </head>
     <body>
         <div class="body">
@@ -42,7 +73,7 @@
                       Dataset:
                     </td>
                     <td>
-                      <select name="dataset">
+                      <select name="dataset" onchange="alter_tv(this.selectedIndex);" id="ds">
                         @for(dataset <- viewModel.datasets) {
                           <option value="@dataset">@dataset</option>
                         }
@@ -54,8 +85,8 @@
                       Task variant (sub-domain):
                     </td>
                     <td>
-                      <select name="taskvariant">
-                        @for(task_variant <- viewModel.task_variants) {
+                      <select name="taskvariant" onchange="alter_ev(this.selectedIndex);" id="tv">
+                        @for(task_variant <- viewModel.task_variants.get("dataset A")) {
                           <option value="@task_variant">@task_variant</option>
                         }
                       </select>
@@ -66,8 +97,8 @@
                       Evaluator:
                     </td>
                     <td>
-                       <select name="evaluator">
-                        @for(evaluator <- viewModel.evaluators) {
+                       <select name="evaluator" id="ev">
+                        @for(evaluator <- viewModel.evaluators.get("task_variant AA")) {
                           <option value="@evaluator">@evaluator</option>
                         }
                       </select>

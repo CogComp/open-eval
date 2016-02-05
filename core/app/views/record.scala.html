@@ -13,7 +13,116 @@
     <body>
         <div class="body">
             <h1><a href="/">Open-Eval</a></h1>
-            @viewModel.record.record_id;
-        </div>
+            <div class="table-responsive">          
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th class="col-md-4">Metrics</th>
+                    <th class="col-md-8">Metric Values</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      precision
+                    </td>
+                    <td>
+                      @viewModel.record.metrics.precision
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      recall
+                    </td>
+                    <td>
+                      @viewModel.record.metrics.recall
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      f1
+                    </td>
+                    <td>
+                      @viewModel.record.metrics.f1
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      
+                    </td>
+                    <td>
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      gold count
+                    </td>
+                    <td>
+                      @viewModel.record.metrics.gold_count
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      correct count
+                    </td>
+                    <td>
+                      @viewModel.record.metrics.correct_count
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      predicted count
+                    </td>
+                    <td>
+                      @viewModel.record.metrics.predicted_count
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      missed count
+                    </td>
+                    <td>
+                      @viewModel.record.metrics.missed_count
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      extra
+                    </td>
+                    <td>
+                      @viewModel.record.metrics.extra_count
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      
+                    </td>
+                    <td>
+                      
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      record id
+                    </td>
+                    <td>
+                      @viewModel.record.record_id
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+        <form action="/deleteRecord" method="post">
+          <input type="hidden"
+           name="record_id"
+           value="@viewModel.record.record_id" />
+          <input type="submit" 
+            rel="facebox[.dangerzone]" 
+            class="btn btn-danger boxed-action"
+            value="Delete this record"
+          />
+        </form>
+      </div>
     </body>
 </html>

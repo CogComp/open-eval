@@ -1,8 +1,8 @@
 package controllers;
 
-import play.*;
-import play.mvc.*;
-import play.mvc.Http.*;
+import models.Job;
+import models.LearnerInterface;
+import play.libs.ws.WSResponse;
 
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import java.util.*;
@@ -14,7 +14,7 @@ import models.Configuration;
 /**
  * This class connects all the back-end modules, i.e. the solver, the evaluation and the database
  */
-public class Core{
+public class Core {
 	
 		/**
 		 * Send instances to the solver and return back an evaluation on the results
@@ -22,22 +22,25 @@ public class Core{
 		 * @param url - url of the server to send the instances through API calls to
 		 * @return - The evaluation on the solver result
 		 */
-		public static int startJob(String conf_id, String url) {
+		public static WSResponse startJob(String conf_id, String url) {
 			Configuration runConfig = getConfigurationFromDb(conf_id);
 			
 			Evaluator newEval = getEvaluator(runConfig);
 			List<TextAnnotation> instances = getInstancesFromDb(runConfig);
-			
-			DummySolver solver = new DummySolver(url);
-			int status = solver.testURL();
-			System.out.println(status);
-			if(status != 200)
-				return status;
-			Job newJob = new Job(solver, instances, newEval);
-			newJob.sendAndReceiveRequestsFromSolver();
+
+			LearnerInterface learner = new LearnerInterface(url);
+
+			String jsonInfo = learner.getInfo();
+			if(jsonInfo.equals("err"))
+				return null;
+
+			instances = cleanseInstances(instances, jsonInfo);
+
+			Job newJob = new Job(learner, instances);
+			WSResponse solverResponse = newJob.sendAndReceiveRequestsFromSolver();
 			Evaluation eval = newJob.evaluateSolver();
 			//TODO: Add new evaluation to database
-			return 200;
+			return solverResponse;
 		}
 		
 		/**
@@ -53,7 +56,7 @@ public class Core{
 		/**
 		 * UNIMPLEMENTED 
 		 * Retrieve a stored dataset from the database
-		 * @param dataset - database key for the dataset to use as test data
+		 * @param runConfig - database key for the dataset to use as test data
 		 * @return -  list of TextAnnotation instances from the database
 		 */
 		private static List<TextAnnotation> getInstancesFromDb(Configuration runConfig){
@@ -63,10 +66,21 @@ public class Core{
 		/**
 		 * UNIMPLEMENTED
 		 * Create a new Evaluator to be used on the solved instances
-		 * @param evalType - Defines the type of evaluator the user needs
+		 * @param runConfig - Defines the type of evaluator the user needs
 		 * @return - Evaluator object to be used
 		 */
 		private static Evaluator getEvaluator(Configuration runConfig){
 			return null;
+		}
+
+	/**
+	 * UNIMPLEMENTED
+	 * Cleanse the correct instances
+	 * @param correctInstances - The correct instances from the databse
+	 * @param jsonInfo - The information given by the learner
+	 * @return  - The cleansed instance
+	 */
+		private static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, String jsonInfo){
+			return correctInstances;
 		}
 }

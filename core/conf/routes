@@ -16,6 +16,10 @@ GET        /configuration        controllers.Application.configuration(conf: Str
 
 GET        /record               controllers.Application.record(record_id: String)
 
+POST       /deleteConfiguration  controllers.Application.deleteConfiguration()
+
+POST       /deleteRecord         controllers.Application.deleteRecord()
+
 # Add configuration
 GET        /addConfiguration     controllers.Application.addConfiguration()
 
