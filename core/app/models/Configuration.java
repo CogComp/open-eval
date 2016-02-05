@@ -26,7 +26,7 @@ public class Configuration {
         this.dataset = dataset;
         this.task_variant = task_variant;
         this.evaluator = evaluator;
-        this.configuration_id = "" + (counter++);
+        this.configuration_id = configuration_id;
     }
 
 }
