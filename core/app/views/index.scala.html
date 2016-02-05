@@ -26,23 +26,17 @@
                 <tbody>
                   <tr>
                     <td>
+                        <div class="list-group">
                         @for(configuration <- viewModel.configurations) {
-                          @defining(configuration.conf_name + " | " + configuration.dataset + " | " +
-                          configuration.task_variant + " | " + configuration.evaluator){conf =>
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <h3 class="panel-title">
-                                        <a href = "configuration?conf=@configuration.configuration_id">
-                                            @conf
-                                        </a>
-                                    </h3>
-                                </div>
-                                <div class="panel-body">
-                                    @configuration.description
-                                </div>
-                            </div>
-                          }
-                        } 
+                            @defining(configuration.conf_name + " | " + configuration.dataset + " | " +
+                                    configuration.task_variant + " | " + configuration.evaluator){conf =>
+                                <a href="configuration?conf=@configuration.configuration_id" class="list-group-item">
+                                    <h4 class="list-group-item-heading">@conf</h4>
+                                    <p class="list-group-item-text">@configuration.description</p>
+                                </a>
+                            }
+                        }
+                        </div>
                       <a href = "/addConfiguration" class="btn btn-default">Add configuration</a>
                     </td>
                     <td>
