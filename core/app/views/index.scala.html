@@ -12,8 +12,10 @@
     </head>
     <body>
         <div class="body">
-            <h1><a href="/">Open-Eval</a></h1>
-            <div class="table-responsive">          
+            <div class="page-header">
+                <h1>OpenEval<small> an open-source evaluation framework</small></h1>
+            </div>
+            <div class="table-responsive">
               <table class="table">
                 <thead>
                   <tr>
@@ -24,26 +26,23 @@
                 <tbody>
                   <tr>
                     <td>
-                      <ol> 
+                        <div class="list-group">
                         @for(configuration <- viewModel.configurations) {
-                          @defining(configuration.team_name + " | " + configuration.dataset + " | " +
-                              configuration.task_variant + " | " + configuration.evaluator){conf =>
-                            <li>
-                              <a href = "configuration?conf=@configuration.configuration_id">
-                                Configuration @configuration.configuration_id
-                              </a>
-                              <div><b>@conf</b></div>
-                              <p>@configuration.description</p>
-                            </li>
-                          }
-                        } 
-                      </ol>
+                            @defining(configuration.conf_name + " | " + configuration.dataset + " | " +
+                                    configuration.task_variant + " | " + configuration.evaluator){conf =>
+                                <a href="configuration?conf=@configuration.configuration_id" class="list-group-item">
+                                    <h4 class="list-group-item-heading">@conf</h4>
+                                    <p class="list-group-item-text">@configuration.description</p>
+                                </a>
+                            }
+                        }
+                        </div>
                       <a href = "/addConfiguration" class="btn btn-default">Add configuration</a>
                     </td>
                     <td>
                         <ul>
-                          <li><a href="/thinClient">Download our thin client!</a></li>
-                          <li><a href="/about">About Team</a></li>
+                          <li><a href="/clientInstructions">Instructions on how to use our system!</a></li>
+                          <li><a href="/about">About us</a></li>
                         </ul>
                     </td>
                   </tr>

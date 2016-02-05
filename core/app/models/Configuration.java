@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class Configuration {
 
-    public String configuration_name;
+    public String conf_name;
     public String team_name;
     public String description;
     public String dataset;
@@ -20,8 +20,8 @@ public class Configuration {
     public String configuration_id;
 
 
-    public Configuration(String team_name, String description, String dataset, String task_variant, String evaluator, String configuration_id) {
-        this.team_name = team_name;
+    public Configuration(String conf_name, String description, String dataset, String task_variant, String evaluator, String configuration_id) {
+        this.conf_name = conf_name;
         this.description = description;
         this.dataset = dataset;
         this.task_variant = task_variant;
