@@ -173,8 +173,8 @@ public class Application extends Controller {
         return ok(about.render());
     }
 
-    public Result thinClient() {
-        // Change to download of thin client
+    public Result instructions() {
+        // Change to go to instructions page
         return redirect("/");
     }
 }
