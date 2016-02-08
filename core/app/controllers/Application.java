@@ -133,19 +133,28 @@ public class Application extends Controller {
         return ok(addRun.render(viewModel));
     }
 
-
-    // If there is a failure, it should return back to the add run page
-    // with default values set to the sent form values, and an error message
     public Result submitRun() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
 
         String configuration_id = bindedForm.get("configuration_id");
 		String url = bindedForm.get("url");
+
         // Run + Save run to db here
-        // System.out.println(bindedForm.get("url"));
 		WSResponse response = Core.startJob(configuration_id, url);
-		if(response == null)
-			return internalServerError("Server Not Found");
+        if (response == null) {
+            String page_address = bindedForm.get("page_address");
+
+            AddRunViewModel viewModel = new AddRunViewModel();
+
+            viewModel.configuration_id = configuration_id;
+            viewModel.default_url = url;
+            viewModel.default_author = bindedForm.get("author");
+            viewModel.default_repo = bindedForm.get("repo");;
+            viewModel.default_comment = bindedForm.get("comment");;
+            viewModel.error_message = "Server at given address was not found";
+
+            return ok(addRun.render(viewModel));
+        }
 		else
 		if(response.getStatus()==500)
             return internalServerError(response.getBody());

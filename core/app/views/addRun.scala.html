@@ -59,6 +59,10 @@
                   </tr>
                 </tbody>
               </table>
+              <input type="hidden" id="page_address">
+              <script type="text/javascript">
+                document.getElementById('page_address').value = '/' + document.location.href.split('/').pop();
+              </script>
               <input type="submit" value="Run">
             </form>
         </div>
