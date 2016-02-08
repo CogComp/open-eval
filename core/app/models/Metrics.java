@@ -21,6 +21,9 @@ public class Metrics {
     private static long counter = 0;
 
     public Metrics() {
+        this.precision = Math.random();
+        this.recall = Math.random();
+        this.f1 = Math.random();
         this.metric_id = "" + (counter++);
     }
 

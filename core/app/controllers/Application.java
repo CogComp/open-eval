@@ -109,9 +109,9 @@ public class Application extends Controller {
         }
         
         List<Record> records = new ArrayList<>();
-        records.add(new Record("date", "comment", "repo", "author",95.1));
-        records.add(new Record("date2", "comment", "repo", "author",36.1));
-        records.add(new Record("date3", "comment", "repo", "author",97.1));
+        records.add(new Record("24-May-11", "comment", "repo", "author",95.1));
+        records.add(new Record("24-Apr-11", "comment", "repo", "author",36.1));
+        records.add(new Record("24-May-10", "comment", "repo", "author",97.1));
         conf.records = records;
         viewModel.configuration = conf;
 
