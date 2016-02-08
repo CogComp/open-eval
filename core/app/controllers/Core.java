@@ -50,7 +50,7 @@ public class Core {
 		 * @return - The Configuration object from the database
 		 */
 		private static Configuration getConfigurationFromDb(String conf_id) {
-            FrontEndDBInteface f = new FrontEndDBInteface(); 
+            FrontEndDBInterface f = new FrontEndDBInterface(); 
             Configuration config = f.getConfigInformation(Integer.parseInt(conf_id));
 			return config;
 		}

@@ -11,6 +11,8 @@ import java.sql.SQLException;
 import java.sql.ResultSet; 
 
 public class POSReader {
+    /** Given a dataset name, this will return a List<TextAnnotation> from the database. 
+    */
     public List<TextAnnotation> getTextAnnotationsFromDB(String datasetName) {
         FrontEndDBInterface f = new FrontEndDBInterface();
         Connection conn = f.getConnection();
@@ -39,6 +41,9 @@ public class POSReader {
         return textAnnotations; 
     }
     
+    
+    /** Inserts a dataset into the MySQL database as a series of JSON TextAnnotations.
+    */
     public List<TextAnnotation> insertDatasetIntoDB(String corpusName, String datasetPath) {
         List<TextAnnotation> textAnnotations = getTextAnnotations(corpusName, datasetPath); 
         insertIntoDatasets(corpusName); 
@@ -49,7 +54,7 @@ public class POSReader {
     /** Gets a List of TextAnnotations given the name of the corpus and the path to the dataset. 
     */
     private List<TextAnnotation> getTextAnnotations(String corpusName, String datasetPath) {
-        PennTreebankPOSReader posReader =  new PennTreebankPOSReader(corpusName); 
+        PennTreebankPOSReader posReader = new PennTreebankPOSReader(corpusName); 
         posReader.readFile(datasetPath);
         List<TextAnnotation> textAnnotations = posReader.getTextAnnotations(); 
         return textAnnotations; 
