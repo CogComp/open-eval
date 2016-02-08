@@ -142,8 +142,6 @@ public class Application extends Controller {
         // Run + Save run to db here
 		WSResponse response = Core.startJob(configuration_id, url);
         if (response == null) {
-            String page_address = bindedForm.get("page_address");
-
             AddRunViewModel viewModel = new AddRunViewModel();
 
             viewModel.configuration_id = configuration_id;
