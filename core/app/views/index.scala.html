@@ -13,6 +13,9 @@
     <body>
         <div class="body">
             <h1><a href="/">Open-Eval</a></h1>
+            @if(viewModel.configurations.length == 0) {
+              <p>Welcome to Open-Eval. This site is made for AI teams to track the results of their runs. Get started by adding a new configuration and downloading our client-server interaction software</p>
+              }
             <div class="table-responsive">          
               <table class="table">
                 <thead>
