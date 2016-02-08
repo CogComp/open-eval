@@ -26,11 +26,11 @@
                     <td>
                       <ol> 
                         @for(configuration <- viewModel.configurations) {
-                          @defining(configuration.team_name + " | " + configuration.dataset + " | " +
+                          @defining(configuration.dataset + " | " +
                               configuration.task_variant + " | " + configuration.evaluator){conf =>
                             <li>
                               <a href = "configuration?conf=@configuration.configuration_id">
-                                Configuration @configuration.configuration_id
+                                @configuration.configuration_name
                               </a>
                               <div><b>@conf</b></div>
                               <p>@configuration.description</p>

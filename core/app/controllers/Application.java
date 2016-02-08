@@ -89,7 +89,7 @@ public class Application extends Controller {
         taskVariants.add("tskVar3");
         
         try {
-            f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("teamname"), bindedForm.get("description"), bindedForm.get("evaluator"), "Text Annotation", taskVariants); 
+            f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"), bindedForm.get("description"), bindedForm.get("evaluator"), "Text Annotation", taskVariants); 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
