@@ -13,7 +13,7 @@ public class Record {
     public String comment;
     public String repo;
     public String author;
-    public double score;
+    public double f1; 
 
     public Metrics metrics;
 
@@ -28,7 +28,7 @@ public class Record {
         this.comment = comment;
         this.repo = repo;
         this.author = author;
-        this.score = score;
+        this.f1 = score;
         this.record_id = record_id;
         //this.record_id = "" + (counter++);
         this.metrics = metrics;

@@ -91,7 +91,9 @@ public class Application extends Controller {
         taskVariants.add("tskVar3");
         
         try {
-            f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("teamname"), bindedForm.get("description"), bindedForm.get("evaluator"), "Text Annotation", taskVariants); 
+            f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),
+                               bindedForm.get("description"), bindedForm.get("evaluator"),
+                               "Text Annotation", taskVariants); 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -111,7 +113,6 @@ public class Application extends Controller {
         }
         
         List<Record> records = f.getRecordsFromConfID(Integer.parseInt(configuration_id));
-     
         conf.records = records;
         viewModel.configuration = conf;
 
@@ -131,9 +132,6 @@ public class Application extends Controller {
         return ok(addRun.render(viewModel));
     }
 
-
-    // If there is a failure, it should return back to the add run page
-    // with default values set to the sent form values, and an error message
     public Result submitRun() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
 
@@ -147,8 +145,18 @@ public class Application extends Controller {
         String record_id = f.storeRunInfo(Integer.parseInt(configuration_id), url, author, repo, comment); 
        
         WSResponse response = Core.startJob(configuration_id, url, record_id);
-        if(response == null)
-            return internalServerError("Server Not Found");
+        if(response == null) {
+            AddRunViewModel viewModel = new AddRunViewModel();
+
+            viewModel.configuration_id = configuration_id;
+            viewModel.default_url = url;
+            viewModel.default_author = bindedForm.get("author");
+            viewModel.default_repo = bindedForm.get("repo");;
+            viewModel.default_comment = bindedForm.get("comment");;
+            viewModel.error_message = "Server at given address was not found";
+
+            return ok(addRun.render(viewModel));
+        }
         else
         if(response.getStatus()==500)
             return internalServerError(response.getBody());
@@ -176,8 +184,8 @@ public class Application extends Controller {
         return ok(about.render());
     }
 
-    public Result thinClient() {
-        // Change to download of thin client
+    public Result instructions() {
+        // Change to go to instructions page
         return redirect("/");
     }
 }
