@@ -12,7 +12,9 @@
     </head>
     <body>
         <div class="body">
-            <h1><a href="/">Open-Eval</a></h1>
+            <div class="page-header">
+              <h1>OpenEval<small> an open-source evaluation framework</small></h1>
+            </div>
             @if(viewModel.configurations.length == 0) {
               <p>Welcome to Open-Eval. This site is made for AI teams to track the results of their runs. Get started by adding a new configuration and downloading our client-server interaction software</p>
               }
@@ -20,27 +22,55 @@
               <table class="table">
                 <thead>
                   <tr>
-                    <th class="col-md-8">Configurations</th>
-                    <th class="col-md-4">Faqs</th>
+                    <th class="col-md-9">Configurations</th>
+                    <th class="col-md-3">Faqs</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td>
-                      <ol> 
+                      <!-- <div class="list-group">
                         @for(configuration <- viewModel.configurations) {
-                          @defining(configuration.dataset + " | " +
-                              configuration.task_variant + " | " + configuration.evaluator){conf =>
-                            <li>
-                              <a href = "configuration?conf=@configuration.configuration_id">
-                                @configuration.configuration_name
+                          @defining(configuration.configuration_name + " | " + configuration.dataset + " | " +
+                            configuration.task_variant + " | " + configuration.evaluator){conf =>
+                              <a href="configuration?conf=@configuration.configuration_id" class="list-group-item">
+                                <h4 class="list-group-item-heading">@conf</h4>
+                                <p class="list-group-item-text">@configuration.description</p>
                               </a>
-                              <div><b>@conf</b></div>
-                              <p>@configuration.description</p>
-                            </li>
-                          }
-                        } 
-                      </ol>
+                            }
+                        }
+                        </div> -->
+
+                        <table class="table table-bordered">
+                            <thead>
+                              <tr>
+                                <th>Configuration Name</th>
+                                <th>dataset</th>
+                                <th>task variant</th>
+                                <th>task evaluator</th>
+                                <th>description</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for(configuration <- viewModel.configurations) {
+                                
+                                  <tr>
+                                  @defining(configuration.configuration_name + " | " + configuration.dataset + " | " +
+                                    configuration.task_variant + " | " + configuration.evaluator){conf =>
+                                        <td>
+                                          <a href="configuration?conf=@configuration.configuration_id">
+                                            @configuration.configuration_name
+                                          </a>
+                                        </td>
+                                        <td>@configuration.dataset</td>
+                                        <td>@configuration.task_variant</td>
+                                        <td>@configuration.evaluator</td>
+                                        <td>@configuration.description</td>
+                                    }
+                                  </tr>
+                              }
+                            </tbody>
+                          </table>
                       <a href = "/addConfiguration" class="btn btn-default">Add configuration</a>
                     </td>
                     <td>
