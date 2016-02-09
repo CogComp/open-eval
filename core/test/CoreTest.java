@@ -18,6 +18,7 @@ import play.test.Helpers;
 import play.test.WithApplication;
 
 import java.sql.SQLException;
+import java.sql.DriverManager;
 /**
 *
 * Simple (JUnit) tests that can call all parts of a play app.

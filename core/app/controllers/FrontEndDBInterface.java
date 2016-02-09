@@ -13,6 +13,7 @@ import java.util.Date;
 
 import play.*;
 import play.mvc.*;
+import play.Logger;
 
 import org.json.*;
 import com.mysql.jdbc.Driver;
@@ -68,6 +69,7 @@ public class FrontEndDBInterface {
     /** Returns a list of all the configurations in the database to be displayed on landing page. */
     public List<models.Configuration> getConfigList() {
         try {
+            Logger.info("login timeout: " + DriverManager.getLoginTimeout());
             Connection connection = getConnection();
             
             String sql = "SELECT teamName, description, datasetName, evaluator, id FROM configurations;";
@@ -235,6 +237,7 @@ public class FrontEndDBInterface {
         }
         
         try { 
+            DriverManager.setLoginTimeout(2);
             Connection conn = DriverManager.getConnection(mysqlURL, username, password);
             return conn;
         } catch (SQLException e) {

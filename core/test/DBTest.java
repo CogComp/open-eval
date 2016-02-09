@@ -43,6 +43,7 @@ public class DBTest {
     public void testInsertConfigToDB() {    
         try {
             /*Getting the initial count of the number of records in the database.*/
+            DriverManager.setLoginTimeout(2);
             Connection conn = DriverManager.getConnection(mysqlURL, username, password);
             String sql = "SELECT COUNT(*) FROM configurations;";
             PreparedStatement stmt = conn.prepareStatement(sql);
@@ -79,6 +80,7 @@ public class DBTest {
     public void testGetConfigList() {
         try {
             /*Putting in a test configuration to see if it shows up in our configuration list.*/
+            DriverManager.setLoginTimeout(2);
             Connection conn = DriverManager.getConnection(mysqlURL, username, password);
             String sql = "INSERT INTO configurations (datasetName, teamName, description, evaluator, taskType) VALUES ('testDataset', 'testTeamName', 'testDescription', 'testEvaluator', 'testTaskType')";
             PreparedStatement stmt = conn.prepareStatement(sql);
@@ -121,6 +123,7 @@ public class DBTest {
     public void testGetConfigInformation() {
         try {
             /*Inserting a test configuration into the database that we will check to get the information of.*/
+            DriverManager.setLoginTimeout(2);
             Connection conn = DriverManager.getConnection(mysqlURL, username, password);
             String sql = "INSERT INTO configurations (datasetName, teamName, description, evaluator, taskType) VALUES ('testDataset', 'testTeamName', 'testDescription', 'testEvaluator', 'testTaskType')";
             PreparedStatement stmt = conn.prepareStatement(sql);
@@ -151,10 +154,10 @@ public class DBTest {
                 return;
         }
     } 
-    
-    @Test
+@Test
     public void testStoreRunInfo() {
         try {
+            DriverManager.setLoginTimeout(2);
             Connection conn = DriverManager.getConnection(mysqlURL, username, password);
             
             /*Inserting new configuration into database.*/
@@ -198,6 +201,7 @@ public class DBTest {
     @Test
     public void testInsertEvaluationIntoDB() {
         try {
+            DriverManager.setLoginTimeout(2);
             Connection conn = DriverManager.getConnection(mysqlURL, username, password);
                 
             /*Inserting new configuration into database.*/
@@ -247,45 +251,46 @@ public class DBTest {
     
     @Test 
     public void testGetRecordFromRecordID() {
-         try {
-        Connection conn = DriverManager.getConnection(mysqlURL, username, password);
-        
-        /*Inserting new configuration into database.*/
-        FrontEndDBInterface f = new FrontEndDBInterface();
-        List<String> taskVariants = new ArrayList<>();
-        taskVariants.add("testTskVar"); 
-        f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", taskVariants); 
-        
-        /*Figuring out the configuration_id of the configuration we just inserted.*/
-        String sql = "SELECT MAX(id) FROM configurations;";
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        ResultSet ret = stmt.executeQuery();
-        ret.first();
-        int configID = ret.getInt(1); 
-        
-        /*Inserting new run info into database.*/
-        String record_id = f.storeRunInfo(configID, "www.test.com", "J.R.R. Tolkien", "https://github.com/IllinoisCogComp/open-eval/", "This is a comment.");
-        
-        EvaluationRecord evalRecord = new EvaluationRecord();
-        evalRecord.incrementGold(8);
-        evalRecord.incrementPredicted(4);
-        evalRecord.incrementCorrect(4);
-        f.insertEvaluationIntoDB(evalRecord, Integer.parseInt(record_id));
-        
-        models.Record record = f.getRecordFromRecordID(Integer.parseInt(record_id));
-        models.Metrics metrics = record.metrics;
-        assertEquals(metrics.gold_count, 8);
-       
-        
-        /*Cleaning - Getting rid of the test record and configuration.*/
-        sql = "DELETE FROM configurations WHERE id = " + configID + ";";
-        stmt = conn.prepareStatement(sql); 
-        stmt.executeUpdate();
-        
-        sql = "DELETE FROM records WHERE record_id = " + record_id + ";";
-        stmt = conn.prepareStatement(sql);
-        stmt.executeUpdate();
-        conn.close();
+        try {
+            DriverManager.setLoginTimeout(2);
+            Connection conn = DriverManager.getConnection(mysqlURL, username, password);
+            
+            /*Inserting new configuration into database.*/
+            FrontEndDBInterface f = new FrontEndDBInterface();
+            List<String> taskVariants = new ArrayList<>();
+            taskVariants.add("testTskVar"); 
+            f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", taskVariants); 
+            
+            /*Figuring out the configuration_id of the configuration we just inserted.*/
+            String sql = "SELECT MAX(id) FROM configurations;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet ret = stmt.executeQuery();
+            ret.first();
+            int configID = ret.getInt(1); 
+            
+            /*Inserting new run info into database.*/
+            String record_id = f.storeRunInfo(configID, "www.test.com", "J.R.R. Tolkien", "https://github.com/IllinoisCogComp/open-eval/", "This is a comment.");
+            
+            EvaluationRecord evalRecord = new EvaluationRecord();
+            evalRecord.incrementGold(8);
+            evalRecord.incrementPredicted(4);
+            evalRecord.incrementCorrect(4);
+            f.insertEvaluationIntoDB(evalRecord, Integer.parseInt(record_id));
+            
+            models.Record record = f.getRecordFromRecordID(Integer.parseInt(record_id));
+            models.Metrics metrics = record.metrics;
+            assertEquals(metrics.gold_count, 8);
+           
+            
+            /*Cleaning - Getting rid of the test record and configuration.*/
+            sql = "DELETE FROM configurations WHERE id = " + configID + ";";
+            stmt = conn.prepareStatement(sql); 
+            stmt.executeUpdate();
+            
+            sql = "DELETE FROM records WHERE record_id = " + record_id + ";";
+            stmt = conn.prepareStatement(sql);
+            stmt.executeUpdate();
+            conn.close();
     } catch (SQLException e) {
          if (e.getMessage().contains("The driver has not received any packets from the server.")) //In the case where we cannot connect to the DB. 
             return;
