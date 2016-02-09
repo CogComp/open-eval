@@ -150,9 +150,9 @@ public class Application extends Controller {
 
             viewModel.configuration_id = configuration_id;
             viewModel.default_url = url;
-            viewModel.default_author = bindedForm.get("author");
-            viewModel.default_repo = bindedForm.get("repo");;
-            viewModel.default_comment = bindedForm.get("comment");;
+            viewModel.default_author = author;
+            viewModel.default_repo = repo;
+            viewModel.default_comment = comment;
             viewModel.error_message = "Server at given address was not found";
 
             return ok(addRun.render(viewModel));
