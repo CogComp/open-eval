@@ -29,48 +29,35 @@
                 <tbody>
                   <tr>
                     <td>
-                      <!-- <div class="list-group">
-                        @for(configuration <- viewModel.configurations) {
-                          @defining(configuration.configuration_name + " | " + configuration.dataset + " | " +
-                            configuration.task_variant + " | " + configuration.evaluator){conf =>
-                              <a href="configuration?conf=@configuration.configuration_id" class="list-group-item">
-                                <h4 class="list-group-item-heading">@conf</h4>
-                                <p class="list-group-item-text">@configuration.description</p>
-                              </a>
-                            }
-                        }
-                        </div> -->
-
-                        <table class="table table-bordered">
-                            <thead>
-                              <tr>
-                                <th>Configuration Name</th>
-                                <th>dataset</th>
-                                <th>task variant</th>
-                                <th>task evaluator</th>
-                                <th>description</th>
+                      <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th>Configuration Name</th>
+                            <th>dataset</th>
+                            <th>task variant</th>
+                            <th>task evaluator</th>
+                            <th>description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for(configuration <- viewModel.configurations) {
+                            <tr>
+                              @defining(configuration.configuration_name + " | " + configuration.dataset + " | " +
+                                configuration.task_variant + " | " + configuration.evaluator){conf =>
+                                  <td>
+                                    <a href="configuration?conf=@configuration.configuration_id">
+                                      @configuration.configuration_name
+                                    </a>
+                                  </td>
+                                  <td>@configuration.dataset</td>
+                                  <td>@configuration.task_variant</td>
+                                  <td>@configuration.evaluator</td>
+                                  <td>@configuration.description</td>
+                                }
                               </tr>
-                            </thead>
-                            <tbody>
-                              @for(configuration <- viewModel.configurations) {
-                                
-                                  <tr>
-                                  @defining(configuration.configuration_name + " | " + configuration.dataset + " | " +
-                                    configuration.task_variant + " | " + configuration.evaluator){conf =>
-                                        <td>
-                                          <a href="configuration?conf=@configuration.configuration_id">
-                                            @configuration.configuration_name
-                                          </a>
-                                        </td>
-                                        <td>@configuration.dataset</td>
-                                        <td>@configuration.task_variant</td>
-                                        <td>@configuration.evaluator</td>
-                                        <td>@configuration.description</td>
-                                    }
-                                  </tr>
-                              }
-                            </tbody>
-                          </table>
+                            }
+                          </tbody>
+                        </table>
                       <a href = "/addConfiguration" class="btn btn-default">Add configuration</a>
                     </td>
                     <td>
