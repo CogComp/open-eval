@@ -89,7 +89,9 @@ public class Application extends Controller {
         taskVariants.add("tskVar3");
         
         try {
-            f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("teamname"), bindedForm.get("description"), bindedForm.get("evaluator"), "Text Annotation", taskVariants); 
+            f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),
+                               bindedForm.get("description"), bindedForm.get("evaluator"),
+                               "Text Annotation", taskVariants); 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -109,9 +111,9 @@ public class Application extends Controller {
         }
         
         List<Record> records = new ArrayList<>();
-        records.add(new Record("date", "comment", "repo", "author",95.1));
-        records.add(new Record("date2", "comment", "repo", "author",36.1));
-        records.add(new Record("date3", "comment", "repo", "author",97.1));
+        records.add(new Record("24-May-11", "comment", "repo", "author"));
+        records.add(new Record("24-Apr-11", "comment", "repo", "author"));
+        records.add(new Record("24-May-10", "comment", "repo", "author"));
         conf.records = records;
         viewModel.configuration = conf;
 
@@ -131,19 +133,26 @@ public class Application extends Controller {
         return ok(addRun.render(viewModel));
     }
 
-
-    // If there is a failure, it should return back to the add run page
-    // with default values set to the sent form values, and an error message
     public Result submitRun() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
 
         String configuration_id = bindedForm.get("configuration_id");
 		String url = bindedForm.get("url");
+
         // Run + Save run to db here
-        // System.out.println(bindedForm.get("url"));
 		WSResponse response = Core.startJob(configuration_id, url);
-		if(response == null)
-			return internalServerError("Server Not Found");
+        if (response == null) {
+            AddRunViewModel viewModel = new AddRunViewModel();
+
+            viewModel.configuration_id = configuration_id;
+            viewModel.default_url = url;
+            viewModel.default_author = bindedForm.get("author");
+            viewModel.default_repo = bindedForm.get("repo");;
+            viewModel.default_comment = bindedForm.get("comment");;
+            viewModel.error_message = "Server at given address was not found";
+
+            return ok(addRun.render(viewModel));
+        }
 		else
 		if(response.getStatus()==500)
             return internalServerError(response.getBody());
@@ -173,8 +182,8 @@ public class Application extends Controller {
         return ok(about.render());
     }
 
-    public Result thinClient() {
-        // Change to download of thin client
+    public Result instructions() {
+        // Change to go to instructions page
         return redirect("/");
     }
 }

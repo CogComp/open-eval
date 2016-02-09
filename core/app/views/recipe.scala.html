@@ -20,12 +20,12 @@
 
         .line {
           fill: none;
-          stroke: steelblue;
+          stroke: gray;
           stroke-width: 1.5px;
         }
 
         .datapoint:hover{
-          fill: steelblue;
+          fill: black;
         }
 
         .infobox {
@@ -53,18 +53,18 @@
         <a href = "/addRun?conf=@viewModel.configuration.configuration_id" class="btn btn-default">
           New run of configuration
         </a>
-        <div style="display:none">
-        <h1 width="400px" height="400px">
-        GRAPH
-        </h1>
-        </div>
         <div id="graph" class="graph"></div>
+        <select name="dataset" onchange="alter_graph(this.selectedIndex);" id="selector">
+          <option value="f1">f1</option>
+          <option value="precision">precision</option>
+          <option value="recall">recall</option>
+        </select>
         @for(record <- viewModel.configuration.records) {
           <hr>
           <a href = "record?record_id=@record.record_id">
             Record: @record.record_id
           </a>
-          <span class="score">@record.score</span>
+          <span class="score">f1: @record.metrics.f1</span>
           <div>
             <p> 
               @record.date | @record.author | <a href="@record.repo">code link</a>
@@ -80,6 +80,7 @@
             rel="facebox[.dangerzone]" 
             class="btn btn-danger boxed-action"
             value="Delete this configuration and all its history"
+            onclick="return confirm('Are you sure you want to delete this item?');"
           />
         </form>
     </body>
@@ -88,110 +89,163 @@
         var scores = document.getElementsByClassName("score");
         for (var i = 0; i < scores.length; i++) {
           var score = scores[i];
-          var value = +score.innerHTML;
+          var value = (score.innerHTML).substring(4) * 100;
           var red = 200 - (value * 0.01 * 200);
           var green = value * 0.01 * 200;
           score.style.color = "#" + Math.round(red+20).toString(16)+Math.round(green+20).toString(16)+"33";
           score.style.marginLeft = "2%";
-        };
+        }
       })();
     </script>
     <script>
-        $("#graph").append("<div class='infobox' style='display:none;'></div>");
-
-        function showData(obj, date, close, id) {
-          var coord = d3.mouse(obj);
-          var infobox = d3.select(".infobox");
-          // now we just position the infobox roughly where our mouse is
-          infobox.style("left", (coord[0] + 90) + "px" );
-          infobox.style("top", (coord[1] - 90) + "px");
-          $(".infobox").html('<strong>Record ' + id + '</strong><br>' + date + '<br>' + close);
-          $(".infobox").show();
-        }
-         
-        function hideData() {
-          $(".infobox").hide();
-        }
-
-        var margin = {top: 20, right: 20, bottom: 30, left: 50},
-            width = 960 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
-
-        var parseDate = d3.time.format("%d-%b-%y").parse;
-
-        var x = d3.time.scale()
-            .range([0, width]);
-
-        var y = d3.scale.linear()
-            .range([height, 0]);
-
-        var xAxis = d3.svg.axis()
-            .scale(x)
-            .orient("bottom");
-
-        var yAxis = d3.svg.axis()
-            .scale(y)
-            .orient("left");
-
-        var line = d3.svg.line()
-            .x(function(d) { return x(d.date); })
-            .y(function(d) { return y(d.close); });
-
-        var svg = d3.select("#graph").append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-          .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-        var data = [
-          {'date':'24-Oct-07',"close":74.14,'id':0},
-          {'date':'24-Apr-08',"close":84.14,'id':1},
-          {'date':'24-Apr-10',"close":81.14,'id':2},
-          {'date':'24-Apr-11',"close":92.15,'id':3},
-          {'date':'24-May-11',"close":87.14,'id':4}
+        f1_data = [
+          @for(record <- viewModel.configuration.records) {
+            {'sdate':'@record.date',"close":@record.metrics.f1,'id':@record.record_id},
+          }
         ]
 
-        data.forEach(function(d) {
-          d.disp = d.date;
-          d.date = parseDate(d.date);
-          d.close = +d.close;
-        });
+        precision_data = [
+          @for(record <- viewModel.configuration.records) {
+            {'sdate':'@record.date',"close":@record.metrics.precision,'id':@record.record_id},
+          }
+        ]
 
-        function xx(e) { return x(e.date); };
-        function yy(e) { return y(e.close); };
+        recall_data = [
+          @for(record <- viewModel.configuration.records) {
+            {'sdate':'@record.date',"close":@record.metrics.recall,'id':@record.record_id},
+          }
+        ]
 
-        x.domain(d3.extent(data, function(d) { return d.date; }));
-        y.domain([0,100]);
+        function drawGraph(color, data, text) {
+          // debugger;
 
-        svg.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + height + ")")
-            .call(xAxis);
+          $("#graph").append("<div class='infobox' style='display:none;'></div>");
 
-        svg.append("g")
-            .attr("class", "y axis")
-            .call(yAxis)
-            .append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 12)
-            .attr("dy", ".71em")
-            .style("text-anchor", "end")
-            .text("Accuracy");
+          function showData(obj, date, close, id, text) {
+            var coord = d3.mouse(obj);
+            var infobox = d3.select(".infobox");
+            // now we just position the infobox roughly where our mouse is
+            infobox.style("left", (coord[0] + 90) + "px" );
+            infobox.style("top", (coord[1] - 90) + "px");
+            $(".infobox").html(
+              '<strong>Record ' + id + '</strong><br>' + date + '<br>'+text+': ' + Math.round(close*1000)/1000
+            );
+            $(".infobox").show();
+          }
+           
+          function hideData() {
+            $(".infobox").hide();
+          }
 
-        svg.selectAll("circle")
-            .data(data)
-            .enter().append("circle")
-            .attr("fill", "steelblue")
-            .attr("r", 8)
-            .attr("cx", xx)
-            .attr("cy", yy)
-            .on("mouseover", function(d) { showData(this, d.disp, d.close, d.id);})
-            .on("mouseout", function(){ hideData();});
+          var margin = {top: 20, right: 20, bottom: 30, left: 50},
+              width = 960 - margin.left - margin.right,
+              height = 500 - margin.top - margin.bottom;
 
-        svg.append("path")
-            .datum(data)
-            .attr("class", "line")
-            .attr("d", line);
+          var parseDate = d3.time.format("%d-%b-%y").parse;
 
+          var x = d3.time.scale()
+              .range([0, width]);
+
+          var y = d3.scale.linear()
+              .range([height, 0]);
+
+          var xAxis = d3.svg.axis()
+              .scale(x)
+              .orient("bottom");
+
+          var yAxis = d3.svg.axis()
+              .scale(y)
+              .orient("left");
+
+          var line = d3.svg.line()
+              .x(function(d) { return x(d.date); })
+              .y(function(d) { return y(d.close); });
+
+          var svg = d3.select("#graph").append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+              .attr("class", "svg_graph")
+              .append("g")
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          data.forEach(function(d) {
+            d.disp = d.sdate;
+            d.date = parseDate(d.sdate);
+            d.close = +d.close;
+          });
+
+          function xx(e) { return x(e.date); };
+          function yy(e) { return y(e.close); };
+          function click(d) { 
+            var s = '/';
+            var r = 'record?record_id=';
+            var pathArray = document.location.href.split(s);
+            document.location.href = pathArray[0]+s+pathArray[1]+s+pathArray[2]+s+'record?record_id='+d.id;
+          }
+
+          x.domain(d3.extent(data, function(d) { return d.date; }));
+          y.domain([0,1]);
+
+          svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(xAxis);
+
+          svg.append("g")
+              .attr("class", "y axis")
+              .call(yAxis)
+              .append("text")
+              .attr("transform", "rotate(-90)")
+              .attr("y", 12)
+              .attr("dy", ".71em")
+              .style("text-anchor", "end")
+              .text(text);
+
+          svg.selectAll("circle")
+              .data(data)
+              .enter().append("circle")
+              .attr("fill", color)
+              .attr("r", 8)
+              .attr("cx", xx)
+              .attr("cy", yy)
+              .on("mouseover", function(d) { showData(this, d.disp, d.close, d.id, text);})
+              .on("mouseout", function(){ hideData();})
+              .on("click", click);
+
+          svg.append("path")
+              .datum(data)
+              .attr("class", "line")
+              .attr("d", line);
+        }
+
+        function deleteGraph() {
+          infoboxes = document.getElementsByClassName('infobox');
+          for (var i = 0; i < infoboxes.length; i++) {
+            var e = infoboxes[i];
+            e.parentElement.removeChild(e);
+          };
+          $('.svg_graph').remove();
+        }
+
+        drawGraph("steelblue", f1_data, "f1");
+
+        </script>
+        <script type="text/javascript">
+          function alter_graph(selected) {
+            var s = document.getElementById('selector').children[selected].innerHTML;
+            console.log(s);
+            if (s==='f1') {
+              deleteGraph();
+              drawGraph("steelblue", f1_data, "f1");
+            } else if (s==='precision') {
+              deleteGraph();
+              drawGraph("red", precision_data, "precision");
+            } else if (s==='recall') {
+              deleteGraph();
+              drawGraph("green", recall_data, "recall");
+            } else {
+              //error
+            }
+          }
         </script>
 </html>
