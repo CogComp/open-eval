@@ -16,83 +16,84 @@ import models.Configuration;
  * This class connects all the back-end modules, i.e. the solver, the evaluation and the database
  */
 public class Core {
-    
-        /**
-         * Send instances to the solver and return back an evaluation on the results
-         * @param conf_id - database key for the configuration used to define the task
-         * @param url - url of the server to send the instances through API calls to
-         * @return - The evaluation on the solver result
-         */
-        public static WSResponse startJob(String conf_id, String url, String record_id) {
-            Configuration runConfig = getConfigurationFromDb(conf_id);
-            
-            Evaluator newEval = getEvaluator(runConfig);
-            List<TextAnnotation> instances = getInstancesFromDb(runConfig);
-
-            LearnerInterface learner = new LearnerInterface(url);
-
-            String jsonInfo = learner.getInfo();
-            if(jsonInfo.equals("err"))
-                return null;
-
-            instances = cleanseInstances(instances, jsonInfo);
-
-            Job newJob = new Job(learner, instances);
-            WSResponse solverResponse = newJob.sendAndReceiveRequestsFromSolver();
-            Evaluation eval = newJob.evaluateSolver();
-            storeEvaluationIntoDb(eval, record_id);
-            return solverResponse;
-        }
-        
-        /**
-         * UNIMPLEMENTED
-         * Retrieve a stored configuration from the database
-         * @param conf_id - database key for the configuration used to define the task
-         * @return - The Configuration object from the database
-         */
-        private static Configuration getConfigurationFromDb(String conf_id) {
-            FrontEndDBInterface f = new FrontEndDBInterface();  
-            Configuration config = f.getConfigInformation(Integer.parseInt(conf_id));
-            return config;
-        }
-        
-        /**
-         * UNIMPLEMENTED 
-         * Retrieve a stored dataset from the database
-         * @param runConfig - database key for the dataset to use as test data
-         * @return -  list of TextAnnotation instances from the database
-         */
-        private static List<TextAnnotation> getInstancesFromDb(Configuration runConfig){
-            String datasetName = runConfig.dataset;
-            POSReader posReader = new POSReader();
-            List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB(datasetName); 
-            return TextAnnotations;
-        }
-        
-        /**
-         * UNIMPLEMENTED
-         * Create a new Evaluator to be used on the solved instances
-         * @param runConfig - Defines the type of evaluator the user needs
-         * @return - Evaluator object to be used
-         */
-        private static Evaluator getEvaluator(Configuration runConfig){
-            return null;
-        }
 
     /**
-     * UNIMPLEMENTED
-     * Cleanse the correct instances
-     * @param correctInstances - The correct instances from the databse
-     * @param jsonInfo - The information given by the learner
-     * @return  - The cleansed instance
+     * Send instances to the solver and return back an evaluation on the results
+     * @param conf_id - database key for the configuration used to define the task
+     * @param url - url of the server to send the instances through API calls to
+     * @return - The evaluation on the solver result
      */
-        private static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, String jsonInfo){
-            return correctInstances;
-        }
+    public static WSResponse startJob(String conf_id, String url, String record_id) {
+        Configuration runConfig = getConfigurationFromDb(conf_id);
         
-        private static void storeEvaluationIntoDb(Evaluation eval, String record_id) {
-            FrontEndDBInterface f = new FrontEndDBInterface();
-            EvaluationRecord macroEvaluationRecord = eval.getMacroEvaluationRecord();
-            f.insertEvaluationIntoDB(macroEvaluationRecord, Integer.parseInt(record_id));
-        }
+        Evaluator newEval = getEvaluator(runConfig);
+        List<TextAnnotation> instances = getInstancesFromDb(runConfig);
+
+        LearnerInterface learner = new LearnerInterface(url);
+
+        String jsonInfo = learner.getInfo();
+        if(jsonInfo.equals("err"))
+            return null;
+
+        instances = cleanseInstances(instances, jsonInfo);
+
+        Job newJob = new Job(learner, instances);
+        WSResponse solverResponse = newJob.sendAndReceiveRequestsFromSolver();
+        Evaluation eval = newJob.evaluateSolver();
+        storeEvaluationIntoDb(eval, record_id);
+        return solverResponse;
+    }
+    
+    /**
+     * Retrieve a stored configuration from the database
+     * @param conf_id - database key for the configuration used to define the task
+     * @return - The Configuration object from the database
+     */
+    private static Configuration getConfigurationFromDb(String conf_id) {
+        FrontEndDBInterface f = new FrontEndDBInterface();  
+        Configuration config = f.getConfigInformation(Integer.parseInt(conf_id));
+        return config;
+    }
+    
+    /**
+     * Retrieve a stored dataset from the database
+     * @param runConfig - database key for the dataset to use as test data
+     * @return -  list of TextAnnotation instances from the database
+     */
+    private static List<TextAnnotation> getInstancesFromDb(Configuration runConfig){
+        String datasetName = runConfig.dataset;
+        POSReader posReader = new POSReader();
+        List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB(datasetName); 
+        return TextAnnotations;
+    }
+    
+    /**
+     * UNIMPLEMENTED
+     * Create a new Evaluator to be used on the solved instances
+     * @param runConfig - Defines the type of evaluator the user needs
+     * @return - Evaluator object to be used
+     */
+    private static Evaluator getEvaluator(Configuration runConfig){
+        return null;
+    }
+
+/**
+ * UNIMPLEMENTED
+ * Cleanse the correct instances
+ * @param correctInstances - The correct instances from the databse
+ * @param jsonInfo - The information given by the learner
+ * @return  - The cleansed instance
+ */
+    private static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, String jsonInfo){
+        return correctInstances;
+    }
+    
+    /** Store evaluation from the run into the DB.
+    (Right now only stores the macroEvaluationRecord.)
+    */
+    private static void storeEvaluationIntoDb(Evaluation eval, String record_id) {
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        EvaluationRecord macroEvaluationRecord = eval.getMacroEvaluationRecord();
+        f.insertEvaluationIntoDB(macroEvaluationRecord, Integer.parseInt(record_id));
+    }
 }

@@ -108,7 +108,9 @@ public class FrontEndDBInterface {
         }
     }
     
-    /** Stores information at the start of a particular run. - INCOMPLETE*/
+    /** Stores information at the start of a particular run.
+    Returns the id of the record inserted. 
+    */
     public String storeRunInfo(int configuration_id, String url, String author, String repo, String comment) {
         try {
             Connection conn = getConnection();
@@ -141,8 +143,10 @@ public class FrontEndDBInterface {
             List<models.Record> records = new ArrayList<>();
             
             while (recordsRS.next()) {
-                models.Record record = new models.Record(Integer.toString(recordsRS.getInt(1)), recordsRS.getTimestamp(2).toString(), recordsRS.getString(3), 
-                    recordsRS.getString(4), recordsRS.getString(5), recordsRS.getDouble(6)); 
+                int record_id = recordsRS.getInt(1);
+                models.Metrics metrics = getMetricsFromRecordID(record_id);
+                models.Record record = new models.Record(Integer.toString(record_id), recordsRS.getTimestamp(2).toString(), recordsRS.getString(3), 
+                    recordsRS.getString(4), recordsRS.getString(5), recordsRS.getDouble(6), metrics); 
                 records.add(record);
             }
             return records;
@@ -152,21 +156,35 @@ public class FrontEndDBInterface {
         }
     }
     
-    public models.Record getRecordFromRecordID(int record_id) {
+    private models.Metrics getMetricsFromRecordID(int record_id) {
         try {
             Connection conn = getConnection();
-            
             String sql = "SELECT precision_score, recall, f1, gold_count, correct_count, predicted_count, missed_count, extra_count FROM records WHERE record_id = " + record_id + ";";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet metricsRS = stmt.executeQuery();
             metricsRS.first();
             models.Metrics metrics = new models.Metrics(metricsRS.getDouble(1), metricsRS.getDouble(2), metricsRS.getDouble(3), metricsRS.getInt(4), 
-                metricsRS.getInt(5), metricsRS.getInt(6), metricsRS.getInt(7), metricsRS.getInt(8));     
+                metricsRS.getInt(5), metricsRS.getInt(6), metricsRS.getInt(7), metricsRS.getInt(8));   
+            return metrics;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public models.Record getRecordFromRecordID(int record_id) {
+        try {
+            Connection conn = getConnection();
             
-            models.Record record = new models.Record();
-            record.record_id = Integer.toString(record_id);
-            record.metrics = metrics;
+            models.Metrics metrics = getMetricsFromRecordID(record_id);
+           
+            String sql = "SELECT date, comment, repo, author, f1 FROM records WHERE record_id = " + record_id + ";";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet recordsRS = stmt.executeQuery();
+            recordsRS.first();
             
+            models.Record record = new models.Record(Integer.toString(record_id), recordsRS.getTimestamp(1).toString(), recordsRS.getString(2), 
+                recordsRS.getString(3), recordsRS.getString(4), recordsRS.getDouble(5), metrics);
+                
             conn.close();
             return record;
         } catch (Exception e) {

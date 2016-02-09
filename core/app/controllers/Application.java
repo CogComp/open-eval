@@ -145,11 +145,11 @@ public class Application extends Controller {
         FrontEndDBInterface f = new FrontEndDBInterface();
         String record_id = f.storeRunInfo(Integer.parseInt(configuration_id), url, author, repo, comment); 
        
-		WSResponse response = Core.startJob(configuration_id, url, record_id);
-		if(response == null)
-			return internalServerError("Server Not Found");
-		else
-		if(response.getStatus()==500)
+        WSResponse response = Core.startJob(configuration_id, url, record_id);
+        if(response == null)
+            return internalServerError("Server Not Found");
+        else
+        if(response.getStatus()==500)
             return internalServerError(response.getBody());
         else
             return redirect("/configuration?conf="+configuration_id);

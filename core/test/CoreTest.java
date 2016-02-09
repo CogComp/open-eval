@@ -24,19 +24,19 @@ import play.test.WithApplication;
 */
 public class CoreTest extends WithApplication {
 
-	@Override
-	protected FakeApplication provideFakeApplication() {
-		return new FakeApplication(new java.io.File("."), Helpers.class.getClassLoader(),
-			ImmutableMap.of("play.http.router", "router.Routes"), new ArrayList<String>(), null);
-	}
+    @Override
+    protected FakeApplication provideFakeApplication() {
+        return new FakeApplication(new java.io.File("."), Helpers.class.getClassLoader(),
+            ImmutableMap.of("play.http.router", "router.Routes"), new ArrayList<String>(), null);
+    }
 
     @Test
     public void invalidUrl() {
-		System.out.println("Test Running");
+        System.out.println("Test Running");
         String url = "fakeurl:9000";
-		String conf_id = "1";
+        String conf_id = "1";
         String record_id = "1";
-		WSResponse status = Core.startJob(conf_id, url, record_id);
-		assertEquals(null, status);
+        WSResponse status = Core.startJob(conf_id, url, record_id);
+        assertEquals(null, status);
     }
 }
