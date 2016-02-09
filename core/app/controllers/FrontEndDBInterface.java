@@ -40,17 +40,15 @@ public class FrontEndDBInterface {
             
             /*Storing basic configuration info.*/
             String sql = "INSERT INTO configurations VALUES (?, '"+datasetName+"', '"+teamName+"', '"+description+"', '"+evaluator+"', '"+taskType+"');";
-            PreparedStatement stmt = connection.prepareStatement(sql);
+            PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setNull(1, Types.INTEGER); //Set null so MySQL can auto-increment the primary key (id).
-            stmt.execute();
+            stmt.executeUpdate();
             
             /*Storing info on the task-variants.*/
             /*Have to get the ID of the newly created configuration.*/ 
-            sql = "SELECT MAX(id) from configurations;";
-            stmt = connection.prepareStatement(sql);
-            ResultSet idOfConfig = stmt.executeQuery();
-            idOfConfig.first();
-            int id = idOfConfig.getInt(1);
+            ResultSet newID = stmt.getGeneratedKeys();
+            newID.first();
+            int id = newID.getInt(1);
             
             /*Inserting all the task variants in to taskVariants table.*/
             sql = "INSERT INTO taskvariants VALUES (?, ?);";
@@ -70,7 +68,6 @@ public class FrontEndDBInterface {
     /** Returns a list of all the configurations in the database to be displayed on landing page. */
     public List<models.Configuration> getConfigList() {
         try {
-            Logger.info("login timeout: " + DriverManager.getLoginTimeout());
             Connection connection = getConnection();
             
             String sql = "SELECT teamName, description, datasetName, evaluator, id FROM configurations;";
@@ -106,6 +103,7 @@ public class FrontEndDBInterface {
                 "task_variant_b", configInfoList.getString(4), Integer.toString(configInfoList.getInt(5))); 
             connection.close(); 
             return config; 
+            connection.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -130,6 +128,8 @@ public class FrontEndDBInterface {
             ResultSet newID = stmt.getGeneratedKeys();
             newID.first();
             int record_id = newID.getInt(1);
+            
+            conn.close();
             return Integer.toString(record_id);
         } catch (Exception e) {
             throw new RuntimeException(e); 
@@ -154,6 +154,8 @@ public class FrontEndDBInterface {
                     recordsRS.getString(4), recordsRS.getString(5), metrics); 
                 records.add(record);
             }
+            
+            conn.close();
             return records;
         }
         catch (Exception e) {
@@ -170,6 +172,8 @@ public class FrontEndDBInterface {
             metricsRS.first();
             models.Metrics metrics = new models.Metrics(metricsRS.getDouble(1), metricsRS.getDouble(2), metricsRS.getDouble(3), metricsRS.getInt(4), 
                 metricsRS.getInt(5), metricsRS.getInt(6), metricsRS.getInt(7), metricsRS.getInt(8));   
+                
+            conn.close();
             return metrics;
         } catch (Exception e) {
             throw new RuntimeException(e);
