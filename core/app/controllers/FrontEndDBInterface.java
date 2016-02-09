@@ -115,8 +115,13 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection();
             
-            String sql = "INSERT INTO records (configuration_id, url, author, repo, comment) VALUES ('"+configuration_id+"', '"+url+"', '"+author+"', '"+repo+"', '"+comment+"')";
+            String sql = "INSERT INTO records (configuration_id, url, author, repo, comment) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, configuration_id);
+            stmt.setString(2, url);
+            stmt.setString(3, author);
+            stmt.setString(4, repo);
+            stmt.setString(5, comment);
             stmt.executeUpdate(); 
             
             /*Getting ID of the record we just inserted.*/

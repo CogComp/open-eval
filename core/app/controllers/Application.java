@@ -14,13 +14,14 @@ import models.*;
 
 import controllers.evaluators.Evaluation;
 
+import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
+
 
 public class Application extends Controller {
 
     private List<models.Configuration> getConfigurations() {
         FrontEndDBInterface f = new FrontEndDBInterface();
-        List<models.Configuration> configList; 
-        
+        List<models.Configuration> configList;         
         try {
             configList = f.getConfigList();
         } catch (Exception e) {
