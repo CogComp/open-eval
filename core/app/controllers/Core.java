@@ -9,6 +9,7 @@ import java.util.*;
 
 import controllers.evaluators.Evaluator;
 import controllers.evaluators.Evaluation;
+import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
 import models.Configuration;
 
 /**
@@ -22,7 +23,7 @@ public class Core {
 		 * @param url - url of the server to send the instances through API calls to
 		 * @return - The evaluation on the solver result
 		 */
-		public static WSResponse startJob(String conf_id, String url) {
+		public static WSResponse startJob(String conf_id, String url, String record_id) {
 			Configuration runConfig = getConfigurationFromDb(conf_id);
 			
 			Evaluator newEval = getEvaluator(runConfig);
@@ -39,7 +40,7 @@ public class Core {
 			Job newJob = new Job(learner, instances);
 			WSResponse solverResponse = newJob.sendAndReceiveRequestsFromSolver();
 			Evaluation eval = newJob.evaluateSolver();
-			//TODO: Add new evaluation to database
+			storeEvaluationIntoDb(eval, record_id);
 			return solverResponse;
 		}
 		
@@ -50,7 +51,7 @@ public class Core {
 		 * @return - The Configuration object from the database
 		 */
 		private static Configuration getConfigurationFromDb(String conf_id) {
-            FrontEndDBInterface f = new FrontEndDBInterface(); 
+            FrontEndDBInterface f = new FrontEndDBInterface();  
             Configuration config = f.getConfigInformation(Integer.parseInt(conf_id));
 			return config;
 		}
@@ -88,4 +89,10 @@ public class Core {
 		private static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, String jsonInfo){
 			return correctInstances;
 		}
+        
+        private static void storeEvaluationIntoDb(Evaluation eval, String record_id) {
+            FrontEndDBInterface f = new FrontEndDBInterface();
+            EvaluationRecord macroEvaluationRecord = eval.getMacroEvaluationRecord();
+            f.insertEvaluationIntoDB(macroEvaluationRecord, Integer.parseInt(record_id));
+        }
 }

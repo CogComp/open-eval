@@ -17,6 +17,8 @@ import play.mvc.*;
 import org.json.*;
 import com.mysql.jdbc.Driver;
 
+import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
+
 /**
  * Class to store and retrieve configurations and history. 
  * 
@@ -107,31 +109,40 @@ public class FrontEndDBInterface {
     }
     
     /** Stores information at the start of a particular run. - INCOMPLETE*/
-    public void storeRunInfo(int configuration_id, String url, String author, String repo, String comment) {
+    public String storeRunInfo(int configuration_id, String url, String author, String repo, String comment) {
         try {
             Connection conn = getConnection();
             
             String sql = "INSERT INTO records (configuration_id, url, author, repo, comment) VALUES ('"+configuration_id+"', '"+url+"', '"+author+"', '"+repo+"', '"+comment+"')";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.executeUpdate(); 
+            
+            /*Getting ID of the record we just inserted.*/
+            sql = "SELECT MAX(record_id) FROM records;";
+            stmt = conn.prepareStatement(sql);
+            ResultSet recordIDRS = stmt.executeQuery();
+            recordIDRS.first();
+            int record_id = recordIDRS.getInt(1);
+            return Integer.toString(record_id);
         } catch (Exception e) {
             throw new RuntimeException(e); 
         }
     }
     
     /** Retrives the records of a configuration.*/
-    public List<models.Record> getRecords(int configuration_id) {
+    public List<models.Record> getRecordsFromConfID(int configuration_id) {
         try {
             Connection conn = getConnection(); 
         
-            String sql = "SELECT record_id, date, comment, repo, author, score FROM records WHERE configuration_id = " + configuration_id + ";";
+            String sql = "SELECT record_id, date, comment, repo, author, f1 FROM records WHERE configuration_id = " + configuration_id + ";";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet recordsRS = stmt.executeQuery();
             
             List<models.Record> records = new ArrayList<>();
             
             while (recordsRS.next()) {
-                models.Record record = new models.Record(Integer.toString(recordsRS.getInt(1)), recordsRS.getTimestamp(2).toString(), recordsRS.getString(3), recordsRS.getString(4), recordsRS.getString(5), recordsRS.getDouble(6)); 
+                models.Record record = new models.Record(Integer.toString(recordsRS.getInt(1)), recordsRS.getTimestamp(2).toString(), recordsRS.getString(3), 
+                    recordsRS.getString(4), recordsRS.getString(5), recordsRS.getDouble(6)); 
                 records.add(record);
             }
             return records;
@@ -140,6 +151,56 @@ public class FrontEndDBInterface {
             throw new RuntimeException(e); 
         }
     }
+    
+    public models.Record getRecordFromRecordID(int record_id) {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "SELECT precision_score, recall, f1, gold_count, correct_count, predicted_count, missed_count, extra_count FROM records WHERE record_id = " + record_id + ";";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet metricsRS = stmt.executeQuery();
+            metricsRS.first();
+            models.Metrics metrics = new models.Metrics(metricsRS.getDouble(1), metricsRS.getDouble(2), metricsRS.getDouble(3), metricsRS.getInt(4), 
+                metricsRS.getInt(5), metricsRS.getInt(6), metricsRS.getInt(7), metricsRS.getInt(8));     
+            
+            models.Record record = new models.Record();
+            record.record_id = Integer.toString(record_id);
+            record.metrics = metrics;
+            
+            conn.close();
+            return record;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public void insertEvaluationIntoDB(EvaluationRecord evalRecord, int record_id) {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "UPDATE records SET f1=?, precision_score=?, recall=?, gold_count=?, correct_count=?, predicted_count=?, missed_count=?, extra_count=?";
+            sql += " WHERE record_id = ?;";
+     
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            
+            stmt.setDouble(1, evalRecord.getF1());
+            stmt.setDouble(2, evalRecord.getPrecision());
+            stmt.setDouble(3, evalRecord.getRecall());
+            stmt.setInt(4, evalRecord.getGoldCount());
+            stmt.setInt(5, evalRecord.getPredictedCount());
+            stmt.setInt(6, evalRecord.getCorrectCount());
+            stmt.setInt(7, evalRecord.getMissedCount());
+            stmt.setInt(8, evalRecord.getExtraCount());
+            stmt.setInt(9, record_id);
+            
+            stmt.executeUpdate();
+            conn.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    
     
     
     /** Returns a connection to the Gargamel database.*/

@@ -14,9 +14,6 @@ import models.*;
 
 import controllers.evaluators.Evaluation;
 
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
-import play.Logger.*;
-import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 
 public class Application extends Controller {
 
@@ -35,15 +32,6 @@ public class Application extends Controller {
     public Result index() {
         IndexViewModel viewModel = new IndexViewModel();
         viewModel.configurations = getConfigurations();
-        
-        //POSReader posReader = new POSReader();
-        //List<TextAnnotation> tas = posReader.insertDatasetIntoDB("22-24.br", "C:\\Users\\Deepak\\Desktop\\Current School\\Open Eval\\Datasets\\posdata\\22-24.br"); 
-        //TextAnnotation ta = tas.get(0);
-        //String json = SerializationHelper.serializeToJson(ta); 
-        //Logger.info("json length: " + json.length());
-        //List<TextAnnotation> tas = posReader.getTextAnnotationsFromDB("22-24.br");
-        //Logger.info("Size of tas: " + tas.size());
-        
         return ok(index.render(viewModel));
     }
 
@@ -121,7 +109,7 @@ public class Application extends Controller {
             throw new RuntimeException(e);
         }
         
-        List<Record> records = f.getRecords(Integer.parseInt(configuration_id));
+        List<Record> records = f.getRecordsFromConfID(Integer.parseInt(configuration_id));
      
         conf.records = records;
         viewModel.configuration = conf;
@@ -155,9 +143,9 @@ public class Application extends Controller {
         String comment = bindedForm.get("comment"); 
         
         FrontEndDBInterface f = new FrontEndDBInterface();
-        f.storeRunInfo(Integer.parseInt(configuration_id), url, author, repo, comment); 
+        String record_id = f.storeRunInfo(Integer.parseInt(configuration_id), url, author, repo, comment); 
        
-		WSResponse response = Core.startJob(configuration_id, url);
+		WSResponse response = Core.startJob(configuration_id, url, record_id);
 		if(response == null)
 			return internalServerError("Server Not Found");
 		else
@@ -169,11 +157,9 @@ public class Application extends Controller {
 
     public Result record(String record_id) {
         RecordViewModel viewModel = new RecordViewModel();
-        // should find record by lookup
-        Record associated_record = new Record();
-        associated_record.metrics = new Metrics(
-            1.1,2.2,3.3,4,5,6,7,8
-        );
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        Record associated_record = f.getRecordFromRecordID(Integer.parseInt(record_id));
+   
         viewModel.record = associated_record;
         return ok(record.render(viewModel));
     }

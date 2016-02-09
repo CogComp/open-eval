@@ -25,4 +25,8 @@ public class Evaluation {
 		this.macroEvaluationRecord = macroEvaluationRecord;
 		this.microEvaluationRecords = microEvaluationRecords;
 	}
+    
+    public EvaluationRecord getMacroEvaluationRecord() {
+        return macroEvaluationRecord;
+    }
 }
