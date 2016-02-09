@@ -189,8 +189,9 @@ public class DBTest {
             stmt = conn.prepareStatement(sql);
             stmt.executeUpdate();
             conn.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (SQLException e) {
+             if (e.getMessage().contains("The driver has not received any packets from the server.")) //In the case where we cannot connect to the DB. 
+                return;
         }
     }
     
@@ -238,8 +239,9 @@ public class DBTest {
             stmt = conn.prepareStatement(sql);
             stmt.executeUpdate();
             conn.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (SQLException e) {
+             if (e.getMessage().contains("The driver has not received any packets from the server.")) //In the case where we cannot connect to the DB. 
+                return;
         }        
     }
     
@@ -284,8 +286,9 @@ public class DBTest {
         stmt = conn.prepareStatement(sql);
         stmt.executeUpdate();
         conn.close();
-    } catch (Exception e) {
-        throw new RuntimeException(e);
+    } catch (SQLException e) {
+         if (e.getMessage().contains("The driver has not received any packets from the server.")) //In the case where we cannot connect to the DB. 
+            return;
       }
     }
 }
