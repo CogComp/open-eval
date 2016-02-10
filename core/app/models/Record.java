@@ -19,24 +19,22 @@ public class Record {
     public String configuration_id;
     public String record_id;
 
-    private static long counter = 0;
-
-    public Record(String date, String comment, String repo,
+    public Record(String record_id, String date, String comment, String repo,
                   String author, Metrics metrics) {
         this.date = date;
         this.comment = comment;
         this.repo = repo;
         this.author = author;
-        this.record_id = "" + (counter++);
+        this.record_id = record_id;
         this.metrics = metrics;
     }
 
-    public Record(String date, String comment, String repo, String author) {
-        this(date, comment, repo, author, new Metrics());
+    public Record(String record_id, String date, String comment, String repo, String author) {
+        this(record_id, date, comment, repo, author, new Metrics());
     }
-
+    
     public Record() {
-        this.record_id = "" + (counter++);
+        
     }
-
+    
 }
