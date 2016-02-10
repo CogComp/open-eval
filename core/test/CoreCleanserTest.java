@@ -31,6 +31,7 @@ public class CoreCleanserTest {
         TextAnnotation cleanTA = cleansed.get(0);
         Assert.assertTrue(cleanTA.hasView(ViewNames.SENTENCE));
         Assert.assertFalse(cleanTA.hasView(ViewNames.POS));
+        Assert.assertTrue(correct.get(0).hasView(ViewNames.POS));
     }
 
     @Test
@@ -44,6 +45,7 @@ public class CoreCleanserTest {
         for(TextAnnotation cleanTA: cleansed){
             Assert.assertTrue(cleanTA.hasView(ViewNames.SENTENCE));
             Assert.assertFalse(cleanTA.hasView(ViewNames.POS));
+            Assert.assertTrue(correct.get(0).hasView(ViewNames.POS));
         }
     }
 

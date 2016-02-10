@@ -9,11 +9,8 @@ import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.SpanLabelingEvaluator;
 import models.Job;
 import models.LearnerInterface;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import play.libs.Json;
 import play.libs.ws.WSResponse;
 
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
@@ -34,8 +31,13 @@ public class Core {
 		 */
 		public static WSResponse startJob(int conf_id, String url) {
 			Configuration runConfig = getConfigurationFromDb(conf_id);
-
-			List<TextAnnotation> instances = getInstancesFromDb(runConfig);
+			List<TextAnnotation> instances;
+			try {
+				instances = getInstancesFromDb(runConfig);
+			}
+			catch(java.lang.RuntimeException e){
+				return null;
+			}
 
 			LearnerInterface learner = new LearnerInterface(url);
 
@@ -81,7 +83,7 @@ public class Core {
 		 * @param runConfig - Defines the type of evaluator the user needs
 		 * @return - Evaluator object to be used
 		 */
-		private static EvaluationRecord evaluate(Configuration runConfig, List<TextAnnotation> correctInstances, List<TextAnnotation> solvedInstances){
+		public static EvaluationRecord evaluate(Configuration runConfig, List<TextAnnotation> correctInstances, List<TextAnnotation> solvedInstances){
 			Evaluator evaluator = new SpanLabelingEvaluator();
 			ClassificationTester eval = new ClassificationTester();
 			for(int i=0; i<correctInstances.size(); i++){
