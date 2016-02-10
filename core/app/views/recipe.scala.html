@@ -128,19 +128,19 @@
     <script>
         f1_data = [
           @for(record <- viewModel.configuration.records) {
-            {'sdate':'@record.date',"close":@record.metrics.f1,'id':@record.record_id},
+            {'sdate':'@record.date',"close":+@record.metrics.f1,'id':@record.record_id},
           }
         ]
 
         precision_data = [
           @for(record <- viewModel.configuration.records) {
-            {'sdate':'@record.date',"close":@record.metrics.precision,'id':@record.record_id},
+            {'sdate':'@record.date',"close":+@record.metrics.precision,'id':@record.record_id},
           }
         ]
 
         recall_data = [
           @for(record <- viewModel.configuration.records) {
-            {'sdate':'@record.date',"close":@record.metrics.recall,'id':@record.record_id},
+            {'sdate':'@record.date',"close":+@record.metrics.recall,'id':@record.record_id},
           }
         ]
 
@@ -167,7 +167,7 @@
               width = 960 - margin.left - margin.right,
               height = 500 - margin.top - margin.bottom;
 
-          var parseDate = d3.time.format("%d-%b-%y").parse;
+          var parseDate = d3.time.format("%Y-%m-%d %H:%M:%S.0").parse;
 
           var x = d3.time.scale()
               .range([0, width]);
