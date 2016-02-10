@@ -16,6 +16,9 @@ import play.mvc.Result;
 import play.test.FakeApplication;
 import play.test.Helpers;
 import play.test.WithApplication;
+
+import java.sql.SQLException;
+import java.sql.DriverManager;
 /**
 *
 * Simple (JUnit) tests that can call all parts of a play app.
@@ -24,18 +27,25 @@ import play.test.WithApplication;
 */
 public class CoreTest extends WithApplication {
 
-	@Override
-	protected FakeApplication provideFakeApplication() {
-		return new FakeApplication(new java.io.File("."), Helpers.class.getClassLoader(),
-			ImmutableMap.of("play.http.router", "router.Routes"), new ArrayList<String>(), null);
-	}
+    @Override
+    protected FakeApplication provideFakeApplication() {
+        return new FakeApplication(new java.io.File("."), Helpers.class.getClassLoader(),
+            ImmutableMap.of("play.http.router", "router.Routes"), new ArrayList<String>(), null);
+    }
 
     @Test
     public void invalidUrl() {
-		System.out.println("Test Running");
+        System.out.println("Test Running");
         String url = "fakeurl:9000";
-		String conf_id = "1";
-		WSResponse status = Core.startJob(conf_id, url);
-		assertEquals(null, status);
+        String conf_id = "1";
+        String record_id = "1";
+        WSResponse status = null; 
+        try {
+            status = Core.startJob(conf_id, url, record_id);
+        } catch (Exception e) {
+            if (e.getMessage().contains("The driver has not received any packets from the server.")) //In the case where we cannot connect to the DB. 
+                return;
+        }
+        assertEquals(null, status);
     }
 }
