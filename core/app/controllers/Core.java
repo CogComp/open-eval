@@ -1,8 +1,10 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
 import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
+import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.SpanLabelingEvaluator;
 import models.Job;
@@ -50,7 +52,7 @@ public class Core {
 			WSResponse solverResponse = newJob.sendAndReceiveRequestsFromSolver();
 
 			List<TextAnnotation> solvedInstances = newJob.getSolverInstances();
-			ClassificationTester eval = evaluate(runConfig, instances, solvedInstances);
+			EvaluationRecord eval = evaluate(runConfig, instances, solvedInstances);
 			return solverResponse;
 		}
 		
@@ -79,16 +81,16 @@ public class Core {
 		 * @param runConfig - Defines the type of evaluator the user needs
 		 * @return - Evaluator object to be used
 		 */
-		private static ClassificationTester evaluate(Configuration runConfig, List<TextAnnotation> correctInstances, List<TextAnnotation> solvedInstances){
+		private static EvaluationRecord evaluate(Configuration runConfig, List<TextAnnotation> correctInstances, List<TextAnnotation> solvedInstances){
 			Evaluator evaluator = new SpanLabelingEvaluator();
 			ClassificationTester eval = new ClassificationTester();
 			for(int i=0; i<correctInstances.size(); i++){
-				View gold = correctInstances.get(i).getView("POS");
-				View predicted = solvedInstances.get(i).getView("POS");
+				View gold = correctInstances.get(i).getView(ViewNames.POS);
+				View predicted = solvedInstances.get(i).getView(ViewNames.POS);
 				evaluator.setViews(gold, predicted);
 				evaluator.evaluate(eval);
 			}
-			return eval;
+			return eval.getEvaluationRecord();
 		}
 
 	/**

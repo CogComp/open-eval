@@ -12,8 +12,6 @@ import java.util.*;
 
 import models.*;
 
-import controllers.evaluators.Evaluation;
-
 public class Application extends Controller {
 
     private List<models.Configuration> getConfigurations() {
