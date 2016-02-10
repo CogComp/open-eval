@@ -41,6 +41,10 @@
          font-weight:bold;
          padding: 8px;
          }
+
+         select {
+          margin-bottom: 20px;
+         }
         </style>
     </head>
     <body class="body">
@@ -59,19 +63,42 @@
           <option value="precision">precision</option>
           <option value="recall">recall</option>
         </select>
-        @for(record <- viewModel.configuration.records) {
-          <hr>
-          <a href = "record?record_id=@record.record_id">
-            Record: @record.record_id
-          </a>
-          <span class="score">f1: @record.metrics.f1</span>
-          <div>
-            <p> 
-              @record.date | @record.author | <a href="@record.repo">code link</a>
-            </p>
-          </div>
-          <p>@record.comment</p>
-        }
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Record Id</th>
+              <th>Date</th>
+              <th>Author</th>
+              <th>code link</th>
+              <th>comment</th>
+              <th>f1</th>
+              <th>precision</th>
+              <th>recall</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for(record <- viewModel.configuration.records) {
+              <tr>
+                <td>
+                  <a href="record?record_id=@record.record_id">
+                    @record.record_id
+                  </a>
+                </td>
+                <td>@record.date</td>
+                <td>@record.author</td>
+                <td>
+                  <a href="@record.repo">
+                    code link
+                  </a>
+                </td>
+                <td>@record.comment</td>
+                <td><span class="score">@record.metrics.f1</span></td>
+                <td><span class="score">@record.metrics.precision</span></td>
+                <td><span class="score">@record.metrics.recall</span></td>
+              </tr>
+              }
+            </tbody>
+          </table>
         <form action="/deleteConfiguration" method="post">
           <input type="hidden"
            name="conf"
@@ -89,7 +116,8 @@
         var scores = document.getElementsByClassName("score");
         for (var i = 0; i < scores.length; i++) {
           var score = scores[i];
-          var value = (score.innerHTML).substring(4) * 100;
+          var value = +((score.innerHTML).substring(0,6)) * 100;
+          score.innerHTML = (score.innerHTML).substring(0,6);
           var red = 200 - (value * 0.01 * 200);
           var green = value * 0.01 * 200;
           score.style.color = "#" + Math.round(red+20).toString(16)+Math.round(green+20).toString(16)+"33";
@@ -117,8 +145,6 @@
         ]
 
         function drawGraph(color, data, text) {
-          // debugger;
-
           $("#graph").append("<div class='infobox' style='display:none;'></div>");
 
           function showData(obj, date, close, id, text) {
