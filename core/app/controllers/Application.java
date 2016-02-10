@@ -5,10 +5,11 @@ import play.libs.ws.WSResponse;
 import play.mvc.*;
 import play.data.DynamicForm;
 import play.Logger;
-
+import play.libs.Comet;
 import views.html.*;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import models.*;
 
@@ -159,6 +160,17 @@ public class Application extends Controller {
         else
             return redirect("/configuration?conf="+configuration_id);
     }
+    
+    public Result progressBar() {
+    	WorkingViewModel viewModel = new WorkingViewModel();
+    	viewModel.percent_complete = 60;
+    	return ok(working.render(viewModel));
+    }
+    
+    public Result getProgress() {
+    	int progress = (int)(Math.random()*100);
+    	return ok(Integer.toString(progress));
+    }
 
     public Result record(String record_id) {
         RecordViewModel viewModel = new RecordViewModel();
@@ -177,7 +189,7 @@ public class Application extends Controller {
         System.out.println(bindedForm.get("record_id"));
         return redirect("/");
     }
-
+    
     public Result about() {
         return ok(about.render());
     }

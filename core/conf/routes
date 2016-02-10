@@ -30,6 +30,11 @@ GET        /addRun               controllers.Application.addRun(conf: String)
 
 POST       /submitRun            controllers.Application.submitRun()
 
+# Progress Bar page
+GET        /working				 controllers.Application.progressBar()
+
+GET		   /working/prog		 controllers.Application.getProgress()			
+
 # FAQs
 GET        /instructions         controllers.Application.instructions()
 

@@ -1,0 +1,46 @@
+@(viewModel: models.WorkingViewModel )
+
+<!-- http://codepen.io/anon/pen/RrqmyY: source of the progress bar stuff -->
+
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <title>Open-Eval</title>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+        <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))">
+    </head>
+    <body>
+        <div class="body">
+            <h1><center><big><b><i><a href="/">Open-Eval</a></i></b></big></center></h1>
+            <h4><center>Your datasets are being processed. This may take a moment.</center></h4>
+
+			<div class="progress" id="progressouter">
+   				<div class="progress-bar" id="progress"></div>
+			</div>
+
+			<script src="http://code.jquery.com/jquery.js"></script>
+    		<script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    		<script type="text/javascript">
+    			$(document).ready(function(){
+					  var progresspump = setInterval(function(){
+					    /* query the completion percentage from the server */
+					    $.get("/working/prog", function(data){
+					      /* update the progress bar width */
+					      $("#progress").css('width',data+'%');
+					      /* and display the numeric value */
+					      $("#progress").html(data+
+
+					'%');
+
+					      /* go to evaluation page. */
+					      if(data > 99.999) {
+					        
+					      }
+					    })
+					  }, 1000);});
+    		</script>
+        </div>
+    </body>
+</html>
