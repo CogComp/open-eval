@@ -174,9 +174,9 @@ public class Application extends Controller {
     }
 
     public Result deleteRecord() {
-        // should delete record from db
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
-        System.out.println(bindedForm.get("record_id"));
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        f.deleteRecordFromRecordID(Integer.parseInt(bindedForm.get("record_id")));
         return redirect("/");
     }
 

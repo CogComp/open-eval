@@ -103,7 +103,6 @@ public class FrontEndDBInterface {
                 "task_variant_b", configInfoList.getString(4), Integer.toString(configInfoList.getInt(5))); 
             connection.close(); 
             return config; 
-            connection.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -196,6 +195,20 @@ public class FrontEndDBInterface {
                 
             conn.close();
             return record;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public void deleteRecordFromRecordID(int record_id) {
+        try { 
+            Connection conn = getConnection();
+            
+            String sql = "DELETE FROM records WHERE record_id = " + record_id + ";";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.executeUpdate();
+            
+            conn.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
