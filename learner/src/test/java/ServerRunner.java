@@ -7,7 +7,7 @@ public class ServerRunner
 {
     public static void main(String[] args) throws IOException
     {
-        Server server = new Server(5757, new ToyPosAnnotator());
+        Server server = new Server(5757, new SaulPosAnnotator());
         fi.iki.elonen.util.ServerRunner.executeInstance(server);
     }
 }
