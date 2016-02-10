@@ -1,10 +1,8 @@
 package controllers;
 
-import play.*;
 import play.libs.ws.WSResponse;
 import play.mvc.*;
 import play.data.DynamicForm;
-import play.Logger;
 
 import views.html.*;
 
@@ -87,7 +85,9 @@ public class Application extends Controller {
         taskVariants.add("tskVar3");
         
         try {
-            f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("teamname"), bindedForm.get("description"), bindedForm.get("evaluator"), "Text Annotation", taskVariants); 
+            f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),
+                               bindedForm.get("description"), bindedForm.get("evaluator"),
+                               "Text Annotation", taskVariants); 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -107,13 +107,12 @@ public class Application extends Controller {
         }
         
         List<Record> records = new ArrayList<>();
-        records.add(new Record("date", "comment", "repo", "author",95.1));
-        records.add(new Record("date2", "comment", "repo", "author",36.1));
-        records.add(new Record("date3", "comment", "repo", "author",97.1));
+        records.add(new Record("24-May-11", "comment", "repo", "author"));
+        records.add(new Record("24-Apr-11", "comment", "repo", "author"));
+        records.add(new Record("24-May-10", "comment", "repo", "author"));
         conf.records = records;
         viewModel.configuration = conf;
 
-        viewModel.history = "history B";
         return ok(recipe.render(viewModel));
     }
 
@@ -130,18 +129,25 @@ public class Application extends Controller {
         return ok(addRun.render(viewModel));
     }
 
-
-    // If there is a failure, it should return back to the add run page
-    // with default values set to the sent form values, and an error message
     public Result submitRun() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
 
         String configuration_id = bindedForm.get("configuration_id");
 		String url = bindedForm.get("url");
         int id = Integer.parseInt(configuration_id);
+        // Run + Save run to db here
 		WSResponse response = Core.startJob(id, url);
-		if(response == null)
-			return internalServerError("Server incorrectly configured");
+        if (response == null) {
+            AddRunViewModel viewModel = new AddRunViewModel();
+            viewModel.configuration_id = configuration_id;
+            viewModel.default_url = url;
+            viewModel.default_author = bindedForm.get("author");
+            viewModel.default_repo = bindedForm.get("repo");
+            viewModel.default_comment = bindedForm.get("comment");
+            viewModel.error_message = "Server at given address was not found";
+
+            return ok(addRun.render(viewModel));
+        }
 		else
 		if(response.getStatus()==500)
             return internalServerError(response.getBody());
@@ -153,16 +159,26 @@ public class Application extends Controller {
         RecordViewModel viewModel = new RecordViewModel();
         // should find record by lookup
         Record associated_record = new Record();
+        associated_record.metrics = new Metrics(
+            1.1,2.2,3.3,4,5,6,7,8
+        );
         viewModel.record = associated_record;
         return ok(record.render(viewModel));
+    }
+
+    public Result deleteRecord() {
+        // should delete record from db
+        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+        System.out.println(bindedForm.get("record_id"));
+        return redirect("/");
     }
 
     public Result about() {
         return ok(about.render());
     }
 
-    public Result thinClient() {
-        // Change to download of thin client
+    public Result instructions() {
+        // Change to go to instructions page
         return redirect("/");
     }
 }

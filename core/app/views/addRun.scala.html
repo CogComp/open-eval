@@ -12,6 +12,8 @@
     <body>
         <div class="body">
             <h1><a href="/">Open-Eval</a></h1>
+            <h3>New run of configuration</h3>
+            <p>This will run a job at the provided address and will create a new record.</p>
             <font color="red">@viewModel.error_message</font>
             <form action="submitRun" method="post" id="usrform">
               <table class="table" style="width: 40%;">
@@ -25,7 +27,7 @@
                   <input type="hidden" value=@viewModel.configuration_id name="configuration_id">
                   <tr>
                     <td>
-                      URL<font color="red">*</font>:
+                      URL (Solver address)<font color="red">*</font>:
                     </td>
                     <td>
                        <input type="text" name="url" value="@viewModel.default_url">

@@ -13,20 +13,26 @@ public class Record {
     public String comment;
     public String repo;
     public String author;
-    public double score;
+
+    public Metrics metrics;
 
     public String configuration_id;
     public String record_id;
 
-    private static long counter = 0;;
+    private static long counter = 0;
 
-    public Record(String date, String comment, String repo, String author, double score) {
+    public Record(String date, String comment, String repo,
+                  String author, Metrics metrics) {
         this.date = date;
         this.comment = comment;
         this.repo = repo;
         this.author = author;
-        this.score = score;
         this.record_id = "" + (counter++);
+        this.metrics = metrics;
+    }
+
+    public Record(String date, String comment, String repo, String author) {
+        this(date, comment, repo, author, new Metrics());
     }
 
     public Record() {

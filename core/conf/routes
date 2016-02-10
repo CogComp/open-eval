@@ -18,6 +18,8 @@ GET        /record               controllers.Application.record(record_id: Strin
 
 POST       /deleteConfiguration  controllers.Application.deleteConfiguration()
 
+POST       /deleteRecord         controllers.Application.deleteRecord()
+
 # Add configuration
 GET        /addConfiguration     controllers.Application.addConfiguration()
 
@@ -29,6 +31,6 @@ GET        /addRun               controllers.Application.addRun(conf: String)
 POST       /submitRun            controllers.Application.submitRun()
 
 # FAQs
-GET        /thinClient           controllers.Application.thinClient()
+GET        /instructions         controllers.Application.instructions()
 
 GET        /about                controllers.Application.about()
