@@ -17,16 +17,10 @@ public class Metrics {
     public int missed_count;
     public int extra_count;
 
-    public String metric_id;
-    private static long counter = 0;
-
     public Metrics() {
-        this.precision = Math.random();
-        this.recall = Math.random();
-        this.f1 = Math.random();
-        this.metric_id = "" + (counter++);
+        
     }
-
+    
     public Metrics(
         double precision,
         double recall,
@@ -47,7 +41,6 @@ public class Metrics {
         this.predicted_count = predicted_count;
         this.missed_count = missed_count;
         this.extra_count = extra_count;
-        this.metric_id = "" + (counter++);
     }
 
 }
