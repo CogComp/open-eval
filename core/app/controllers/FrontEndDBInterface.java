@@ -108,6 +108,24 @@ public class FrontEndDBInterface {
         }
     }
     
+    public void deleteConfigAndRecords(int configuration_id) {
+        try {
+            Connection conn = getConnection();
+            String sql = "DELETE FROM configurations WHERE id = " + configuration_id + ";";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.executeUpdate();
+            
+            sql = "DELETE FROM records WHERE configuration_id = " + configuration_id + ";";
+            stmt = conn.prepareStatement(sql);
+            stmt.executeUpdate();
+            
+            conn.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        
+    }
+    
     /** Stores information at the start of a particular run.
     Returns the id of the record inserted. 
     */
@@ -239,8 +257,6 @@ public class FrontEndDBInterface {
             throw new RuntimeException(e);
         }
     }
-    
-    
     
     
     /** Returns a connection to the Gargamel database.*/

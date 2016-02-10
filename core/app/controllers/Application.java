@@ -75,9 +75,9 @@ public class Application extends Controller {
     }
 
     public Result deleteConfiguration() {
-        // should delete stuff :S
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
-        System.out.println(bindedForm.get("conf"));
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        f.deleteConfigAndRecords(Integer.parseInt(bindedForm.get("conf")));
         return redirect("/");
     }
 
