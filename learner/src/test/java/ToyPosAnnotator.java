@@ -9,12 +9,13 @@ public class ToyPosAnnotator extends Annotator
 {
     public ToyPosAnnotator()
     {
-        super(ViewNames.POS, new String[] {"TOKENS"});
+        super(ViewNames.POS, new String[] {ViewNames.TOKENS, ViewNames.SENTENCE});
     }
 
     @Override
     public void addView(TextAnnotation textAnnotation) throws AnnotatorException
     {
+        System.out.println("Received:"+textAnnotation.getText());
         String[] tokens = textAnnotation.getTokens();
         String[] tags = {"DT","NN","IN","DT","NN","VBD","IN","NN","."};
         View posView = new View(ViewNames.POS,"POS-annotator",textAnnotation,1.0);

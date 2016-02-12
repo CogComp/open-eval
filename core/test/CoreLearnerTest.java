@@ -50,7 +50,7 @@ public class CoreLearnerTest
             public void run() {
                 LearnerInterface learner = new LearnerInterface("http://localhost:5757/");
 
-                String[] viewsToAdd = {ViewNames.POS};
+                String[] viewsToAdd = {ViewNames.POS, ViewNames.SENTENCE};
                 ArrayList<TextAnnotation> instances = new ArrayList<>();
 
                 TextAnnotation goldTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false);
