@@ -28,10 +28,13 @@ import java.util.List;
  	/** List of `TextAnnotation` instances returned by the solver */
  	private List<TextAnnotation> solverInstances;
 
+	private List<Boolean> skip;
+
  	public Job(LearnerInterface learner, List<TextAnnotation> instances) {
  		this.learnerInterface = learner;
  		this.unprocessedInstances = instances;
 		this.domain = Domain.TOY;
+		skip = new ArrayList<>();
  	}
 
  	/** Sends all unprocessed instances to the solver and receives the results. */
@@ -45,14 +48,19 @@ import java.util.List;
 			try{
 				resultJson = response.getBody();
 				processedInstance = SerializationHelper.deserializeFromJson(resultJson);
+				solverInstances.add(processedInstance);
+				skip.add(false);
 			}
 			catch(Exception e){
-				break;
+				System.out.println(e);
+				solverInstances.add(null);
+				skip.add(true);
 			}
- 			solverInstances.add(processedInstance);
  		}
 		return response;
  	}
+
+	public List<Boolean> getSkip() {return this.skip;}
 
 	public List<TextAnnotation> getSolverInstances(){
 		return this.solverInstances;

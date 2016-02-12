@@ -5,8 +5,8 @@ import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
 import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
 import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
+import edu.illinois.cs.cogcomp.core.experiments.evaluators.ConstituentLabelingEvaluator;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
-import edu.illinois.cs.cogcomp.core.experiments.evaluators.SpanLabelingEvaluator;
 import models.Job;
 import models.LearnerInterface;
 import org.json.simple.JSONObject;
@@ -36,24 +36,29 @@ public class Core {
     public static WSResponse startJob(String conf_id, String url, String record_id) {
         Configuration runConfig = getConfigurationFromDb(conf_id);
 
-        List<TextAnnotation> instances = getInstancesFromDb(runConfig);
-
+        List<TextAnnotation> correctInstances = getInstancesFromDb(runConfig);
+        List<TextAnnotation> cleanseInstances = getInstancesFromDb(runConfig);
+        System.out.println(url);
         LearnerInterface learner = new LearnerInterface(url);
         String jsonInfo = learner.getInfo();
-        if (jsonInfo.equals("err"))
+        if (jsonInfo.equals("err")) {
+            System.out.println("Could not connect to server");
             return null;
-
-        List<TextAnnotation> cleansedInstances = cleanseInstances(instances, jsonInfo);
-        if (cleansedInstances == null) {
+        }
+        cleanseInstances(cleanseInstances, jsonInfo);
+        if (cleanseInstances == null) {
+            System.out.println("Error in cleanser");
             return null;
         }
 
-        Job newJob = new Job(learner, cleansedInstances);
+        Job newJob = new Job(learner, cleanseInstances);
         WSResponse solverResponse = newJob.sendAndReceiveRequestsFromSolver();
 
         List<TextAnnotation> solvedInstances = newJob.getSolverInstances();
-        EvaluationRecord eval = evaluate(runConfig, instances, solvedInstances);
+        List<Boolean> skip = newJob.getSkip();
+        EvaluationRecord eval = evaluate(runConfig, correctInstances, solvedInstances, skip);
         storeEvaluationIntoDb(eval, record_id);
+        System.out.println(solverResponse);
         return solverResponse;
     }
 
@@ -74,15 +79,19 @@ public class Core {
      * @param runConfig - Defines the type of evaluator the user needs
      * @return - Evaluator object to be used
      */
-    public static EvaluationRecord evaluate(Configuration runConfig, List<TextAnnotation> correctInstances, List<TextAnnotation> solvedInstances) {
-        Evaluator evaluator = new SpanLabelingEvaluator();
+    public static EvaluationRecord evaluate(Configuration runConfig, List<TextAnnotation> correctInstances, List<TextAnnotation> solvedInstances, List<Boolean> skip) {
+        Evaluator evaluator = new ConstituentLabelingEvaluator();
         ClassificationTester eval = new ClassificationTester();
         for (int i = 0; i < correctInstances.size(); i++) {
+            if(skip.get(i)){
+                continue;
+            }
             View gold = correctInstances.get(i).getView(ViewNames.POS);
             View predicted = solvedInstances.get(i).getView(ViewNames.POS);
             evaluator.setViews(gold, predicted);
             evaluator.evaluate(eval);
         }
+        System.out.println(eval.getEvaluationRecord());
         return eval.getEvaluationRecord();
     }
 
@@ -94,6 +103,7 @@ public class Core {
      * @return - The cleansed instance
      */
     public static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, String jsonInfo) {
+        System.out.println("Cleansing");
         JSONParser parser = new JSONParser();
         List<String> requiredViews = null;
         try {
@@ -127,7 +137,8 @@ public class Core {
     private static List<TextAnnotation> getInstancesFromDb(Configuration runConfig) {
         String datasetName = runConfig.dataset;
         controllers.POSReader posReader = new controllers.POSReader();
-        List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB(datasetName);
+        System.out.println("Retrieving instances from db");
+        List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB("22-24.br");
         return TextAnnotations;
     }
 
