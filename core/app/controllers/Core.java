@@ -37,7 +37,6 @@ public class Core {
         Configuration runConfig = getConfigurationFromDb(conf_id);
 
         List<TextAnnotation> correctInstances = getInstancesFromDb(runConfig);
-        List<TextAnnotation> cleanseInstances = getInstancesFromDb(runConfig);
         System.out.println(url);
         LearnerInterface learner = new LearnerInterface(url);
         String jsonInfo = learner.getInfo();
@@ -45,13 +44,13 @@ public class Core {
             System.out.println("Could not connect to server");
             return null;
         }
-        cleanseInstances(cleanseInstances, jsonInfo);
-        if (cleanseInstances == null) {
+        List<TextAnnotation> cleansedInstances = cleanseInstances(correctInstances, jsonInfo);
+        if (cleansedInstances == null) {
             System.out.println("Error in cleanser");
             return null;
         }
 
-        Job newJob = new Job(learner, cleanseInstances);
+        Job newJob = new Job(learner, cleansedInstances);
         WSResponse solverResponse = newJob.sendAndReceiveRequestsFromSolver();
 
         List<TextAnnotation> solvedInstances = newJob.getSolverInstances();

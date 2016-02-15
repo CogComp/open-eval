@@ -32,16 +32,26 @@ public class Redactor {
 		}
 
 		List<String> viewsToRemove = new ArrayList<>();
+		List<TextAnnotation> cleansed = new ArrayList<>();
 		for (TextAnnotation textAnnotation : textAnnotations) {
 			for (String viewName : textAnnotation.getAvailableViews()) {
 				if (!viewsToKeep.contains(viewName)) {
 					viewsToRemove.add(viewName);
 				}
 			}
-			for(String viewName: viewsToRemove){
-				textAnnotation.removeView(viewName);
+			TextAnnotation cleansedAnnotation;
+			try {
+				cleansedAnnotation = (TextAnnotation)textAnnotation.clone();
 			}
+			catch(CloneNotSupportedException ce){
+				cleansed.add(null);
+				continue;
+			}
+			for(String viewName: viewsToRemove){
+				cleansedAnnotation.removeView(viewName);
+			}
+			cleansed.add(cleansedAnnotation);
 		}
-		return textAnnotations;
+		return cleansed;
 	}
 }

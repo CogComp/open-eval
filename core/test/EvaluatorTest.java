@@ -28,11 +28,13 @@ public class EvaluatorTest {
     public void basicTest(){
         List<TextAnnotation> correct = new ArrayList<>();
         List<TextAnnotation> guessed = new ArrayList<>();
+        List<Boolean> skip = new ArrayList<>();
         TextAnnotation correctTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false);
         TextAnnotation incorrectTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false);
         correct.add(correctTextAnnotation);
         guessed.add(incorrectTextAnnotation);
-        EvaluationRecord record = Core.evaluate(null, correct, guessed);
+        skip.add(false);
+        EvaluationRecord record = Core.evaluate(null, correct, guessed, skip);
         Assert.assertTrue(record.getGoldCount()>= 1);
         Assert.assertTrue(record.getPredictedCount()>= 1);
     }
@@ -41,13 +43,15 @@ public class EvaluatorTest {
     public void multiTest() {
         List<TextAnnotation> correct = new ArrayList<>();
         List<TextAnnotation> guessed = new ArrayList<>();
+        List<Boolean> skip = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
             TextAnnotation correctTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false);
             TextAnnotation incorrectTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false);
             correct.add(correctTextAnnotation);
             guessed.add(incorrectTextAnnotation);
+            skip.add(false);
         }
-        EvaluationRecord record = Core.evaluate(null, correct, guessed);
+        EvaluationRecord record = Core.evaluate(null, correct, guessed, skip);
         Assert.assertTrue(record.getGoldCount()>=1000);
         Assert.assertTrue(record.getPredictedCount()>=1000);
         Assert.assertTrue(record.getCorrectCount()<=record.getPredictedCount() && record.getCorrectCount()>=0);
