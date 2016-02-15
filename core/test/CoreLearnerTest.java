@@ -29,7 +29,7 @@ public class CoreLearnerTest
 
         try
         {
-            server = new Server(5757, new ToyPosAnnotator());
+            server = new Server(5757, new SaulPosAnnotator());
             server.start();
 
         } catch (IOException e)
