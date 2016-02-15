@@ -4,23 +4,50 @@ import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
+import edu.illinois.cs.cogcomp.nlp.utilities.POSUtils;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Random;
 
 public class ToyPosAnnotator extends Annotator
 {
     public ToyPosAnnotator()
     {
-        super(ViewNames.POS, new String[] {"TOKENS"});
+        // The problem we are trying to solve is parts of speech (POS)
+        // The only view needed by use is the tokens of the document
+        super(ViewNames.POS, new String[] {ViewNames.TOKENS});
     }
 
     @Override
     public void addView(TextAnnotation textAnnotation) throws AnnotatorException
     {
         String[] tokens = textAnnotation.getTokens();
-        String[] tags = {"DT","NN","IN","DT","NN","VBD","IN","NN","."};
+        List<String> tags = POSUtils.allPOS;
+
+        // Create a new view with our view name (the other fields are unimportant for this example)
         View posView = new View(ViewNames.POS,"POS-annotator",textAnnotation,1.0);
         textAnnotation.addView(ViewNames.POS,posView);
-        for(int i=0;i<tags.length;i++){
-            posView.addConstituent(new Constituent(tags[i],ViewNames.POS,textAnnotation,i,i+1));
+
+        Random random = new Random();
+
+        for(int i=0;i<tokens.length;i++){
+            // For this example we will just randomly assigning tags.
+            int randomTagIndex = random.nextInt(tags.size());
+            // Add the tag to the view for the specified token
+            posView.addConstituent(new Constituent(tags.get(randomTagIndex),ViewNames.POS,textAnnotation,i,i+1));
         }
+    }
+
+    public static void main(String args[]) throws IOException {
+
+        // Do any training
+        Annotator annotator = new ToyPosAnnotator();
+
+        // We will have our server listen on port 5757 and pass it our trained annotator
+        Server server = new Server(5757, annotator);
+
+        // We have no more work to do, so we will use the executeInstance method to start and keep our Server alive
+        fi.iki.elonen.util.ServerRunner.executeInstance(server);
     }
 }
