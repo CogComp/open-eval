@@ -6,8 +6,10 @@ Eval system will test your learner and record previous runs in a central place. 
 # How to Use
 
 ## Adding the Learner Endpoint to your project
-*Maven Resolver*
-*Maven Dependency*
+
+Here is how you can add the learner endpoint through sbt:
+ - Add the following resolver: `"CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"`
+ - Add the following dependency: `"edu.illinois.cs.cogcomp" % "whatever the name is" % "version"`
 
 ## The `Server` class
 
