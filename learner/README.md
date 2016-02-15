@@ -17,3 +17,61 @@ The `Server` class will be taking care of the communications between your learne
 The `Annotator` class must be extended in order for the `Server` to communicate with your learner. In super constructor you must specify the name of the view that your learner will be adding, and also any names of views that your learner requires.
 
 The `Annotator` will receive instances by the `addView` method. You will receive a `TextAnnotation` object, which you must add the type of view you specified in the constructor.
+
+## Example
+
+Below is an example POS annotator that just assigns randoms labels to each token. It also starts the server.
+
+    import edu.illinois.cs.cogcomp.annotation.Annotator;
+    import edu.illinois.cs.cogcomp.annotation.AnnotatorException;
+    import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
+    import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent;
+    import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+    import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
+    import edu.illinois.cs.cogcomp.nlp.utilities.POSUtils;
+    
+    import java.io.IOException;
+    import java.util.List;
+    import java.util.Random;
+    
+    public class ToyPosAnnotator extends Annotator
+    {
+        public ToyPosAnnotator()
+        {
+            // The problem we are trying to solve is parts of speech (POS)
+            // The only view needed by use is the tokens of the document
+            super(ViewNames.POS, new String[] {ViewNames.TOKENS});
+        }
+    
+        @Override
+        public void addView(TextAnnotation textAnnotation) throws AnnotatorException
+        {
+            String[] tokens = textAnnotation.getTokens();
+            List<String> tags = POSUtils.allPOS;
+    
+            // Create a new view with our view name (the other fields are unimportant for this example)
+            View posView = new View(ViewNames.POS,"POS-annotator",textAnnotation,1.0);
+            textAnnotation.addView(ViewNames.POS,posView);
+    
+            Random random = new Random();
+    
+            for(int i=0;i<tokens.length;i++){
+                // For this example we will just randomly assigning tags.
+                int randomTagIndex = random.nextInt(tags.size());
+                // Add the tag to the view for the specified token
+                posView.addConstituent(new Constituent(tags.get(randomTagIndex),ViewNames.POS,textAnnotation,i,i+1));
+            }
+        }
+    
+        public static void main(String args[]) throws IOException {
+    
+            // Do any training
+            Annotator annotator = new ToyPosAnnotator();
+    
+            // We will have our server listen on port 5757 and pass it our trained annotator
+            Server server = new Server(5757, annotator);
+    
+            // We have no more work to do, so we will use the executeInstance method to start and keep our Server alive
+            fi.iki.elonen.util.ServerRunner.executeInstance(server);
+        }
+    }
