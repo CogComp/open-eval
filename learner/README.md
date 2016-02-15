@@ -1,6 +1,7 @@
 # About
 
-The learner endpoint is built to be used alongside the [Open Eval](https://github.com/IllinoisCogComp/open-eval) system. This system is meant to test your learner, and will send instances to you for you to label and send back. To ease this process we have built the learner endpoint, which will take care of most of these communications for you. 
+The learner endpoint is built to be used alongside the [Open Eval](https://github.com/IllinoisCogComp/open-eval) system. The Open 
+Eval system will test your learner and record previous runs in a central place. In order to do this it will send instances your learner label and send back. To ease this process we have built the learner endpoint, which will take care of most of these communications for you. 
 
 # How to Use
 
@@ -75,3 +76,14 @@ Below is an example POS annotator that just assigns randoms labels to each token
             fi.iki.elonen.util.ServerRunner.executeInstance(server);
         }
     }
+
+# Under the Hood
+
+Here is a general overview of what the learner endpoint is doing to communicate with the core. *It is not necessary to know this to test your learner.*
+
+After starting the Server and running the configuration the Open Eval system submit a GET request to your server at `/info` which provides the following information as JSON:
+
+ - The required views of your learner
+ - The view your learner will be adding
+
+After this the Open Eval system will start posting instances as JSON to `/instance`.  The learner endpoint will deserialize them and run them through the provided Annotator. Once the view is added the endpoint will serialize the whole `TextAnnotation` and send it back to the Open Eval system. This process repeats until all the instances have been tested.
