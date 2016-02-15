@@ -26,18 +26,18 @@ public class CoreCleanserTest {
     public void basicTest(){
         List<TextAnnotation> correct = new ArrayList<>();
         correct.add(DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false));
+        Assert.assertTrue(correct.get(0).hasView(ViewNames.POS));
         List<TextAnnotation> cleansed = Core.cleanseInstances(correct, requiredJson);
         assert(cleansed.size()==1);
         TextAnnotation cleanTA = cleansed.get(0);
         Assert.assertTrue(cleanTA.hasView(ViewNames.SENTENCE));
         Assert.assertFalse(cleanTA.hasView(ViewNames.POS));
-        Assert.assertTrue(correct.get(0).hasView(ViewNames.POS));
     }
 
     @Test
     public void multiTest(){
         List<TextAnnotation> correct = new ArrayList<>();
-        for(int i=0; i<1000; i++){
+        for(int i=0; i<100; i++){
             correct.add(DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false));
         }
         List<TextAnnotation> cleansed = Core.cleanseInstances(correct, requiredJson);
@@ -45,7 +45,6 @@ public class CoreCleanserTest {
         for(TextAnnotation cleanTA: cleansed){
             Assert.assertTrue(cleanTA.hasView(ViewNames.SENTENCE));
             Assert.assertFalse(cleanTA.hasView(ViewNames.POS));
-            Assert.assertTrue(correct.get(0).hasView(ViewNames.POS));
         }
     }
 
@@ -57,7 +56,7 @@ public class CoreCleanserTest {
         correct.add(DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false));
         List<TextAnnotation> cleansed = Core.cleanseInstances(correct, json);
         Assert.assertNull(cleansed);
-        cleansed = Core.cleanseInstances(correct, json);
+        cleansed = Core.cleanseInstances(correct, json2);
         Assert.assertNull(cleansed);
     }
 }

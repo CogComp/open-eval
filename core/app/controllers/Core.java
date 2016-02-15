@@ -37,6 +37,7 @@ public class Core {
         Configuration runConfig = getConfigurationFromDb(conf_id);
 
         List<TextAnnotation> correctInstances = getInstancesFromDb(runConfig);
+        List<TextAnnotation> cleansedInstances = getInstancesFromDb(runConfig);
         System.out.println(url);
         LearnerInterface learner = new LearnerInterface(url);
         String jsonInfo = learner.getInfo();
@@ -44,7 +45,7 @@ public class Core {
             System.out.println("Could not connect to server");
             return null;
         }
-        List<TextAnnotation> cleansedInstances = cleanseInstances(correctInstances, jsonInfo);
+        cleanseInstances(cleansedInstances, jsonInfo);
         if (cleansedInstances == null) {
             System.out.println("Error in cleanser");
             return null;
@@ -112,6 +113,8 @@ public class Core {
             pe.printStackTrace();
             return null;
         }
+        if(requiredViews==null)
+            return null;
         return Redactor.removeAnnotations(correctInstances, requiredViews);
     }
 
@@ -137,7 +140,7 @@ public class Core {
         String datasetName = runConfig.dataset;
         controllers.POSReader posReader = new controllers.POSReader();
         System.out.println("Retrieving instances from db");
-        List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB("22-24.br");
+        List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB("test-10.br");
         return TextAnnotations;
     }
 

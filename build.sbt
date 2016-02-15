@@ -38,7 +38,7 @@ lazy val learner = (project in file("learner")).
     name := "learner",
     libraryDependencies ++= Seq(
       "edu.illinois.cs.cogcomp" % "saul-examples_2.11" % "0.1" exclude("com.typesafe.play", "play_2.11"),
-      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.17",
+      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.20",
       "org.nanohttpd" % "nanohttpd" % "2.2.0",
       "org.nanohttpd" % "nanohttpd-nanolets" % "2.2.0",
       "org.mockito" % "mockito-core" % "1.10.19",
