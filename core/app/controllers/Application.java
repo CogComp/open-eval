@@ -1,16 +1,15 @@
 package controllers;
 
-import play.*;
 import play.libs.ws.WSResponse;
 import play.mvc.*;
 import play.data.DynamicForm;
-import play.Logger;
 
 import views.html.*;
 
 import java.util.*;
 
 import models.*;
+
 
 import controllers.evaluators.Evaluation;
 
@@ -136,6 +135,7 @@ public class Application extends Controller {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
 
         String configuration_id = bindedForm.get("configuration_id");
+
         String url = bindedForm.get("url");
         String author = bindedForm.get("author"); 
         String repo = bindedForm.get("repo");
@@ -147,7 +147,6 @@ public class Application extends Controller {
         WSResponse response = Core.startJob(configuration_id, url, record_id);
         if(response == null) {
             AddRunViewModel viewModel = new AddRunViewModel();
-
             viewModel.configuration_id = configuration_id;
             viewModel.default_url = url;
             viewModel.default_author = author;

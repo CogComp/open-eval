@@ -50,7 +50,7 @@ public class CoreLearnerTest
             public void run() {
                 LearnerInterface learner = new LearnerInterface("http://localhost:5757/");
 
-                String[] viewsToAdd = {ViewNames.POS};
+                String[] viewsToAdd = {ViewNames.POS, ViewNames.SENTENCE};
                 ArrayList<TextAnnotation> instances = new ArrayList<>();
 
                 TextAnnotation goldTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false);
@@ -126,7 +126,7 @@ public class CoreLearnerTest
                 ArrayList<TextAnnotation> instances = new ArrayList<>();
                 ArrayList<View> removedViews = new ArrayList<>();
 
-                for(int i=0; i<1000; i++) {
+                for(int i=0; i<10; i++) {
                     TextAnnotation goldTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd, false);
                     removedViews.add(goldTextAnnotation.getView(ViewNames.POS));
 
@@ -145,7 +145,7 @@ public class CoreLearnerTest
 
                 List<TextAnnotation> solverInstances = newJob.getSolverInstances();
 
-                for(int i=0; i<1000; i++) {
+                for(int i=0; i<10; i++) {
                     TextAnnotation goldTextAnnotation = instances.get(i);
                     goldTextAnnotation.addView(ViewNames.POS, removedViews.get(i));
                     assertEquals(goldTextAnnotation, solverInstances.get(i));

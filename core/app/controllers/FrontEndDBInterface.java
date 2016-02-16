@@ -245,8 +245,8 @@ public class FrontEndDBInterface {
             stmt.setDouble(2, evalRecord.getPrecision());
             stmt.setDouble(3, evalRecord.getRecall());
             stmt.setInt(4, evalRecord.getGoldCount());
-            stmt.setInt(5, evalRecord.getPredictedCount());
-            stmt.setInt(6, evalRecord.getCorrectCount());
+            stmt.setInt(5, evalRecord.getCorrectCount());
+            stmt.setInt(6, evalRecord.getPredictedCount());
             stmt.setInt(7, evalRecord.getMissedCount());
             stmt.setInt(8, evalRecord.getExtraCount());
             stmt.setInt(9, record_id);

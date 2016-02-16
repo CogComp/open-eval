@@ -16,12 +16,13 @@ public class ToyPosAnnotator extends Annotator
     {
         // The problem we are trying to solve is parts of speech (POS)
         // The only view needed by use is the tokens of the document
-        super(ViewNames.POS, new String[] {ViewNames.TOKENS});
+        super(ViewNames.POS, new String[] {ViewNames.TOKENS, ViewNames.SENTENCE});
     }
 
     @Override
     public void addView(TextAnnotation textAnnotation) throws AnnotatorException
     {
+        System.out.println("Received:"+textAnnotation.getText());
         String[] tokens = textAnnotation.getTokens();
         List<String> tags = POSUtils.allPOS;
 
