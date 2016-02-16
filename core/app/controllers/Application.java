@@ -183,9 +183,4 @@ public class Application extends Controller {
     public Result about() {
         return ok(about.render());
     }
-
-    public Result instructions() {
-        // Change to go to instructions page
-        return redirect("/");
-    }
 }
