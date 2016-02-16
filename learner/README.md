@@ -13,6 +13,7 @@ Here is how you can add the learner endpoint through sbt:
 
 Here is how you can add the learner endpoint through maven:
 
+```xml
     <repositories>
 		<repository>
 			<id>CogcompSoftware</id>
@@ -28,7 +29,7 @@ Here is how you can add the learner endpoint through maven:
 			<version>"version"</version>
 		</dependency>
 	</dependencies>
-
+```
 
 
 ## The `Server` class
@@ -99,6 +100,7 @@ Below is an example POS annotator that just assigns randoms labels to each token
             fi.iki.elonen.util.ServerRunner.executeInstance(server);
         }
     }
+```
 
 ## Under the Hood
 
