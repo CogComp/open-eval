@@ -30,10 +30,17 @@ Add the following dependency to your pom.xml
 </dependency>
 ```
 
-
 ## The `Server` class
 
 The `Server` class will be taking care of the communications between your learner and the Open-Eval system. When creating the Server you need to specify the port that it will listen on, and the `Annotator` that represents you learner.
+
+## About `TextAnnotation`'s and `View`'s
+
+A `TextAnnotation` can be thought of as a container that stores different layers of annotations over some text. It contains two main parts. It the text of the document. It also contains `View`s which represent the annotations of the text.
+
+The library stores all information about a specific annotation over text in an object called `View`.  A `View` is a graph, where the nodes are `Constituents` and the edges are `Relations`. In its most general sense, a `View` is graph whose nodes are labeled spans of text. The edges between the nodes represent the relationships between them. A `TextAnnotation` can be thought of as a container of views, indexed by their names.
+
+For more information and examples check the [illinois-core-utilities documentation](https://github.com/cogcomp-dev/illinois-cogcomp-nlp/blob/master/core-utilities/README.md).
 
 ## The `Annotator` class
 
