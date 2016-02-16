@@ -36,6 +36,4 @@ GET        /working				 controllers.Application.progressBar()
 GET		   /working/prog		 controllers.Application.getProgress()			
 
 # FAQs
-GET        /instructions         controllers.Application.instructions()
-
 GET        /about                controllers.Application.about()

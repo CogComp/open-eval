@@ -25,6 +25,7 @@ public class LearnerInterface {
 	public LearnerInterface(String url) {
 		this.infoPoster = WS.url(url+"info");
 		this.instancePoster = WS.url(url+"instance");
+		System.out.println(this.infoPoster);
 	}
 
 	/**
@@ -33,6 +34,7 @@ public class LearnerInterface {
 	 * @return The solved TextAnnotation instance retrieved from the solver
 	 */
 	public WSResponse processRequest(TextAnnotation textAnnotation) {
+		System.out.println("Sending:"+textAnnotation.getText());
 		String taJson = SerializationHelper.serializeToJson(textAnnotation);
 		Promise<WSResponse> jsonPromise = instancePoster.post(taJson);
 
@@ -40,6 +42,7 @@ public class LearnerInterface {
 	}
 	
 	public String getInfo(){
+		System.out.println("Pinging server");
 		String jsonInfo;
 		try{
 			Promise<WSResponse> responsePromise = infoPoster.get();

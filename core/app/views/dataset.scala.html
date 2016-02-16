@@ -4,14 +4,8 @@
 <!DOCTYPE html>
 
 <html lang="en">
-    <head>
-        <title>Open-eval</title>
-        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
-        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
-        <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))">
-    </head>
     <body class="body">
-        <h1><a href="/">Open-Eval</a></h1>
+        @header()
         <h2>Dataset @datasetViewModel.dataset</h2>
         <h3>Solvers</h3>
         <ul> 

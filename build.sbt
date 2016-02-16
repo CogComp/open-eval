@@ -1,3 +1,4 @@
+val cogcompNLPVersion = "3.0.20"
 lazy val root = (project in file(".")).
   aggregate(core, learner)
 
@@ -9,7 +10,8 @@ lazy val commonSettings = Seq(
   resolvers ++= Seq(
     Resolver.mavenLocal,
     "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
-  )
+  ),
+  publishTo := Some(Resolver.sftp("CogcompSoftwareRepo", "bilbo.cs.illinois.edu", "/mounts/bilbo/disks/0/www/cogcomp/html/m2repo/"))
 )
 
 lazy val core = (project in file("core")).
@@ -18,12 +20,12 @@ lazy val core = (project in file("core")).
   settings(
     name := "core",
       libraryDependencies ++= Seq(
-      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.17",
+      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % cogcompNLPVersion,
       "org.webjars" %% "webjars-play" % "2.4.0-1",
       "org.webjars" % "bootstrap" % "3.1.1-2",
       "org.json" % "json" % "20140107",
       "mysql" % "mysql-connector-java" % "5.1.37",
-      "com.novocode" % "junit-interface" % "0.8" % "test->default",
+      "com.novocode" % "junit-interface" % "0.11" % "test->default",
       javaJdbc,
       cache,
       javaWs
@@ -37,7 +39,8 @@ lazy val learner = (project in file("learner")).
   settings(
     name := "learner",
     libraryDependencies ++= Seq(
-      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % "3.0.17",
+      "edu.illinois.cs.cogcomp" % "saul-examples_2.11" % "0.1" exclude("com.typesafe.play", "play_2.11"),
+      "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % cogcompNLPVersion,
       "org.nanohttpd" % "nanohttpd" % "2.2.0",
       "org.nanohttpd" % "nanohttpd-nanolets" % "2.2.0",
       "org.mockito" % "mockito-core" % "1.10.19",

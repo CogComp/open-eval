@@ -1,11 +1,8 @@
 package controllers;
 
-import play.*;
 import play.libs.ws.WSResponse;
 import play.mvc.*;
 import play.data.DynamicForm;
-import play.Logger;
-import play.libs.Comet;
 import views.html.*;
 
 import java.util.*;
@@ -13,14 +10,17 @@ import java.util.concurrent.TimeUnit;
 
 import models.*;
 
+
 import controllers.evaluators.Evaluation;
+
+import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
+
 
 public class Application extends Controller {
 
     private List<models.Configuration> getConfigurations() {
         FrontEndDBInterface f = new FrontEndDBInterface();
-        List<models.Configuration> configList; 
-        
+        List<models.Configuration> configList;         
         try {
             configList = f.getConfigList();
         } catch (Exception e) {
@@ -74,9 +74,9 @@ public class Application extends Controller {
     }
 
     public Result deleteConfiguration() {
-        // should delete stuff :S
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
-        System.out.println(bindedForm.get("conf"));
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        f.deleteConfigAndRecords(Integer.parseInt(bindedForm.get("conf")));
         return redirect("/");
     }
 
@@ -111,10 +111,7 @@ public class Application extends Controller {
             throw new RuntimeException(e);
         }
         
-        List<Record> records = new ArrayList<>();
-        records.add(new Record("24-May-11", "comment", "repo", "author"));
-        records.add(new Record("24-Apr-11", "comment", "repo", "author"));
-        records.add(new Record("24-May-10", "comment", "repo", "author"));
+        List<Record> records = f.getRecordsFromConfID(Integer.parseInt(configuration_id));
         conf.records = records;
         viewModel.configuration = conf;
 
@@ -138,24 +135,29 @@ public class Application extends Controller {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
 
         String configuration_id = bindedForm.get("configuration_id");
-		String url = bindedForm.get("url");
 
-        // Run + Save run to db here
-		WSResponse response = Core.startJob(configuration_id, url);
-        if (response == null) {
+        String url = bindedForm.get("url");
+        String author = bindedForm.get("author"); 
+        String repo = bindedForm.get("repo");
+        String comment = bindedForm.get("comment"); 
+        
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        String record_id = f.storeRunInfo(Integer.parseInt(configuration_id), url, author, repo, comment); 
+       
+        WSResponse response = Core.startJob(configuration_id, url, record_id);
+        if(response == null) {
             AddRunViewModel viewModel = new AddRunViewModel();
-
             viewModel.configuration_id = configuration_id;
             viewModel.default_url = url;
-            viewModel.default_author = bindedForm.get("author");
-            viewModel.default_repo = bindedForm.get("repo");;
-            viewModel.default_comment = bindedForm.get("comment");;
+            viewModel.default_author = author;
+            viewModel.default_repo = repo;
+            viewModel.default_comment = comment;
             viewModel.error_message = "Server at given address was not found";
 
             return ok(addRun.render(viewModel));
         }
-		else
-		if(response.getStatus()==500)
+        else
+        if(response.getStatus()==500)
             return internalServerError(response.getBody());
         else
             return redirect("/configuration?conf="+configuration_id);
@@ -174,28 +176,21 @@ public class Application extends Controller {
 
     public Result record(String record_id) {
         RecordViewModel viewModel = new RecordViewModel();
-        // should find record by lookup
-        Record associated_record = new Record();
-        associated_record.metrics = new Metrics(
-            1.1,2.2,3.3,4,5,6,7,8
-        );
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        Record associated_record = f.getRecordFromRecordID(Integer.parseInt(record_id));
+   
         viewModel.record = associated_record;
         return ok(record.render(viewModel));
     }
 
     public Result deleteRecord() {
-        // should delete record from db
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
-        System.out.println(bindedForm.get("record_id"));
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        f.deleteRecordFromRecordID(Integer.parseInt(bindedForm.get("record_id")));
         return redirect("/");
     }
     
     public Result about() {
         return ok(about.render());
-    }
-
-    public Result instructions() {
-        // Change to go to instructions page
-        return redirect("/");
     }
 }
