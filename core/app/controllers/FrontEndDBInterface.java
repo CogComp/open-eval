@@ -68,20 +68,29 @@ public class FrontEndDBInterface {
     /** Returns a list of all the configurations in the database to be displayed on landing page. */
     public List<models.Configuration> getConfigList() {
         try {
-            Connection connection = getConnection();
+            Connection conn = getConnection();
             
             String sql = "SELECT teamName, description, datasetName, evaluator, id FROM configurations;";
-            PreparedStatement insertStmt = connection.prepareStatement(sql);
-            ResultSet configList = insertStmt.executeQuery();
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet configList = stmt.executeQuery();
             
             List<models.Configuration> configs = new ArrayList<>();
             
             while (configList.next()) {
-                models.Configuration config = new models.Configuration(configList.getString(1), configList.getString(2), configList.getString(3), "We're displaying task variants?", configList.getString(4), Integer.toString(configList.getInt(5))); 
+                /*Getting task variant for this configuration.*/
+                int configID = configList.getInt(5);
+                sql = "SELECT taskVariant FROM taskvariants WHERE configurations_id = ?;";
+                stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, configID);
+                ResultSet taskVariantRS = stmt.executeQuery();
+                taskVariantRS.first();
+                String taskVariant = taskVariantRS.getString(1);
+                
+                models.Configuration config = new models.Configuration(configList.getString(1), configList.getString(2), configList.getString(3), taskVariant, configList.getString(4), Integer.toString(configList.getInt(5))); 
                 configs.add(config);
             }
         
-            connection.close();
+            conn.close();
             return configs; 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -253,6 +262,27 @@ public class FrontEndDBInterface {
             
             stmt.executeUpdate();
             conn.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    /** Get's all the datasets for a specific task. 
+    */
+    public List<String> getDatasetsForTask(String taskName) {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "SELECT name FROM datasets WHERE task = ?;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, taskName);
+            ResultSet datasetNamesRS = stmt.executeQuery();
+            
+            List<String> datasets = new ArrayList<>();
+            while (datasetNamesRS.next()) {
+                datasets.add(datasetNamesRS.getString(1));
+            }
+            return datasets; 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
