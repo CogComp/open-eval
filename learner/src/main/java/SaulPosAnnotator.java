@@ -4,6 +4,8 @@ import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.POSTagger.POSClassifiers;
+import edu.illinois.cs.cogcomp.saulexamples.nlp.POSTagger.POSDataModel;
 //import edu.illinois.cs.cogcomp.saulexamples.nlp.POSTagger.POSClassifiers;
 //import edu.illinois.cs.cogcomp.saulexamples.nlp.POSTagger.POSDataModel;
 
@@ -24,15 +26,15 @@ public class SaulPosAnnotator extends Annotator
     {
         List<Constituent> constituents = textAnnotation.getView(ViewNames.TOKENS).getConstituents();
         scala.collection.Iterable<Constituent> scalaConstitutes = scala.collection.JavaConversions.asScalaBuffer(constituents);
-        //POSDataModel.tokens().populate(scalaConstitutes, false);
-        //POSClassifiers.loadModelsFromPackage();
+        POSDataModel.tokens().populate(scalaConstitutes, false);
+        POSClassifiers.loadModelsFromPackage();
 
         View posView = new View(ViewNames.POS,"POS-annotator",textAnnotation,1.0);
         textAnnotation.addView(ViewNames.POS,posView);
 
         for(int i=0;i<constituents.size();i++){
-            String predictied = "";//POSClassifiers.POSClassifier(constituents.get(i));
-            posView.addConstituent(new Constituent(predictied,ViewNames.POS,textAnnotation,i,i+1));
+            String predicted = POSClassifiers.POSClassifier(constituents.get(i));
+            posView.addConstituent(new Constituent(predicted,ViewNames.POS,textAnnotation,i,i+1));
         }
     }
 }
