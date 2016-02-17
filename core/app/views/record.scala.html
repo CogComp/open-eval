@@ -104,6 +104,16 @@
                       @viewModel.record.record_id
                     </td>
                   </tr>
+                  <tr>
+                    <td>
+                      associated configuration id
+                    </td>
+                    <td>
+                      <a href="/configuration?conf=@viewModel.record.configuration_id">
+                        @viewModel.record.configuration_id
+                      </a>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -111,6 +121,9 @@
           <input type="hidden"
            name="record_id"
            value="@viewModel.record.record_id" />
+          <input type="hidden"
+           name="configuration_id"
+           value="@viewModel.record.configuration_id" />
           <input type="submit" 
             rel="facebox[.dangerzone]" 
             class="btn btn-danger boxed-action"

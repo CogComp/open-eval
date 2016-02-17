@@ -204,13 +204,13 @@ public class FrontEndDBInterface {
             
             models.Metrics metrics = getMetricsFromRecordID(record_id);
            
-            String sql = "SELECT date, comment, repo, author FROM records WHERE record_id = " + record_id + ";";
+            String sql = "SELECT date, comment, repo, author, configuration_id FROM records WHERE record_id = " + record_id + ";";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet recordsRS = stmt.executeQuery();
             recordsRS.first();
             
             models.Record record = new models.Record(Integer.toString(record_id), recordsRS.getTimestamp(1).toString(), recordsRS.getString(2), 
-                recordsRS.getString(3), recordsRS.getString(4), metrics);
+                recordsRS.getString(3), recordsRS.getString(4), metrics, recordsRS.getString(5));
                 
             conn.close();
             return record;
