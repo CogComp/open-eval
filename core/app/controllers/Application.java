@@ -38,37 +38,38 @@ public class Application extends Controller {
     public Result addConfiguration() {
         AddConfigurationViewModel viewModel = new AddConfigurationViewModel();
 
-        List<String> datasets = new ArrayList<>();
-        datasets.add("dataset A");
-        datasets.add("dataset B");
-        datasets.add("dataset C");
+        List<String> tasks = new ArrayList<>();
+
+        tasks.add("SPAN_IDENTIFICATION");
+        tasks.add("SPAN_TAGGING");
+        tasks.add("PREDICATE_ARGUMENT_LABELING");
+        tasks.add("SPAN_CLUSTERING");
+        tasks.add("DEPENDENCY_PARSING");
+        tasks.add("CONSTITUENCY_PARSING");
 
         Map<String, List<String>> task_variants = new HashMap<>();
-        Map<String, List<String>> evaluators = new HashMap<>();
+        Map<String, List<String>> datasets = new HashMap<>();
 
         for (int i = 65; i < 65+3; i++) {
-            List<String> task_variants_i = new ArrayList<>();
-
-            task_variants_i.add("SPAN_IDENTIFICATION");
-            task_variants_i.add("SPAN_TAGGING");
-            task_variants_i.add("PREDICATE_ARGUMENT_LABELING");
-            task_variants_i.add("SPAN_CLUSTERING");
-            task_variants_i.add("DEPENDENCY_PARSING");
-            task_variants_i.add("CONSTITUENCY_PARSING");
             
-            task_variants.put("dataset "+(char) i, task_variants_i);
+            List<String> task_variants_i = new ArrayList<String>();
+            task_variants_i.add("TVA");
+            task_variants_i.add("TVB");
+            task_variants_i.add("TVC");
+            List<String> datasets_i = new ArrayList<String>();
+            datasets_i.add("DSA");
+            datasets_i.add("DSB");
+            datasets_i.add("DSC");
 
-            List<String> evaluator_i = new ArrayList<>();
-            evaluator_i.add("evaluator A" + (char) i);
-            evaluator_i.add("evaluator B" + (char) i);
-            evaluator_i.add("evaluator C" + (char) i);
-            for (int j = 65; j < 65+3; j++) 
-                evaluators.put("task_variant "+(char)i+(char)j, evaluator_i);
+            for (int j = 0; j < tasks.size(); j++) {
+                task_variants.put(tasks.get(j), task_variants_i);
+                datasets.put(tasks.get(j), datasets_i);
+            }
         }
 
+        viewModel.tasks = tasks;
         viewModel.datasets = datasets;
         viewModel.task_variants = task_variants;
-        viewModel.evaluators = evaluators;
 
         return ok(addConfiguration.render(viewModel));
     }
@@ -88,6 +89,9 @@ public class Application extends Controller {
         taskVariants.add("tskVar1"); 
         taskVariants.add("tskVar2");
         taskVariants.add("tskVar3");
+
+        // should have map from strings to evaluators
+        // need to change taskVariants too
         
         try {
             f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),
