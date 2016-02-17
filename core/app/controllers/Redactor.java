@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 
 public class Redactor {
@@ -30,14 +31,30 @@ public class Redactor {
 		if (viewsToKeep == null) {
 			viewsToKeep = Collections.EMPTY_LIST;
 		}
-		
+		viewsToKeep.add(ViewNames.SENTENCE);
+		List<String> viewsToRemove = new ArrayList<>();
+		List<TextAnnotation> cleansed = new ArrayList<>();
 		for (TextAnnotation textAnnotation : textAnnotations) {
 			for (String viewName : textAnnotation.getAvailableViews()) {
 				if (!viewsToKeep.contains(viewName)) {
-					textAnnotation.removeView(viewName);
+					viewsToRemove.add(viewName);
 				}
 			}
+			TextAnnotation cleansedAnnotation;
+			try {
+				cleansedAnnotation = (TextAnnotation)textAnnotation.clone();
+			}
+			catch(CloneNotSupportedException ce){
+				cleansed.add(null);
+				continue;
+			}
+			for(String viewName: viewsToRemove){
+				System.out.println(textAnnotation.hasView(viewName));
+				cleansedAnnotation.removeView(viewName);
+				System.out.println(textAnnotation.hasView(viewName));
+			}
+			cleansed.add(cleansedAnnotation);
 		}
-		return textAnnotations;
+		return cleansed;
 	}
 }

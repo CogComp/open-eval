@@ -1,24 +1,20 @@
 @(viewModel: models.IndexViewModel )
 
-
 <!DOCTYPE html>
 
 <html lang="en">
-    <head>
-        <title>Open-eval</title>
-        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
-        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
-        <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))">
-    </head>
     <body>
         <div class="body">
-            <div class="page-header">
-              <h1>OpenEval<small> an open-source evaluation framework</small></h1>
-            </div>
+            @header()
+
             @if(viewModel.configurations.length == 0) {
-              <p>Welcome to Open-Eval. This site is made for AI teams to track the results of their runs. Get started by adding a new configuration and downloading our client-server interaction software</p>
-              }
-            <div class="table-responsive">          
+                <div class="jumbotron">
+                    <h1>Welcome to OpenEval!</h1>
+                    <p>This site is made for AI teams to track the results of their runs. Get started by adding a new configuration and downloading our client-server interaction software</p>
+                    <p><a class="btn btn-primary btn-lg" href="https://github.com/IllinoisCogComp/open-eval" role="button">Learn more</a></p>
+                </div>
+            }
+            <div class="table-responsive">
               <table class="table">
                 <thead>
                   <tr>
@@ -59,7 +55,7 @@
                     </td>
                     <td>
                         <ul>
-                          <li><a href="/instructions">Instructions on how to use the system</a></li>
+                          <li><a href="https://github.com/IllinoisCogComp/open-eval/tree/master/learner/">Instructions on how to use the system</a></li>
                           <li><a href="/about">About Team</a></li>
                         </ul>
                     </td>

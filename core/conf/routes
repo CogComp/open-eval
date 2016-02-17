@@ -31,6 +31,4 @@ GET        /addRun               controllers.Application.addRun(conf: String)
 POST       /submitRun            controllers.Application.submitRun()
 
 # FAQs
-GET        /instructions         controllers.Application.instructions()
-
 GET        /about                controllers.Application.about()
