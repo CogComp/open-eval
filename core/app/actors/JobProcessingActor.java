@@ -7,6 +7,7 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import models.Job;
+import controllers.Core;
 import play.libs.ws.WSResponse;
 
 public class JobProcessingActor extends UntypedActor {
@@ -16,13 +17,25 @@ public class JobProcessingActor extends UntypedActor {
 	private int completed;
 	private int total;
 	private int skipped;	
+	private String conf_id;
+	private String record_id;
+	private String url;
 
+	/**
+	 * When a StartJobMessage is received, the corresponding Job is extracted and
+	 * the unprocessed instances are sent and received one at a time to the solver.
+	 * Every time a text annotation is processed, JobProcessingActor notifies its 
+	 * parent, the MasterActor, of its progress.
+	 */
 	@Override
 	public void onReceive(Object message) throws Exception {
-		if (message instanceof StartJobMessage) {
-
-			StartJobMessage jobInfo = (StartJobMessage) message;			
-			Job job = jobInfo.getJob();
+		if (message instanceof SetUpJobMessage) {
+			SetUpJobMessage jobInfo = (SetUpJobMessage) message;
+			this.conf_id = jobInfo.getConf_id();
+			this.record_id = jobInfo.getRecord_id();
+			this.url = jobInfo.getUrl();
+            Job job = Core.setUpJob(conf_id, url, record_id);
+            
 			List<TextAnnotation> unprocessedInstances = job.getUnprocessedInstances();
 			completed = 0;
 			skipped = 0;
@@ -36,11 +49,10 @@ public class JobProcessingActor extends UntypedActor {
         			completed++;
         			getSender().tell(new StatusUpdate(completed, skipped, total), getSelf());
         		}
-        		getSender().tell(new FinishedMessage(job), getSelf());
             } catch (Exception ex) {
             	System.out.println("Error sending and receiving text annotations");
-            	getSender().tell(new FinishedMessage(job), getSelf());
             }
+        	Core.storeResultsOfRunInDatabase(job, record_id, conf_id);
             System.out.println("Done");
         } else
             unhandled(message);

@@ -4,30 +4,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import play.libs.ws.WSResponse;
 import play.mvc.*;
 import play.data.DynamicForm;
 import play.mvc.Result;
 import play.libs.F.*;
-
 import views.html.*;
-
 import java.util.*;
-
 import models.*;
-
 import controllers.evaluators.Evaluation;
-
 import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
-
 import play.libs.F.Function;
 import play.libs.F.Promise;
 import actors.MasterActor;
 import actors.Messages.*;
 import akka.actor.*;
 import akka.*;
-
 import play.mvc.Controller;
 import javax.inject.*;
 
@@ -38,6 +30,10 @@ public class Application extends Controller {
 
 	final ActorRef masterActor;
 	
+	/**
+	 * The master actor is created when the application starts.
+	 * @param system
+	 */
 	@Inject public Application(ActorSystem system) {
         masterActor = system.actorOf(MasterActor.props);
     }
@@ -195,7 +191,7 @@ public class Application extends Controller {
     }
     
     public Promise<Result> getCurrentProgress() {
-        return Promise.wrap(ask(masterActor, new StatusRequest("requesting status"), 3000)).map(
+        return Promise.wrap(ask(masterActor, new StatusRequest("requesting status"), 60000)).map(
                         new Function<Object,Result>() {
                             public Result apply(Object response) {
 

@@ -74,16 +74,4 @@ public class Messages {
 			return message;
 		}
 	}
-	
-	public static class FinishedMessage {
-		private Job job;
-
-		public FinishedMessage(Job job) {
-			this.job = job;
-		}
-
-		public Job getJob() {
-			return job;
-		}
-	}
 }

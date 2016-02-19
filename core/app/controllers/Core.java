@@ -182,6 +182,7 @@ public class Core {
         String datasetName = runConfig.dataset;
         POSReader posReader = new POSReader();
         System.out.println("Retrieving instances from db");
+        // TODO: don't hardcode this
         List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB("test-10.br");
         return TextAnnotations;
     }
