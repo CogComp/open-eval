@@ -33,10 +33,30 @@ import java.util.List;
  	public Job(LearnerInterface learner, List<TextAnnotation> instances) {
  		this.learnerInterface = learner;
  		this.unprocessedInstances = instances;
+ 		this.solverInstances = new ArrayList<>();
 		this.domain = Domain.TOY;
 		skip = new ArrayList<>();
  	}
 
+ 	public WSResponse sendAndReceiveRequestFromSolver(TextAnnotation ta) {
+ 		WSResponse response = null;
+		String resultJson;
+		TextAnnotation processedInstance;
+		response = learnerInterface.processRequest(ta);
+		try{
+			resultJson = response.getBody();
+			processedInstance = SerializationHelper.deserializeFromJson(resultJson);
+			solverInstances.add(processedInstance);
+			skip.add(false);
+		}
+		catch(Exception e){
+			System.out.println(e);
+			solverInstances.add(null);
+			skip.add(true);
+		}
+		return response;
+ 	}
+ 	
  	/** Sends all unprocessed instances to the solver and receives the results. */
  	public WSResponse sendAndReceiveRequestsFromSolver() {
 		this.solverInstances = new ArrayList<>();
@@ -59,6 +79,12 @@ import java.util.List;
  		}
 		return response;
  	}
+
+ 	
+ 	
+	public List<TextAnnotation> getUnprocessedInstances() {
+		return unprocessedInstances;
+	}
 
 	public List<Boolean> getSkip() {return this.skip;}
 

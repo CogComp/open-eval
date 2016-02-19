@@ -1,31 +1,75 @@
 package controllers;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.util.List;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import controllers.readers.POSReader;
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
 import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
 import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.ConstituentLabelingEvaluator;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
+import models.Configuration;
 import models.Job;
 import models.LearnerInterface;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import play.libs.ws.WSResponse;
-
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
-
-import java.util.*;
-
-import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
-import models.Configuration;
 
 /**
  * This class connects all the back-end modules, i.e. the solver, the evaluation and the database
  */
 public class Core {
+	
+	/**
+	 * Returns null if there was an error trying to connect to the server.  Otherwise, it
+	 * returns the info string returned by the learner server.
+	 */
+	public static String testConnection(String url) {
+		 LearnerInterface learner = new LearnerInterface(url);
+	     String jsonInfo = learner.getInfo();
+	     if (jsonInfo.equals("err")) {
+	    	 System.out.println("Could not connect to server");
+	         return null;
+	     }
+	     return jsonInfo;
+	}
+	
+	/**
+	 * Gets the instances from the database, cleanses them, and returns the
+	 * resulting Job.
+	 */
+	public static Job setUpJob(String conf_id, String url, String record_id) {
+		Configuration runConfig = getConfigurationFromDb(conf_id);
 
-
+		// TODO: Fix this hack.  We need to be able to do a deep copy of TextAnnotations
+        List<TextAnnotation> correctInstances = getInstancesFromDb(runConfig);
+        List<TextAnnotation> cleansedInstances = getInstancesFromDb(runConfig);
+        System.out.println(url);
+        LearnerInterface learner = new LearnerInterface(url);
+        String jsonInfo = learner.getInfo();
+        if (jsonInfo.equals("err")) {
+            System.out.println("Could not connect to server");
+            return null;
+        }
+        cleanseInstances(cleansedInstances, jsonInfo);
+        if (cleansedInstances == null) {
+            System.out.println("Error in cleanser");
+            return null;
+        }
+        return new Job(learner, cleansedInstances);
+	}
+	
+	public static void storeResultsOfRunInDatabase(Job newJob, String record_id, String conf_id) {
+		Configuration runConfig = getConfigurationFromDb(conf_id);
+        List<TextAnnotation> correctInstances = getInstancesFromDb(runConfig);
+		List<TextAnnotation> solvedInstances = newJob.getSolverInstances();
+        List<Boolean> skip = newJob.getSkip();
+        EvaluationRecord eval = evaluate(runConfig, correctInstances, solvedInstances, skip);
+        storeEvaluationIntoDb(eval, record_id);
+	}
     /**
      * Send instances to the solver and return back an evaluation on the results
      *
@@ -50,10 +94,8 @@ public class Core {
             System.out.println("Error in cleanser");
             return null;
         }
-
-        Job newJob = new Job(learner, cleansedInstances);
+        Job newJob = new Job(learner, cleansedInstances);	
         WSResponse solverResponse = newJob.sendAndReceiveRequestsFromSolver();
-
         List<TextAnnotation> solvedInstances = newJob.getSolverInstances();
         List<Boolean> skip = newJob.getSkip();
         EvaluationRecord eval = evaluate(runConfig, correctInstances, solvedInstances, skip);
@@ -138,7 +180,7 @@ public class Core {
      */
     private static List<TextAnnotation> getInstancesFromDb(Configuration runConfig) {
         String datasetName = runConfig.dataset;
-        controllers.POSReader posReader = new controllers.POSReader();
+        POSReader posReader = new POSReader();
         System.out.println("Retrieving instances from db");
         List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB("test-10.br");
         return TextAnnotations;

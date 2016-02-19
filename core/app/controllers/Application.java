@@ -1,23 +1,47 @@
 package controllers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import play.libs.ws.WSResponse;
 import play.mvc.*;
 import play.data.DynamicForm;
+import play.mvc.Result;
+import play.libs.F.*;
+
 import views.html.*;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 import models.*;
-
 
 import controllers.evaluators.Evaluation;
 
 import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
 
+import play.libs.F.Function;
+import play.libs.F.Promise;
+import actors.MasterActor;
+import actors.Messages.*;
+import akka.actor.*;
+import akka.*;
 
+import play.mvc.Controller;
+import javax.inject.*;
+
+import static akka.pattern.Patterns.ask;
+
+@Singleton
 public class Application extends Controller {
 
+	final ActorRef masterActor;
+	
+	@Inject public Application(ActorSystem system) {
+        masterActor = system.actorOf(MasterActor.props);
+    }
+	
     private List<models.Configuration> getConfigurations() {
         FrontEndDBInterface f = new FrontEndDBInterface();
         List<models.Configuration> configList;         
@@ -114,7 +138,6 @@ public class Application extends Controller {
         List<Record> records = f.getRecordsFromConfID(Integer.parseInt(configuration_id));
         conf.records = records;
         viewModel.configuration = conf;
-
         return ok(recipe.render(viewModel));
     }
 
@@ -144,8 +167,8 @@ public class Application extends Controller {
         FrontEndDBInterface f = new FrontEndDBInterface();
         String record_id = f.storeRunInfo(Integer.parseInt(configuration_id), url, author, repo, comment); 
        
-        WSResponse response = Core.startJob(configuration_id, url, record_id);
-        if(response == null) {
+        // TODO: Test connection. Replace Core.startJob() with Core.testConnection();
+        if(Core.testConnection(url) == null) {
             AddRunViewModel viewModel = new AddRunViewModel();
             viewModel.configuration_id = configuration_id;
             viewModel.default_url = url;
@@ -156,22 +179,37 @@ public class Application extends Controller {
 
             return ok(addRun.render(viewModel));
         }
-        else
-        if(response.getStatus()==500)
-            return internalServerError(response.getBody());
-        else
-            return redirect("/configuration?conf="+configuration_id);
-    }
-    
-    public Result progressBar() {
-    	WorkingViewModel viewModel = new WorkingViewModel();
-    	viewModel.percent_complete = 60;
+        
+        masterActor.tell(new SetUpJobMessage(configuration_id, url, record_id), masterActor);
+        WorkingViewModel viewModel = new WorkingViewModel();
+    	viewModel.configuration_id = configuration_id;	
+    	viewModel.percent_complete = 0;
     	return ok(working.render(viewModel));
     }
     
-    public Result getProgress() {
-    	int progress = (int)(Math.random()*100);
-    	return ok(Integer.toString(progress));
+    public Result progressBar(String configuration_id) {
+    	WorkingViewModel viewModel = new WorkingViewModel();
+    	viewModel.configuration_id = configuration_id;	
+    	viewModel.percent_complete = 0;
+    	return ok(working.render(viewModel));
+    }
+    
+    public Promise<Result> getCurrentProgress() {
+        return Promise.wrap(ask(masterActor, new StatusRequest("requesting status"), 3000)).map(
+                        new Function<Object,Result>() {
+                            public Result apply(Object response) {
+
+                                if(response instanceof StatusUpdate)
+                                {
+                                	StatusUpdate update = ((StatusUpdate) response);
+                                	double comp = update.getCompleted()/update.getTotal();
+                                	int percentComplete = (int)(comp*100);
+                                	return ok(Integer.toString(percentComplete));
+                                }
+                                return ok(response.toString());
+                            }
+                        }
+                );
     }
 
     public Result record(String record_id) {
