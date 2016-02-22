@@ -11,18 +11,23 @@ import java.sql.SQLException;
 import java.sql.ResultSet; 
 
 public class POSReader {
+    private int queryOffset = 0;
+    private int queryLimit = 25;
+    
     /** Given a dataset name, this will return a List<TextAnnotation> from the database. 
     */
     public List<TextAnnotation> getTextAnnotationsFromDB(String datasetName) {
         FrontEndDBInterface f = new FrontEndDBInterface();
         Connection conn = f.getConnection();
         
-        String sql = "SELECT textAnnotation FROM textannotations WHERE dataset_name = ?";
+        String sql = "SELECT textAnnotation FROM textannotations WHERE dataset_name = ? LIMIT ?,?";
         ResultSet textAnnotationsRS; 
         List<TextAnnotation> textAnnotations = new ArrayList<>();
         try {
             PreparedStatement stmt = conn.prepareStatement(sql); 
             stmt.setString(1, datasetName);
+            stmt.setInt(queryOffset);
+            stmt.setInt(queryLimit);
             textAnnotationsRS = stmt.executeQuery(); 
          
             while (textAnnotationsRS.next()) {
@@ -38,6 +43,8 @@ public class POSReader {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        
+        queryOffset += queryLimit;
         return textAnnotations; 
     }
     
