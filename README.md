@@ -2,9 +2,6 @@
 
 [![Build Status](https://semaphoreci.com/api/v1/projects/4f27c2b5-9ce3-4fca-95a1-064b60600f44/589884/badge.svg)](https://semaphoreci.com/danyaljj/open-eval)
 
-[![Build Status](http://128.174.241.91:8080/buildStatus/icon?job=Open-eval)](http://128.174.241.91:8080/job/Open-eval/)
-
-
 - Project's [slack channel](https://cogcomp.slack.com/messages/open-eval/).
 
 ## Intructions 
