@@ -32,7 +32,6 @@ lazy val core = (project in file("core")).
     ),
     routesGenerator := InjectedRoutesGenerator
   )
-.dependsOn(learner)
 
 lazy val learner = (project in file("learner")).
   settings(commonSettings: _*).
