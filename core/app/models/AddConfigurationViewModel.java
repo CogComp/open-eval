@@ -5,8 +5,8 @@ import java.util.Map;
 
 public class AddConfigurationViewModel {
 
-    public List<String> datasets;
+    public List<String> tasks;
+    public Map<String,List<String>> datasets;
     public Map<String,List<String>> task_variants;
-    public Map<String,List<String>> evaluators;
 
 }
