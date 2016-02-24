@@ -32,14 +32,12 @@ lazy val core = (project in file("core")).
     ),
     routesGenerator := InjectedRoutesGenerator
   )
-.dependsOn(learner)
 
 lazy val learner = (project in file("learner")).
   settings(commonSettings: _*).
   settings(
     name := "learner",
     libraryDependencies ++= Seq(
-      "edu.illinois.cs.cogcomp" % "saul-examples_2.11" % "0.1" exclude("com.typesafe.play", "play_2.11"),
       "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % cogcompNLPVersion,
       "org.nanohttpd" % "nanohttpd" % "2.2.0",
       "org.nanohttpd" % "nanohttpd-nanolets" % "2.2.0",
@@ -49,3 +47,14 @@ lazy val learner = (project in file("learner")).
     ),
     testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
   )
+
+lazy val crossTest = (project in file("crossTest")).
+  settings(commonSettings: _*).
+  settings(
+    name := "core-learner-test",
+    libraryDependencies ++= Seq(
+      "edu.illinois.cs.cogcomp" % "saul-examples_2.11" % "0.1" exclude("com.typesafe.play", "play_2.11"),
+      "com.typesafe.play" % "play-test_2.11" % "2.4.3"
+    ),
+    testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
+  ).dependsOn(core, learner)
