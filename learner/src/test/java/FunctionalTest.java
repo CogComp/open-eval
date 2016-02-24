@@ -1,3 +1,6 @@
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import edu.illinois.cs.cogcomp.annotation.Annotator;
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
@@ -7,6 +10,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.EntityBuilder;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -21,13 +25,19 @@ import static org.junit.Assert.assertEquals;
 public class FunctionalTest
 {
     Server server;
+    Annotator annotator;
+    ServerPreferences serverPreferences;
+    HttpClient client;
 
     @Before
     public void setup(){
+        annotator = new ToyPosAnnotator();
+        serverPreferences = new ServerPreferences(1000, 10);
+        client = HttpClients.createDefault();
 
         try
         {
-            server = new Server(5757, new ServerPreferences(1000, 10), new ToyPosAnnotator());
+            server = new Server(5757, serverPreferences, annotator);
             server.start();
 
         } catch (IOException e)
@@ -53,7 +63,6 @@ public class FunctionalTest
         System.out.println("Request: " + json);
 
         HttpEntity body = EntityBuilder.create().setText(json).build();
-        HttpClient client = HttpClients.createDefault();
         HttpPost post = new HttpPost("http://localhost:5757/instance");
         post.setEntity(body);
         HttpResponse response = client.execute(post);
@@ -69,5 +78,16 @@ public class FunctionalTest
 
         assertEquals(goldTextAnnotation,learnerResult);
         assertEquals(200,response.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testInfoRoute() throws IOException {
+        HttpGet get = new HttpGet("http://localhost:5757/info");
+        HttpResponse response = client.execute(get);
+        String body = EntityUtils.toString(response.getEntity());
+
+        JsonObject object = new JsonParser().parse(body).getAsJsonObject();
+        InfoControllerTest.assertInfoEqual(object, annotator.getRequiredViews(), annotator.getViewName(), serverPreferences);
+        assertEquals(response.getStatusLine().getStatusCode(), 200);
     }
 }
