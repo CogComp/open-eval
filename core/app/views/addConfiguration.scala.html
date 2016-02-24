@@ -78,7 +78,7 @@
                     </td>
                     <td>
                       <select name="dataset" id="ds">
-                        @for(dataset <- viewModel.datasets.get("SPAN_IDENTIFICATION")) {
+                        @for(dataset <- viewModel.datasets.get("Part of Speech Tagging")) {
                           <option value="@dataset">@dataset</option>
                         }
                       </select>
@@ -90,7 +90,7 @@
                     </td>
                     <td>
                       <select name="taskvariant" id="tv">
-                        @for(task_variant <- viewModel.task_variants.get("SPAN_IDENTIFICATION")) {
+                        @for(task_variant <- viewModel.task_variants.get("Part of Speech Tagging")) {
                           <option value="@task_variant">@task_variant</option>
                         }
                       </select>

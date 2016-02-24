@@ -40,116 +40,144 @@ public class Application extends Controller {
 		masterActor = system.actorOf(MasterActor.props);
 	}
 
-	private List<models.Configuration> getConfigurations() {
-		FrontEndDBInterface f = new FrontEndDBInterface();
-		List<models.Configuration> configList;
-		try {
-			configList = f.getConfigList();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		return configList;
-	}
+    private List<models.Configuration> getConfigurations() {
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        List<models.Configuration> configList;         
+        try {
+            configList = f.getConfigList();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return configList;
+    }
 
-	public Result index() {
-		IndexViewModel viewModel = new IndexViewModel();
-		viewModel.configurations = getConfigurations();
-		return ok(index.render(viewModel));
-	}
+    public Result index() {
+        IndexViewModel viewModel = new IndexViewModel();
+        viewModel.configurations = getConfigurations();
+        return ok(index.render(viewModel));
+    }
 
-	public Result addConfiguration() {
-		AddConfigurationViewModel viewModel = new AddConfigurationViewModel();
+    public Result addConfiguration() {
+        AddConfigurationViewModel viewModel = new AddConfigurationViewModel();
 
-		List<String> datasets = new ArrayList<>();
-		datasets.add("dataset A");
-		datasets.add("dataset B");
-		datasets.add("dataset C");
+        List<String> tasks = new ArrayList<>();
 
-		Map<String, List<String>> task_variants = new HashMap<>();
-		Map<String, List<String>> evaluators = new HashMap<>();
+        final String POS = "Part of Speech Tagging";
+        final String NER = "Named Entity Recognition";
+        final String PARSING = "Parsing";
+        final String COREF = "Co-reference";
+        List<String> task_variants_i;
 
-		for (int i = 65; i < 65 + 3; i++) {
-			List<String> task_variants_i = new ArrayList<>();
+        Map<String, List<String>> task_variants = new HashMap<>();
 
-			task_variants_i.add("SPAN_IDENTIFICATION");
-			task_variants_i.add("SPAN_TAGGING");
-			task_variants_i.add("PREDICATE_ARGUMENT_LABELING");
-			task_variants_i.add("SPAN_CLUSTERING");
-			task_variants_i.add("DEPENDENCY_PARSING");
-			task_variants_i.add("CONSTITUENCY_PARSING");
+        tasks.add(POS);
+        task_variants_i = new ArrayList<String>();
+        task_variants_i.add("Raw Text");
+        task_variants_i.add("Gold Text");
+        task_variants_i.add("Sentence Boundries");
+        task_variants.put(POS, task_variants_i);
 
-			task_variants.put("dataset " + (char) i, task_variants_i);
+        tasks.add(NER);
+        task_variants_i = new ArrayList<String>();
+        task_variants_i.add("Raw Text");
+        task_variants_i.add("Gold Text");
+        task_variants_i.add("Sentence Boundries");
+        task_variants.put(NER, task_variants_i);
 
-			List<String> evaluator_i = new ArrayList<>();
-			evaluator_i.add("evaluator A" + (char) i);
-			evaluator_i.add("evaluator B" + (char) i);
-			evaluator_i.add("evaluator C" + (char) i);
-			for (int j = 65; j < 65 + 3; j++)
-				evaluators.put("task_variant " + (char) i + (char) j, evaluator_i);
-		}
+        tasks.add(PARSING);
+        task_variants_i = new ArrayList<String>();
+        task_variants_i.add("Raw Text");
+        task_variants_i.add("Gold Text");
+        task_variants_i.add("Sentence Boundries");
+        task_variants.put(PARSING, task_variants_i);
 
-		viewModel.datasets = datasets;
-		viewModel.task_variants = task_variants;
-		viewModel.evaluators = evaluators;
+        tasks.add(COREF);
+        task_variants_i = new ArrayList<String>();
+        task_variants_i.add("Raw Text");
+        task_variants_i.add("Gold Text");
+        task_variants_i.add("Sentence Boundries");
+        task_variants.put(COREF, task_variants_i);
 
-		return ok(addConfiguration.render(viewModel));
-	}
+        Map<String, List<String>> datasets = new HashMap<>();
 
-	public Result deleteConfiguration() {
-		DynamicForm bindedForm = new DynamicForm().bindFromRequest();
-		FrontEndDBInterface f = new FrontEndDBInterface();
-		f.deleteConfigAndRecords(Integer.parseInt(bindedForm.get("conf")));
-		return redirect("/");
-	}
+        for (int i = 65; i < 65+3; i++) {
+            List<String> datasets_i = new ArrayList<String>();
+            datasets_i.add("DSA");
+            datasets_i.add("DSB");
+            datasets_i.add("DSC");
 
-	public Result submitConfiguration() {
-		DynamicForm bindedForm = new DynamicForm().bindFromRequest();
-		FrontEndDBInterface f = new FrontEndDBInterface();
+            for (int j = 0; j < tasks.size(); j++) {
+                datasets.put(tasks.get(j), datasets_i);
+            }
+        }
 
-		List<String> taskVariants = new ArrayList<>();
-		taskVariants.add("tskVar1");
-		taskVariants.add("tskVar2");
-		taskVariants.add("tskVar3");
+        viewModel.tasks = tasks;
+        viewModel.datasets = datasets;
+        viewModel.task_variants = task_variants;
 
-		try {
-			f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),
-					bindedForm.get("description"), bindedForm.get("evaluator"), "Text Annotation", taskVariants);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+        return ok(addConfiguration.render(viewModel));
+    }
 
-		return redirect("/");
-	}
+    public Result deleteConfiguration() {
+        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        f.deleteConfigAndRecords(Integer.parseInt(bindedForm.get("conf")));
+        return redirect("/");
+    }
 
-	public Result configuration(String configuration_id) {
-		RecipeViewModel viewModel = new RecipeViewModel();
-		FrontEndDBInterface f = new FrontEndDBInterface();
-		models.Configuration conf;
+    public Result submitConfiguration() {
+        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+        FrontEndDBInterface f = new FrontEndDBInterface(); 
+        
+        List<String> taskVariants = new ArrayList<>(); 
+        taskVariants.add("tskVar1"); 
+        taskVariants.add("tskVar2");
+        taskVariants.add("tskVar3");
 
-		try {
-			conf = f.getConfigInformation(Integer.parseInt(configuration_id));
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+        // should have map from strings to evaluators
+        // need to change taskVariants too
+        
+        try {
+            f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),
+                               bindedForm.get("description"), bindedForm.get("evaluator"),
+                               "Text Annotation", taskVariants); 
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-		List<Record> records = f.getRecordsFromConfID(Integer.parseInt(configuration_id));
-		conf.records = records;
-		viewModel.configuration = conf;
-		return ok(recipe.render(viewModel));
-	}
+        return redirect("/");
+    }
 
-	public Result addRun(String configuration_id) {
-		AddRunViewModel viewModel = new AddRunViewModel();
+    public Result configuration(String configuration_id) {
+        RecipeViewModel viewModel = new RecipeViewModel();
+        FrontEndDBInterface f = new FrontEndDBInterface(); 
+        models.Configuration conf; 
+        
+        try {
+            conf = f.getConfigInformation(Integer.parseInt(configuration_id)); 
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        
+        List<Record> records = f.getRecordsFromConfID(Integer.parseInt(configuration_id));
+        conf.records = records;
+        viewModel.configuration = conf;
 
-		viewModel.configuration_id = configuration_id;
-		viewModel.default_url = "";
-		viewModel.default_author = "";
-		viewModel.default_repo = "";
-		viewModel.default_comment = "";
-		viewModel.error_message = "";
+        return ok(recipe.render(viewModel));
+    }
 
-		return ok(addRun.render(viewModel));
-	}
+    public Result addRun(String configuration_id) {
+        AddRunViewModel viewModel = new AddRunViewModel();
+
+        viewModel.configuration_id = configuration_id;
+        viewModel.default_url = "";
+        viewModel.default_author = "";
+        viewModel.default_repo = "";
+        viewModel.default_comment = "";
+        viewModel.error_message = "";
+
+        return ok(addRun.render(viewModel));
+    }
 
 	public Result submitRun() {
 		DynamicForm bindedForm = new DynamicForm().bindFromRequest();
@@ -207,24 +235,24 @@ public class Application extends Controller {
 					}
 				});
 	}
+    public Result record(String record_id) {
+        RecordViewModel viewModel = new RecordViewModel();
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        Record associated_record = f.getRecordFromRecordID(Integer.parseInt(record_id));
+   
+        viewModel.record = associated_record;
+        return ok(record.render(viewModel));
+    }
 
-	public Result record(String record_id) {
-		RecordViewModel viewModel = new RecordViewModel();
-		FrontEndDBInterface f = new FrontEndDBInterface();
-		Record associated_record = f.getRecordFromRecordID(Integer.parseInt(record_id));
+    public Result deleteRecord() {
+        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+        String conf_id = bindedForm.get("configuration_id");
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        f.deleteRecordFromRecordID(Integer.parseInt(bindedForm.get("record_id")));
+        return redirect("/configuration?conf="+conf_id);
+    }
 
-		viewModel.record = associated_record;
-		return ok(record.render(viewModel));
-	}
-
-	public Result deleteRecord() {
-		DynamicForm bindedForm = new DynamicForm().bindFromRequest();
-		FrontEndDBInterface f = new FrontEndDBInterface();
-		f.deleteRecordFromRecordID(Integer.parseInt(bindedForm.get("record_id")));
-		return redirect("/");
-	}
-
-	public Result about() {
-		return ok(about.render());
-	}
+    public Result about() {
+        return ok(about.render());
+    }
 }
