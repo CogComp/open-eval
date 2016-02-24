@@ -6,7 +6,7 @@ import org.junit.Test;
 /**
  * Created by rnkelch on 12/12/2015.
  */
-public class ServerRunner
+public class Main
 {
     public static void main(String[] args) throws IOException
     {
