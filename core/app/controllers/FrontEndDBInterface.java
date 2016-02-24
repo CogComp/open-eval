@@ -83,8 +83,16 @@ public class FrontEndDBInterface {
                 stmt = conn.prepareStatement(sql);
                 stmt.setInt(1, configID);
                 ResultSet taskVariantRS = stmt.executeQuery();
-                taskVariantRS.first();
-                String taskVariant = taskVariantRS.getString(1);
+                
+                String taskVariant;
+                if (!taskVariantRS.isBeforeFirst()) {
+                    taskVariant = "No task variant select.";
+                }
+                else {
+                    taskVariantRS.first();
+                    taskVariant = taskVariantRS.getString(1);
+                }
+                
                 
                 models.Configuration config = new models.Configuration(configList.getString(1), configList.getString(2), configList.getString(3), taskVariant, configList.getString(4), Integer.toString(configList.getInt(5))); 
                 configs.add(config);
