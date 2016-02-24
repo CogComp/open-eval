@@ -195,7 +195,7 @@ public class Core {
 		POSReader posReader = new POSReader();
 		System.out.println("Retrieving instances from db");
 		// TODO: don't hardcode this
-		List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB("test-10.br");
+		List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB("22-24.br");
 		return TextAnnotations;
 	}
 

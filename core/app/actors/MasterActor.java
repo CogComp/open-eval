@@ -12,7 +12,7 @@ public class MasterActor extends UntypedActor {
 	public static Props props = Props.create(MasterActor.class);
 
 	int completed = 0;
-	int skipped;
+	int skipped = 0;
 	int total = 1;
 	String conf_id;
 	String record_id;

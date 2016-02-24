@@ -199,11 +199,11 @@ public class Application extends Controller {
 
 						if (response instanceof StatusUpdate) {
 							StatusUpdate update = ((StatusUpdate) response);
-							double comp = update.getCompleted() / update.getTotal();
-							int percentComplete = (int) (comp * 100);
+							double comp = ((double)update.getCompleted()) / ((double)update.getTotal());
+							int percentComplete = (int)(comp * 100.0);
 							return ok(Integer.toString(percentComplete));
 						}
-						return ok(response.toString());
+						return ok(Integer.toString(0));
 					}
 				});
 	}
