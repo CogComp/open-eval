@@ -1,3 +1,6 @@
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import edu.illinois.cs.cogcomp.annotation.Annotator;
 import edu.illinois.cs.cogcomp.annotation.AnnotatorException;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
@@ -11,6 +14,7 @@ import java.util.Map;
 
 public class InstanceController implements RouterNanoHTTPD.UriResponder
 {
+    public static final String INSTANCES_KEY = "instances";
     @Override
     public Response post(RouterNanoHTTPD.UriResource uriResource, Map<String, String> map, NanoHTTPD.IHTTPSession session)
     {
@@ -23,10 +27,16 @@ public class InstanceController implements RouterNanoHTTPD.UriResponder
             return errorResponse;
         }
 
-        TextAnnotation textAnnotation;
+        JsonParser parser = new JsonParser();
+        JsonObject jsonObject = parser.parse(body).getAsJsonObject();
+        JsonArray jInstances = jsonObject.get(INSTANCES_KEY).getAsJsonArray();
+
+        TextAnnotation[] textAnnotations = new TextAnnotation[jInstances.size()];
         try
         {
-            textAnnotation = SerializationHelper.deserializeFromJson(body);
+            for(int i=0;i<textAnnotations.length;i++){
+                textAnnotations[i] = SerializationHelper.deserializeFromJson(jInstances.get(i).toString());
+            }
         } catch (Exception e)
         {
             return ResponseGenerator.generateErrorResponse(e, "There was an error parsing the body");
@@ -34,14 +44,23 @@ public class InstanceController implements RouterNanoHTTPD.UriResponder
 
         try
         {
-            annotator.addView(textAnnotation);
+            for(TextAnnotation textAnnotation: textAnnotations) {
+                annotator.addView(textAnnotation);
+            }
         } catch (AnnotatorException e)
         {
             return  ResponseGenerator.generateErrorResponse(e, "There was an error adding the view to the instance");
         }
 
-        String jsonAnnotation = SerializationHelper.serializeToJson(textAnnotation);
-        return NanoHTTPD.newFixedLengthResponse(jsonAnnotation);
+        JsonArray newJInstances = new JsonArray();
+        for(int i=0;i<textAnnotations.length;i++){
+            String jsonTextAnnotation = SerializationHelper.serializeToJson(textAnnotations[i]);
+            JsonObject jInstance = parser.parse(jsonTextAnnotation).getAsJsonObject();
+            newJInstances.add(jInstance);
+        }
+        JsonObject result = new JsonObject();
+        result.add(INSTANCES_KEY, newJInstances);
+        return NanoHTTPD.newFixedLengthResponse(result.getAsString());
     }
 
     private String readBody(NanoHTTPD.IHTTPSession session) throws Exception{

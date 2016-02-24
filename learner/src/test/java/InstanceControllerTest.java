@@ -27,8 +27,8 @@ public class InstanceControllerTest
         RouterNanoHTTPD.UriResource uriResource = mock(RouterNanoHTTPD.UriResource.class);
         when(uriResource.initParameter(Annotator.class)).thenReturn(annotator);
 
-        TextAnnotation textAnnotation = getBasicTextAnnotation();
-        String requestBody = SerializationHelper.serializeToJson(textAnnotation);
+        TextAnnotation[] textAnnotations = new TextAnnotation[] {getBasicTextAnnotation(), getBasicTextAnnotation()};
+        String requestBody = SerializationHelper.serializeToJson(textAnnotations[0]);
         NanoHTTPD.IHTTPSession session = mockPostData(requestBody);
 
         InstanceController controller = new InstanceController();
