@@ -20,17 +20,23 @@ public class Record {
     public String record_id;
 
     public Record(String record_id, String date, String comment, String repo,
-                  String author, Metrics metrics) {
+                  String author, Metrics metrics, String configuration_id) {
         this.date = date;
         this.comment = comment;
         this.repo = repo;
         this.author = author;
         this.record_id = record_id;
         this.metrics = metrics;
+        this.configuration_id = configuration_id;
+    }
+
+    public Record(String record_id, String date, String comment, String repo,
+                  String author, Metrics metrics) {
+        this(record_id, date, comment, repo, author, metrics, null);
     }
 
     public Record(String record_id, String date, String comment, String repo, String author) {
-        this(record_id, date, comment, repo, author, new Metrics());
+        this(record_id, date, comment, repo, author, new Metrics(), null);
     }
     
     public Record() {

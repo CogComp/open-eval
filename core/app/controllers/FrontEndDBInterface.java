@@ -93,8 +93,8 @@ public class FrontEndDBInterface {
                     taskVariant = taskVariantRS.getString(1);
                 }
                 
-                
-                models.Configuration config = new models.Configuration(configList.getString(1), configList.getString(2), configList.getString(3), taskVariant, configList.getString(4), Integer.toString(configList.getInt(5))); 
+                // need to make task name into config
+                models.Configuration config = new models.Configuration(configList.getString(1), configList.getString(2), configList.getString(3), "task", taskVariant, configList.getString(4), Integer.toString(configList.getInt(5))); 
                 configs.add(config);
             }
         
@@ -116,7 +116,7 @@ public class FrontEndDBInterface {
             configInfoList.next();
             
             /*Return information about configuration.*/
-            models.Configuration config = new models.Configuration(configInfoList.getString(1), configInfoList.getString(2), configInfoList.getString(3),
+            models.Configuration config = new models.Configuration(configInfoList.getString(1), configInfoList.getString(2), configInfoList.getString(3), "task",
                 "task_variant_b", configInfoList.getString(4), Integer.toString(configInfoList.getInt(5))); 
             connection.close(); 
             return config; 
@@ -220,13 +220,13 @@ public class FrontEndDBInterface {
             
             models.Metrics metrics = getMetricsFromRecordID(record_id);
            
-            String sql = "SELECT date, comment, repo, author FROM records WHERE record_id = " + record_id + ";";
+            String sql = "SELECT date, comment, repo, author, configuration_id FROM records WHERE record_id = " + record_id + ";";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet recordsRS = stmt.executeQuery();
             recordsRS.first();
             
             models.Record record = new models.Record(Integer.toString(record_id), recordsRS.getTimestamp(1).toString(), recordsRS.getString(2), 
-                recordsRS.getString(3), recordsRS.getString(4), metrics);
+                recordsRS.getString(3), recordsRS.getString(4), metrics, recordsRS.getString(5));
                 
             conn.close();
             return record;
