@@ -15,8 +15,8 @@
          }
         }
 
-        var evs = {
-          @for((k,v) <- viewModel.evaluators) {
+        var ds = {
+          @for((k,v) <- viewModel.datasets) {
             "@k":
             @for(l<-v) {
               ' <option value="@l">@l</option>'+
@@ -25,14 +25,10 @@
           }
         };
 
-        function alter_tv(selected) {
-          var s = document.getElementById('ds').children[selected].innerHTML;
+        function alter_task(selected) {
+          var s = document.getElementById('task').children[selected].innerHTML;
           document.getElementById('tv').innerHTML = tvs[s];
-        }
-
-        function alter_ev(selected) {
-          var s = document.getElementById('tv').children[selected].innerHTML;
-          document.getElementById('ev').innerHTML = evs[s];
+          document.getElementById('ds').innerHTML = ds[s];
         }
         </script>
     </head>
@@ -43,14 +39,14 @@
               <table class="table" style="width: 40%;">
                 <thead>
                   <tr>
-                    <th class="col-md-2"></th>
-                    <th class="col-md-2"></th>
+                    <th class="col-md-6"></th>
+                    <th class="col-md-6"></th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td>
-                      Configuration name:
+                      Configuration name<font color="red">*</font>:
                     </td>
                     <td>
                        <input type="text" name="configurationname">
@@ -66,11 +62,23 @@
                   </tr>
                   <tr>
                     <td>
-                      Dataset:
+                      Task<font color="red">*</font>:
                     </td>
                     <td>
-                      <select name="dataset" onchange="alter_tv(this.selectedIndex);" id="ds">
-                        @for(dataset <- viewModel.datasets) {
+                      <select name="task" onchange="alter_task(this.selectedIndex);" id="task">
+                        @for(task <- viewModel.tasks) {
+                          <option value="@task">@task</option>
+                        }
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Dataset (limited by task)<font color="red">*</font>:
+                    </td>
+                    <td>
+                      <select name="dataset" id="ds">
+                        @for(dataset <- viewModel.datasets.get("SPAN_IDENTIFICATION")) {
                           <option value="@dataset">@dataset</option>
                         }
                       </select>
@@ -78,24 +86,12 @@
                   </tr>
                   <tr>
                     <td>
-                      Task variant (sub-domain):
+                      Task variant (limited by task)<font color="red">*</font>:
                     </td>
                     <td>
-                      <select name="taskvariant" onchange="alter_ev(this.selectedIndex);" id="tv">
-                        @for(task_variant <- viewModel.task_variants.get("dataset A")) {
+                      <select name="taskvariant" id="tv">
+                        @for(task_variant <- viewModel.task_variants.get("SPAN_IDENTIFICATION")) {
                           <option value="@task_variant">@task_variant</option>
-                        }
-                      </select>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      Evaluator:
-                    </td>
-                    <td>
-                       <select name="evaluator" id="ev">
-                        @for(evaluator <- viewModel.evaluators.get("task_variant AA")) {
-                          <option value="@evaluator">@evaluator</option>
                         }
                       </select>
                     </td>
