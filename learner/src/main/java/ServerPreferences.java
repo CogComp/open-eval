@@ -1,18 +1,19 @@
 /**
- * Holds settings a Server instance.
+ * Holds preferences a Server instance. This tells the core what will be the biggest batch to send.
+ * It does not enforce the preferences, and if used outside of the Open-Eval system it might be ignored.
  */
-public class ServerSettings {
+public class ServerPreferences {
 
     private int maxAmountBytesAccepted;
     private int maxNumInstancesAccepted;
 
     /**
-     * Creates settings for a server.
+     * Creates preferences for a server.
      *
      * @param maxAmountBytesAccepted The maximum size, in bytes, that a batch can be
      * @param maxNumInstancesAccepted The maximum instances that a batch will have
      */
-    public ServerSettings(int maxAmountBytesAccepted, int maxNumInstancesAccepted){
+    public ServerPreferences(int maxAmountBytesAccepted, int maxNumInstancesAccepted){
         this.maxAmountBytesAccepted = maxAmountBytesAccepted;
         this.maxNumInstancesAccepted = maxNumInstancesAccepted;
     }

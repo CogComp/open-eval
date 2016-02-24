@@ -15,29 +15,29 @@ public class Server extends RouterNanoHTTPD
     private static String INSTANCE_ROUTE = "/instance";
 
     private Annotator annotator;
-    private ServerSettings serverSettings;
+    private ServerPreferences serverPreferences;
     private InfoController infoController;
     private InstanceController instanceController;
 
     /**
      * Creates a server that is ready to bind to the port and use annotator. This does not start the server.
      * @param port The port to bind to
-     * @param serverSettings The settings of the Server instance
+     * @param serverPreferences The settings of the Server instance
      * @param annotator The annotator that represents your learner.
      * @throws IOException
      */
-    public Server(int port, ServerSettings serverSettings, Annotator annotator) throws IOException {
+    public Server(int port, ServerPreferences serverPreferences, Annotator annotator) throws IOException {
         super(port);
         this.annotator = annotator;
-        this.serverSettings = serverSettings;
+        this.serverPreferences = serverPreferences;
         addMappings();
     }
 
     @Override
     public void addMappings(){
         super.addMappings();
-        addRoute(INSTANCE_ROUTE,InstanceController.class, annotator, serverSettings);
-        addRoute(INFO_ROUTE,InfoController.class,annotator);
+        addRoute(INSTANCE_ROUTE,InstanceController.class, annotator);
+        addRoute(INFO_ROUTE,InfoController.class,annotator, serverPreferences);
     }
 
     public Annotator getAnnotator() {

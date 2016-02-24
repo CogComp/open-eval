@@ -7,7 +7,8 @@ public class Main
 {
     public static void main(String[] args) throws IOException
     {
-        Server server = new Server(5757, new SaulPosAnnotator());
+        ServerPreferences serverPreferences = new ServerPreferences(1000000, 25);
+        Server server = new Server(5757, serverPreferences, new SaulPosAnnotator());
         fi.iki.elonen.util.ServerRunner.executeInstance(server);
     }
 }

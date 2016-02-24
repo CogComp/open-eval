@@ -27,7 +27,7 @@ public class FunctionalTest
 
         try
         {
-            server = new Server(5757, new ToyPosAnnotator());
+            server = new Server(5757, new ServerPreferences(1000, 10), new ToyPosAnnotator());
             server.start();
 
         } catch (IOException e)

@@ -13,15 +13,28 @@ public class InfoController implements RouterNanoHTTPD.UriResponder
     public NanoHTTPD.Response get(RouterNanoHTTPD.UriResource uriResource, Map<String, String> map, NanoHTTPD.IHTTPSession ihttpSession)
     {
         Annotator annotator = uriResource.initParameter(Annotator.class);
+        ServerPreferences settings = uriResource.initParameter(1, ServerPreferences.class);
+
+        JsonObject jObject = new JsonObject();
+        addAnnotatorDetails(jObject, annotator);
+        addServerSettings(jObject, settings);
+        String json = jObject.toString();
+        return NanoHTTPD.newFixedLengthResponse(json);
+    }
+
+    private void addAnnotatorDetails(JsonObject jObject, Annotator annotator){
         String[] requiredViews = annotator.getRequiredViews();
         JsonArray jViews = new JsonArray();
         for(String view:requiredViews){
             jViews.add(new JsonPrimitive(view));
         }
-        JsonObject jObject = new JsonObject();
         jObject.add("requiredViews", jViews);
-        String json = jObject.toString();
-        return NanoHTTPD.newFixedLengthResponse(json);
+        jObject.add("addedView", new JsonPrimitive(annotator.getViewName()));
+    }
+
+    private void addServerSettings(JsonObject jObject, ServerPreferences settings){
+        jObject.add("maxAmountBytesAccepted", new JsonPrimitive(settings.getMaxAmountBytesAccepted()));
+        jObject.add("maxNumInstancesAccepted", new JsonPrimitive(settings.getMaxNumInstancesAccepted()));
     }
 
     @Override
