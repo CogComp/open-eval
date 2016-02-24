@@ -49,9 +49,7 @@ public class Redactor {
 				continue;
 			}
 			for(String viewName: viewsToRemove){
-				System.out.println(textAnnotation.hasView(viewName));
 				cleansedAnnotation.removeView(viewName);
-				System.out.println(textAnnotation.hasView(viewName));
 			}
 			cleansed.add(cleansedAnnotation);
 		}
