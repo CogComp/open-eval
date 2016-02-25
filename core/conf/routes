@@ -33,7 +33,7 @@ POST       /submitRun            controllers.Application.submitRun()
 # Progress Bar page
 GET        /working				 controllers.Application.progressBar(conf: String)
 
-GET	     /working/prog		 controllers.Application.getCurrentProgress()			
+GET	    /working/prog		 controllers.Application.getCurrentProgress()			
 
 # FAQs
 GET        /about                controllers.Application.about()
