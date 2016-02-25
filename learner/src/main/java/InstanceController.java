@@ -15,6 +15,8 @@ import java.util.Map;
 public class InstanceController implements RouterNanoHTTPD.UriResponder
 {
     public static final String INSTANCES_KEY = "instances";
+
+    // TODO: Refactor this to smaller methods
     @Override
     public Response post(RouterNanoHTTPD.UriResource uriResource, Map<String, String> map, NanoHTTPD.IHTTPSession session)
     {
@@ -39,6 +41,7 @@ public class InstanceController implements RouterNanoHTTPD.UriResponder
             }
         } catch (Exception e)
         {
+            // TODO: This try should be per each instance. If it encounters an error, tag that instance and continue
             return ResponseGenerator.generateErrorResponse(e, "There was an error parsing the body");
         }
 
@@ -49,6 +52,7 @@ public class InstanceController implements RouterNanoHTTPD.UriResponder
             }
         } catch (AnnotatorException e)
         {
+            // TODO: This try should be per each instance. If it encounters an error, tag that instance and continue
             return  ResponseGenerator.generateErrorResponse(e, "There was an error adding the view to the instance");
         }
 

@@ -1,14 +1,23 @@
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
+import com.google.gson.JsonPrimitive;
 
 /**
  * Created by ryan on 2/24/16.
  */
 public class JsonTools {
 
-    private static <T> JsonArray createFromArray(T[] array, JsonConverter<T> converter){
+    public static JsonArray createJsonArrayFromArray(String[] array){
+        JsonConverter<String> converter = new JsonConverter<String>(){
+            public JsonElement convertToJson(String object){
+                return new JsonPrimitive(object);
+            }
+        };
+
+        return createJsonArrayFromArray(array, converter);
+    }
+
+    private static <T> JsonArray createJsonArrayFromArray(T[] array, JsonConverter<T> converter){
         JsonArray jsonArray = new JsonArray();
         for(int i=0;i<array.length;i++){
             jsonArray.add(converter.convertToJson(array[i]));
@@ -16,7 +25,7 @@ public class JsonTools {
         return jsonArray;
     }
 
-    public abstract class JsonConverter<T> {
+    public abstract static class JsonConverter<T> {
         public abstract JsonElement convertToJson(T object);
     }
 
