@@ -121,22 +121,15 @@ public class Application extends Controller {
     public Result submitConfiguration() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
         FrontEndDBInterface f = new FrontEndDBInterface(); 
-        
-        List<String> taskVariants = new ArrayList<>(); 
-        taskVariants.add("tskVar1"); 
-        taskVariants.add("tskVar2");
-        taskVariants.add("tskVar3");
 
-        // should have map from strings to evaluators
-        // need to change taskVariants too
-        //String taskName = bindedForm.get("task");
-        //f.getEvaluatorForTask(taskName);
-        //f.get
+        String taskName = bindedForm.get("task");
+        String taskVariant = bindedForm.get("taskvariant");
+        String evaluator = f.getEvaluatorForTask(taskName);
         
         try {
             f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),
-                               bindedForm.get("description"), bindedForm.get("evaluator"),
-                               "Text Annotation", taskVariants); 
+                               bindedForm.get("description"), evaluator,
+                               taskName, taskVariant); 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

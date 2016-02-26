@@ -38,32 +38,23 @@ public class FrontEndDBInterface {
     
     
     /** Stores the received configuration in the MySQL configurations table and taskvariants table. */
-    public void insertConfigToDB(String datasetName, String teamName, String description, String evaluator, String taskType, List<String> taskVariants) {
+    public void insertConfigToDB(String datasetName, String teamName, String description, String evaluator, String taskType, String taskVariant) {
         try {            
-            Connection connection = getConnection();
+            Connection conn = getConnection();
             
             /*Storing basic configuration info.*/
-            String sql = "INSERT INTO configurations VALUES (?, '"+datasetName+"', '"+teamName+"', '"+description+"', '"+evaluator+"', '"+taskType+"');";
-            PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            String sql = "INSERT INTO configurations VALUES (?, ?, ?, ?, ?, ?, ?);";
+            PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setNull(1, Types.INTEGER); //Set null so MySQL can auto-increment the primary key (id).
+            stmt.setString(2, datasetName);
+            stmt.setString(3, teamName);
+            stmt.setString(4, description);
+            stmt.setString(5, evaluator);
+            stmt.setString(6, taskType);
+            stmt.setString(7, taskVariant);
             stmt.executeUpdate();
             
-            /*Storing info on the task-variants.*/
-            /*Have to get the ID of the newly created configuration.*/ 
-            ResultSet newID = stmt.getGeneratedKeys();
-            newID.first();
-            int id = newID.getInt(1);
-            
-            /*Inserting all the task variants in to taskVariants table.*/
-            sql = "INSERT INTO taskvariants VALUES (?, ?);";
-            stmt = connection.prepareStatement(sql);
-            for (String taskVariant : taskVariants){
-                stmt.setInt(1, id);
-                stmt.setString(2, taskVariant);
-                stmt.execute();
-            }
-            
-            connection.close();
+            conn.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -74,31 +65,14 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection();
             
-            String sql = "SELECT teamName, description, datasetName, evaluator, id FROM configurations;";
+            String sql = "SELECT teamName, description, datasetName, taskType, taskVariant, evaluator, id FROM configurations;";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet configList = stmt.executeQuery();
             
             List<models.Configuration> configs = new ArrayList<>();
             
             while (configList.next()) {
-                /*Getting task variant for this configuration.*/
-                int configID = configList.getInt(5);
-                sql = "SELECT taskVariant FROM taskvariants WHERE configurations_id = ?;";
-                stmt = conn.prepareStatement(sql);
-                stmt.setInt(1, configID);
-                ResultSet taskVariantRS = stmt.executeQuery();
-                
-                String taskVariant;
-                if (!taskVariantRS.isBeforeFirst()) {
-                    taskVariant = "No task variant select.";
-                }
-                else {
-                    taskVariantRS.first();
-                    taskVariant = taskVariantRS.getString(1);
-                }
-                
-                // need to make task name into config
-                models.Configuration config = new models.Configuration(configList.getString(1), configList.getString(2), configList.getString(3), "task", taskVariant, configList.getString(4), Integer.toString(configList.getInt(5))); 
+                models.Configuration config = new models.Configuration(configList.getString(1), configList.getString(2), configList.getString(3), configList.getString(4), configList.getString(5), configList.getString(6), Integer.toString(configList.getInt(7))); 
                 configs.add(config);
             }
         
@@ -336,7 +310,7 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection();
             
-            String sql = "SELECT taskvariant FROM taskvariants WHERE task_name = ?";
+            String sql = "SELECT name FROM taskvariants WHERE task_name = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, taskName);
             ResultSet taskVariantsRS =  stmt.executeQuery();
@@ -358,7 +332,7 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection();
             
-            String sql = "";
+            String sql = "SELECT name FROM evaluators WHERE task_name = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, taskName);
             ResultSet evaluatorRS = stmt.executeQuery();
