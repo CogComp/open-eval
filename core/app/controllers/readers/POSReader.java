@@ -12,11 +12,41 @@ import java.sql.ResultSet;
 
 public class POSReader {
     private int queryOffset = 0;
-    private int queryLimit = 25;
+    
+     /** Given a dataset name, this will return a List<TextAnnotation> from the database. 
+    */
+    public List<TextAnnotation> getTextAnnotationsFromDB(String datasetName) {
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        Connection conn = f.getConnection();
+        
+        String sql = "SELECT textAnnotation FROM textannotations WHERE dataset_name = ?";
+        ResultSet textAnnotationsRS; 
+        List<TextAnnotation> textAnnotations = new ArrayList<>();
+        try {
+            PreparedStatement stmt = conn.prepareStatement(sql); 
+            stmt.setString(1, datasetName);
+            textAnnotationsRS = stmt.executeQuery(); 
+         
+            while (textAnnotationsRS.next()) {
+                String taJson = textAnnotationsRS.getString(1);
+                TextAnnotation ta; 
+                try {
+                    ta = SerializationHelper.deserializeFromJson(taJson);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                textAnnotations.add(ta); 
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return textAnnotations; 
+    }
+    
     
     /** Given a dataset name, this will return a List<TextAnnotation> from the database. 
     */
-    public List<TextAnnotation> getTextAnnotationsFromDB(String datasetName) {
+    public List<TextAnnotation> getTextAnnotationsFromDBPartial(String datasetName, int queryCount) {
         FrontEndDBInterface f = new FrontEndDBInterface();
         Connection conn = f.getConnection();
         
@@ -26,8 +56,8 @@ public class POSReader {
         try {
             PreparedStatement stmt = conn.prepareStatement(sql); 
             stmt.setString(1, datasetName);
-            stmt.setInt(queryOffset);
-            stmt.setInt(queryLimit);
+            stmt.setInt(2, queryOffset);
+            stmt.setInt(3, queryCount);
             textAnnotationsRS = stmt.executeQuery(); 
          
             while (textAnnotationsRS.next()) {
@@ -44,7 +74,11 @@ public class POSReader {
             throw new RuntimeException(e);
         }
         
-        queryOffset += queryLimit;
+        if (textAnnotations.isEmpty()) { //All the text annotations have been returned. 
+            return null;
+        }
+        
+        queryOffset += queryCount;
         return textAnnotations; 
     }
     

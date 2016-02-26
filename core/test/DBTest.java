@@ -296,4 +296,36 @@ public class DBTest {
             return;
       }
     }
+    
+    @Test
+    public void testGetDatasetsForTask() {
+        try {
+            DriverManager.setLoginTimeout(2);
+            Connection conn = DriverManager.getConnection(mysqlURL, username, password);
+            
+            String sql = "INSERT INTO tasks VALUES (myFakeTask);";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.executeUpdate();
+            
+            sql = "INSERT INTO datasets VALUES(myFakeDataset, myFakeTask);";
+            stmt = conn.prepareStatement(sql);
+            stmt.executeUpdate();
+            
+            FrontEndDBInterface f = new FrontEndDBInterface();
+            List<String> datasets = f.getDatasetsForTask("myFakeTask");
+            assertEquals(datasets.get(1), "myFakeDataset");
+            
+            /*Getting rid of inserted data.*/
+            sql = "DELETE FROM tasks WHERE name = myFakeTask;";
+            stmt = conn.prepareStatement(sql);
+            stmt.executeUpdate();
+            sql = "DELETE FROM datasets WHERE name = myFakeDataset;";
+            stmt = conn.prepareStatement(sql);
+            stmt.executeUpdate();
+            conn.close();
+        } catch (SQLException e) {
+            if (e.getMessage().contains("The driver has not received any packets from the server.")) //In the case where we cannot connect to the DB. 
+                return;
+        } 
+    }
 }

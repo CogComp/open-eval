@@ -33,6 +33,10 @@ public class FrontEndDBInterface {
     private String username = "oeroot"; //Username to access database.
     private String password = "Fow,10#"; //Password for the above username. 
    
+    /**----------------------CONFIGURATION DB FUNCTIONS----------------------------------*/
+    
+    
+    
     /** Stores the received configuration in the MySQL configurations table and taskvariants table. */
     public void insertConfigToDB(String datasetName, String teamName, String description, String evaluator, String taskType, List<String> taskVariants) {
         try {            
@@ -143,6 +147,8 @@ public class FrontEndDBInterface {
         
     }
     
+    /**----------------------RECORD DB FUNCTION------------------------------------*/
+    
     /** Stores information at the start of a particular run.
     Returns the id of the record inserted. 
     */
@@ -249,6 +255,8 @@ public class FrontEndDBInterface {
         }
     }
     
+    /**--------------------EVALUTATION DB FUNCTIONS-------------------------------------*/
+    
     public void insertEvaluationIntoDB(EvaluationRecord evalRecord, int record_id) {
         try {
             Connection conn = getConnection();
@@ -275,7 +283,31 @@ public class FrontEndDBInterface {
         }
     }
     
-    /** Get's all the datasets for a specific task. 
+    
+    /**------------------------TASK DB FUNCTIONS---------------------------------*/
+    
+    /**Gets all the tasks that Open Eval can do.*/
+    public List<String> getTasks() {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "SELECT name FROM tasks;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet tasksRS = stmt.executeQuery();
+            
+            List<String> tasks = new ArrayList<>();
+            while (tasksRS.next()) {
+                tasks.add(tasksRS.getString(1));
+            }
+            
+            conn.close();
+            return tasks;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    /** Gets all the datasets for a specific task. 
     */
     public List<String> getDatasetsForTask(String taskName) {
         try {
@@ -290,8 +322,53 @@ public class FrontEndDBInterface {
             while (datasetNamesRS.next()) {
                 datasets.add(datasetNamesRS.getString(1));
             }
+            
+            conn.close();
             return datasets; 
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    /**Gets all the task variants of a task.
+    */
+    public List<String> getTaskVariantsForTask(String taskName) {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "SELECT taskvariant FROM taskvariants WHERE task_name = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, taskName);
+            ResultSet taskVariantsRS =  stmt.executeQuery();
+            
+            List<String> taskVariants = new ArrayList<>();
+            while (taskVariantsRS.next()) {
+                taskVariants.add(taskVariantsRS.getString(1));
+            }
+            
+            conn.close();
+            return taskVariants;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+   
+    /**Gets the evaluator for a task.*/
+    public String getEvaluatorForTask (String taskName) {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, taskName);
+            ResultSet evaluatorRS = stmt.executeQuery();
+            evaluatorRS.first();
+            String evaluator = evaluatorRS.getString(1);
+            
+            conn.close();
+            return evaluator;
+        }
+        catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

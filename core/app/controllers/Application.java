@@ -38,16 +38,29 @@ public class Application extends Controller {
     public Result addConfiguration() {
         AddConfigurationViewModel viewModel = new AddConfigurationViewModel();
 
-        List<String> tasks = new ArrayList<>();
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        //List<String> tasks = new ArrayList<>();
+        List<String> tasks = f.getTasks();
 
+        /*
         final String POS = "Part of Speech Tagging";
         final String NER = "Named Entity Recognition";
         final String PARSING = "Parsing";
         final String COREF = "Co-reference";
-        List<String> task_variants_i;
+        */
+        //List<String> task_variants_i;
 
         Map<String, List<String>> task_variants = new HashMap<>();
-
+        Map<String, List<String>> datasets = new HashMap<>();
+        
+        for (String task : tasks) {
+            List<String> task_variants_i = f.getTaskVariantsForTask(task);
+            List<String> datasets_i = f.getDatasetsForTask(task);
+            task_variants.put(task, task_variants_i);
+            datasets.put(task, datasets_i);
+        }
+        
+        /*
         tasks.add(POS);
         task_variants_i = new ArrayList<String>();
         task_variants_i.add("Raw Text");
@@ -75,9 +88,11 @@ public class Application extends Controller {
         task_variants_i.add("Gold Text");
         task_variants_i.add("Sentence Boundries");
         task_variants.put(COREF, task_variants_i);
-
-        Map<String, List<String>> datasets = new HashMap<>();
-
+        */
+        
+        
+        //Map<String, List<String>> datasets = new HashMap<>();
+        /*
         for (int i = 65; i < 65+3; i++) {
             List<String> datasets_i = new ArrayList<String>();
             datasets_i.add("DSA");
@@ -88,7 +103,7 @@ public class Application extends Controller {
                 datasets.put(tasks.get(j), datasets_i);
             }
         }
-
+        */
         viewModel.tasks = tasks;
         viewModel.datasets = datasets;
         viewModel.task_variants = task_variants;
@@ -114,6 +129,9 @@ public class Application extends Controller {
 
         // should have map from strings to evaluators
         // need to change taskVariants too
+        //String taskName = bindedForm.get("task");
+        //f.getEvaluatorForTask(taskName);
+        //f.get
         
         try {
             f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),
