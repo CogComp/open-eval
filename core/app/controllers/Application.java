@@ -39,16 +39,8 @@ public class Application extends Controller {
         AddConfigurationViewModel viewModel = new AddConfigurationViewModel();
 
         FrontEndDBInterface f = new FrontEndDBInterface();
-        //List<String> tasks = new ArrayList<>();
+        
         List<String> tasks = f.getTasks();
-
-        /*
-        final String POS = "Part of Speech Tagging";
-        final String NER = "Named Entity Recognition";
-        final String PARSING = "Parsing";
-        final String COREF = "Co-reference";
-        */
-        //List<String> task_variants_i;
 
         Map<String, List<String>> task_variants = new HashMap<>();
         Map<String, List<String>> datasets = new HashMap<>();
@@ -59,51 +51,7 @@ public class Application extends Controller {
             task_variants.put(task, task_variants_i);
             datasets.put(task, datasets_i);
         }
-        
-        /*
-        tasks.add(POS);
-        task_variants_i = new ArrayList<String>();
-        task_variants_i.add("Raw Text");
-        task_variants_i.add("Gold Text");
-        task_variants_i.add("Sentence Boundries");
-        task_variants.put(POS, task_variants_i);
 
-        tasks.add(NER);
-        task_variants_i = new ArrayList<String>();
-        task_variants_i.add("Raw Text");
-        task_variants_i.add("Gold Text");
-        task_variants_i.add("Sentence Boundries");
-        task_variants.put(NER, task_variants_i);
-
-        tasks.add(PARSING);
-        task_variants_i = new ArrayList<String>();
-        task_variants_i.add("Raw Text");
-        task_variants_i.add("Gold Text");
-        task_variants_i.add("Sentence Boundries");
-        task_variants.put(PARSING, task_variants_i);
-
-        tasks.add(COREF);
-        task_variants_i = new ArrayList<String>();
-        task_variants_i.add("Raw Text");
-        task_variants_i.add("Gold Text");
-        task_variants_i.add("Sentence Boundries");
-        task_variants.put(COREF, task_variants_i);
-        */
-        
-        
-        //Map<String, List<String>> datasets = new HashMap<>();
-        /*
-        for (int i = 65; i < 65+3; i++) {
-            List<String> datasets_i = new ArrayList<String>();
-            datasets_i.add("DSA");
-            datasets_i.add("DSB");
-            datasets_i.add("DSC");
-
-            for (int j = 0; j < tasks.size(); j++) {
-                datasets.put(tasks.get(j), datasets_i);
-            }
-        }
-        */
         viewModel.tasks = tasks;
         viewModel.datasets = datasets;
         viewModel.task_variants = task_variants;
