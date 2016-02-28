@@ -23,7 +23,6 @@ import play.libs.ws.WSResponse;
  * and the database
  */
 public class Core {
-
 	/**
 	 * Returns null if there was an error trying to connect to the server.
 	 * Otherwise, it returns the info string returned by the learner server.
@@ -45,10 +44,7 @@ public class Core {
 	public static Job setUpJob(String conf_id, String url, String record_id) {
 		Configuration runConfig = getConfigurationFromDb(conf_id);
 
-		// TODO: Fix this hack. We need to be able to do a deep copy of
-		// TextAnnotations
 		List<TextAnnotation> correctInstances = getInstancesFromDb(runConfig);
-		List<TextAnnotation> cleansedInstances = getInstancesFromDb(runConfig);
 		System.out.println(url);
 		LearnerInterface learner = new LearnerInterface(url);
 		String jsonInfo = learner.getInfo();
@@ -56,7 +52,7 @@ public class Core {
 			System.out.println("Could not connect to server");
 			return null;
 		}
-		cleanseInstances(cleansedInstances, jsonInfo);
+		List<TextAnnotation> cleansedInstances =  cleanseInstances(correctInstances, jsonInfo);
 		if (cleansedInstances == null) {
 			System.out.println("Error in cleanser");
 			return null;
