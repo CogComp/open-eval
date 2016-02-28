@@ -129,8 +129,9 @@ public class Core {
 	 * @return - Evaluator object to be used
 	 */
 	public static EvaluationRecord evaluate(Configuration runConfig, List<TextAnnotation> correctInstances,
-			List<TextAnnotation> solvedInstances, List<Boolean> skip) {
-		Evaluator evaluator = new ConstituentLabelingEvaluator();
+        List<TextAnnotation> solvedInstances, List<Boolean> skip) {
+        Evaluator evaluator = getEvaluator(runConfig);
+		//Evaluator evaluator = new ConstituentLabelingEvaluator();
 		ClassificationTester eval = new ClassificationTester();
 		for (int i = 0; i < correctInstances.size(); i++) {
 			if (skip.get(i)) {
@@ -182,6 +183,18 @@ public class Core {
 		Configuration config = f.getConfigInformation(Integer.parseInt(conf_id));
 		return config;
 	}
+    
+    private static Evaluator getEvaluator(Configuration runConfig) {
+        Evaluator evaluator = null;
+        
+        switch (runConfig.evaluator) {
+            case "Constituent Labeling": 
+                evaluator = new ConstituentLabelingEvaluator();
+                break;
+        }
+        
+        return evaluator;
+    }
 
 	/**
 	 * Retrieve a stored dataset from the database
@@ -194,8 +207,7 @@ public class Core {
 		String datasetName = runConfig.dataset;
 		POSReader posReader = new POSReader();
 		System.out.println("Retrieving instances from db");
-		// TODO: don't hardcode this
-		List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB("test-10.br");
+		List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB(runConfig.dataset);
 		return TextAnnotations;
 	}
 

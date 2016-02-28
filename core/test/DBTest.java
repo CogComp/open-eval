@@ -53,9 +53,7 @@ public class DBTest {
             
             /*Inserting new configuration into database*/
             FrontEndDBInterface f = new FrontEndDBInterface();
-            List<String> taskVariants = new ArrayList<>();
-            taskVariants.add("testTskVar"); 
-            f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", taskVariants); 
+            f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", "testTskVar"); 
         
             /*Checking to see if new count in database is old count + 1*/
             sql = "SELECT COUNT(*) FROM configurations;";
@@ -162,9 +160,7 @@ public class DBTest {
             
             /*Inserting new configuration into database.*/
             FrontEndDBInterface f = new FrontEndDBInterface();
-            List<String> taskVariants = new ArrayList<>();
-            taskVariants.add("testTskVar"); 
-            f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", taskVariants); 
+            f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", "testTskVar"); 
             
             /*Figuring out the configuration_id of the configuration we just inserted.*/
             String sql = "SELECT MAX(id) FROM configurations;";
@@ -206,9 +202,7 @@ public class DBTest {
                 
             /*Inserting new configuration into database.*/
             FrontEndDBInterface f = new FrontEndDBInterface();
-            List<String> taskVariants = new ArrayList<>();
-            taskVariants.add("testTskVar"); 
-            f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", taskVariants); 
+            f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", "testTskVar"); 
             
             /*Figuring out the configuration_id of the configuration we just inserted.*/
             String sql = "SELECT MAX(id) FROM configurations;";
@@ -257,9 +251,7 @@ public class DBTest {
             
             /*Inserting new configuration into database.*/
             FrontEndDBInterface f = new FrontEndDBInterface();
-            List<String> taskVariants = new ArrayList<>();
-            taskVariants.add("testTskVar"); 
-            f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", taskVariants); 
+            f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", "testTskVar"); 
             
             /*Figuring out the configuration_id of the configuration we just inserted.*/
             String sql = "SELECT MAX(id) FROM configurations;";
