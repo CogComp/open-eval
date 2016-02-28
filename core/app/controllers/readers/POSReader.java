@@ -46,7 +46,7 @@ public class POSReader {
     }
     
     
-    /** Given a dataset name, this will return a List<TextAnnotation> from the database. 
+    /** Given a dataset name, this will return a List<TextAnnotation> from the database with the specified number of TextAnnotations.  
     */
     public List<TextAnnotation> getTextAnnotationsFromDBPartial(String datasetName, int queryCount) {
         FrontEndDBInterface f = new FrontEndDBInterface();
