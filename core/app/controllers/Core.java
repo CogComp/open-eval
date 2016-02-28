@@ -57,52 +57,11 @@ public class Core {
 			System.out.println("Error in cleanser");
 			return null;
 		}
-		return new Job(learner, cleansedInstances);
+		return new Job(learner, cleansedInstances, correctInstances);
 	}
 
-	public static void storeResultsOfRunInDatabase(Job newJob, String record_id, String conf_id) {
-		Configuration runConfig = getConfigurationFromDb(conf_id);
-		List<TextAnnotation> correctInstances = getInstancesFromDb(runConfig);
-		List<TextAnnotation> solvedInstances = newJob.getSolverInstances();
-		List<Boolean> skip = newJob.getSkip();
-		EvaluationRecord eval = evaluate(runConfig, correctInstances, solvedInstances, skip);
-		storeEvaluationIntoDb(eval, record_id);
-	}
-
-	/**
-	 * Send instances to the solver and return back an evaluation on the results
-	 *
-	 * @param conf_id
-	 *            - database key for the configuration used to define the task
-	 * @param url
-	 *            - url of the server to send the instances through API calls to
-	 * @return - The evaluation on the solver result
-	 */
-	public static WSResponse startJob(String conf_id, String url, String record_id) {
-		Configuration runConfig = getConfigurationFromDb(conf_id);
-
-		List<TextAnnotation> correctInstances = getInstancesFromDb(runConfig);
-		List<TextAnnotation> cleansedInstances = getInstancesFromDb(runConfig);
-		System.out.println(url);
-		LearnerInterface learner = new LearnerInterface(url);
-		String jsonInfo = learner.getInfo();
-		if (jsonInfo.equals("err")) {
-			System.out.println("Could not connect to server");
-			return null;
-		}
-		cleanseInstances(cleansedInstances, jsonInfo);
-		if (cleansedInstances == null) {
-			System.out.println("Error in cleanser");
-			return null;
-		}
-		Job newJob = new Job(learner, cleansedInstances);
-		WSResponse solverResponse = newJob.sendAndReceiveRequestsFromSolver();
-		List<TextAnnotation> solvedInstances = newJob.getSolverInstances();
-		List<Boolean> skip = newJob.getSkip();
-		EvaluationRecord eval = evaluate(runConfig, correctInstances, solvedInstances, skip);
-		storeEvaluationIntoDb(eval, record_id);
-		System.out.println(solverResponse);
-		return solverResponse;
+	public static void storeResultsOfRunInDatabase(ClassificationTester evaluation, String record_id) {
+		storeEvaluationIntoDb(evaluation.getEvaluationRecord(), record_id);
 	}
 
 	/**
@@ -120,25 +79,22 @@ public class Core {
 	/**
 	 * Create a new Evaluator to be used on the solved instances
 	 *
-	 * @param runConfig
+	 * @param conf_id
 	 *            - Defines the type of evaluator the user needs
 	 * @return - Evaluator object to be used
 	 */
-	public static EvaluationRecord evaluate(Configuration runConfig, List<TextAnnotation> correctInstances,
-			List<TextAnnotation> solvedInstances, List<Boolean> skip) {
+	public static Evaluator getEvaluator(String conf_id){
+		Configuration runConfig = getConfigurationFromDb(conf_id);
 		Evaluator evaluator = new ConstituentLabelingEvaluator();
-		ClassificationTester eval = new ClassificationTester();
-		for (int i = 0; i < correctInstances.size(); i++) {
-			if (skip.get(i)) {
-				continue;
-			}
-			View gold = correctInstances.get(i).getView(ViewNames.POS);
-			View predicted = solvedInstances.get(i).getView(ViewNames.POS);
-			evaluator.setViews(gold, predicted);
-			evaluator.evaluate(eval);
-		}
-		System.out.println(eval.getEvaluationRecord());
-		return eval.getEvaluationRecord();
+		return evaluator;
+	}
+
+	public static void evaluate(Evaluator evaluator, ClassificationTester eval,  TextAnnotation gold,
+			TextAnnotation predicted) {
+		View goldView = gold.getView(ViewNames.POS);
+		View predictedView = predicted.getView(ViewNames.POS);
+		evaluator.setViews(goldView, predictedView);
+		evaluator.evaluate(eval);
 	}
 
 	/**

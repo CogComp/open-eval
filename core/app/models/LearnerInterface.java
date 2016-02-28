@@ -4,8 +4,12 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 
 
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
+import play.api.libs.ws.*;
 import play.libs.ws.*;
 import play.libs.F.Promise;
+import play.libs.ws.WS;
+import play.libs.ws.WSRequest;
+import play.libs.ws.WSResponse;
 
 /**
  * Temporary class to represent a dummy solver that lives within the evaluation framework
@@ -33,12 +37,12 @@ public class LearnerInterface {
 	 * @param textAnnotation - The unsolved instance to send to the solver
 	 * @return The solved TextAnnotation instance retrieved from the solver
 	 */
-	public WSResponse processRequest(TextAnnotation textAnnotation) {
+	public Promise<WSResponse> processRequest(TextAnnotation textAnnotation) {
 		System.out.println("Sending:"+textAnnotation.getText());
 		String taJson = SerializationHelper.serializeToJson(textAnnotation);
 		Promise<WSResponse> jsonPromise = instancePoster.post(taJson);
 
-		return jsonPromise.get(50000);
+		return jsonPromise;
 	}
 	
 	public String getInfo(){

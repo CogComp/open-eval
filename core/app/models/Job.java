@@ -3,6 +3,7 @@ package models;
 import controllers.Domain;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
+import play.libs.F.Promise;
 import play.libs.ws.WSResponse;
 
 import java.util.ArrayList;
@@ -25,60 +26,28 @@ public class Job {
 	/** List of unprocessed text annotation instances */
 	private List<TextAnnotation> unprocessedInstances;
 
+	/** List of correct text annotation instances */
+	private List<TextAnnotation> goldInstances;
+
 	/** List of `TextAnnotation` instances returned by the solver */
 	private List<TextAnnotation> solverInstances;
 
 	private List<Boolean> skip;
 
-	public Job(LearnerInterface learner, List<TextAnnotation> instances) {
+	public Job(LearnerInterface learner, List<TextAnnotation> cleansedInstances, List<TextAnnotation> goldInstances) {
 		this.learnerInterface = learner;
-		this.unprocessedInstances = instances;
+		this.unprocessedInstances = cleansedInstances;
+		this.goldInstances = goldInstances;
 		this.solverInstances = new ArrayList<>();
 		this.domain = Domain.TOY;
 		skip = new ArrayList<>();
 	}
 
-	public WSResponse sendAndReceiveRequestFromSolver(TextAnnotation ta) {
-		WSResponse response = null;
-		String resultJson;
-		TextAnnotation processedInstance;
-		response = learnerInterface.processRequest(ta);
-		try {
-			resultJson = response.getBody();
-			processedInstance = SerializationHelper.deserializeFromJson(resultJson);
-			solverInstances.add(processedInstance);
-			skip.add(false);
-		} catch (Exception e) {
-			System.out.println(e);
-			solverInstances.add(null);
-			skip.add(true);
-		}
+	public Promise<WSResponse> sendAndReceiveRequestFromSolver(TextAnnotation ta) {
+		Promise<WSResponse> response = learnerInterface.processRequest(ta);
 		return response;
 	}
 
-	/**
-	 * Sends all unprocessed instances to the solver and receives the results.
-	 */
-	public WSResponse sendAndReceiveRequestsFromSolver() {
-		this.solverInstances = new ArrayList<>();
-		WSResponse response = null;
-		String resultJson;
-		TextAnnotation processedInstance;
-		for (TextAnnotation ta : unprocessedInstances) {
-			response = learnerInterface.processRequest(ta);
-			try {
-				resultJson = response.getBody();
-				processedInstance = SerializationHelper.deserializeFromJson(resultJson);
-				solverInstances.add(processedInstance);
-				skip.add(false);
-			} catch (Exception e) {
-				System.out.println(e);
-				solverInstances.add(null);
-				skip.add(true);
-			}
-		}
-		return response;
-	}
 
 	public List<TextAnnotation> getUnprocessedInstances() {
 		return unprocessedInstances;
@@ -91,6 +60,8 @@ public class Job {
 	public List<TextAnnotation> getSolverInstances() {
 		return this.solverInstances;
 	}
+
+	public List<TextAnnotation> getGoldInstances() { return this.goldInstances; }
 
 	public TextAnnotation getSolverInstance(int i) {
 		return getSolverInstances().get(i);

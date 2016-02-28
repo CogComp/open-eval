@@ -6,8 +6,13 @@ import actors.Messages.*;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
+import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
+import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 import models.Job;
 import controllers.Core;
+import play.libs.F;
+import play.libs.F.Promise;
 import play.libs.ws.WSResponse;
 
 public class JobProcessingActor extends UntypedActor {
@@ -35,8 +40,10 @@ public class JobProcessingActor extends UntypedActor {
 			this.record_id = jobInfo.getRecord_id();
 			this.url = jobInfo.getUrl();
 			Job job = Core.setUpJob(conf_id, url, record_id);
-
+			Evaluator evaluator = Core.getEvaluator(conf_id);
+			ClassificationTester eval = new ClassificationTester();
 			List<TextAnnotation> unprocessedInstances = job.getUnprocessedInstances();
+			List<TextAnnotation> goldInstances = job.getGoldInstances();
 			completed = 0;
 			skipped = 0;
 			total = unprocessedInstances.size();
@@ -44,15 +51,33 @@ public class JobProcessingActor extends UntypedActor {
 			System.out.println("Created Job Processor Worker");
 			System.out.println("Sending and recieving annotations:");
 			try {
-				for (TextAnnotation ta : unprocessedInstances) {
-					job.sendAndReceiveRequestFromSolver(ta);
-					completed++;
-					getSender().tell(new StatusUpdate(completed, skipped, total), getSelf());
+				for (int i=0; i<unprocessedInstances.size(); i++) {
+					Promise<WSResponse> response = job.sendAndReceiveRequestFromSolver(unprocessedInstances.get(i));
+					TextAnnotation goldInstance = goldInstances.get(i);
+					response.onRedeem(new F.Callback<WSResponse>() {
+						@Override
+						public void invoke(WSResponse wsResponse) throws Throwable {
+							TextAnnotation predictedInstance;
+							try{
+								String resultJson = wsResponse.getBody();
+								predictedInstance = SerializationHelper.deserializeFromJson(resultJson);
+							}
+							catch(Exception e){
+								System.out.println(e);
+								skipped++;
+								return;
+							}
+							Core.evaluate(evaluator, eval, goldInstance, predictedInstance);
+							getSender().tell(new StatusUpdate(completed, skipped, total), getSelf());
+							completed++;
+							System.out.println(completed);
+							Core.storeResultsOfRunInDatabase(eval, record_id);
+						}
+					});
 				}
 			} catch (Exception ex) {
 				System.out.println("Error sending and receiving text annotations");
 			}
-			Core.storeResultsOfRunInDatabase(job, record_id, conf_id);
 			System.out.println("Done");
 		} else
 			unhandled(message);
