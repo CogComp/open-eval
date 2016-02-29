@@ -13,6 +13,8 @@ import javax.validation.constraints.AssertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
+import models.Configuration;
+
 /**
  * Created by Dhruv on 2/9/2016.
  */
@@ -34,7 +36,8 @@ public class EvaluatorTest {
         correct.add(correctTextAnnotation);
         guessed.add(incorrectTextAnnotation);
         skip.add(false);
-        EvaluationRecord record = Core.evaluate(null, correct, guessed, skip);
+        Configuration config = new Configuration("testName", "testDescrip", "testDataset", "testTaskType", "testTskVar", "Constituent Labeling", "1");
+        EvaluationRecord record = Core.evaluate(config, correct, guessed, skip);
         Assert.assertTrue(record.getGoldCount()>= 1);
         Assert.assertTrue(record.getPredictedCount()>= 1);
     }
@@ -51,7 +54,8 @@ public class EvaluatorTest {
             guessed.add(incorrectTextAnnotation);
             skip.add(false);
         }
-        EvaluationRecord record = Core.evaluate(null, correct, guessed, skip);
+        Configuration config = new Configuration("testName", "testDescrip", "testDataset", "testTaskType", "testTskVar", "Constituent Labeling", "1");
+        EvaluationRecord record = Core.evaluate(config, correct, guessed, skip);
         Assert.assertTrue(record.getGoldCount()>=1000);
         Assert.assertTrue(record.getPredictedCount()>=1000);
         Assert.assertTrue(record.getCorrectCount()<=record.getPredictedCount() && record.getCorrectCount()>=0);
