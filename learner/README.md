@@ -1,6 +1,6 @@
 # About
 
-The learner endpoint is built to be used alongside the [Open-Eval](https://github.com/IllinoisCogComp/open-eval) system. The Open-Eval system will test your learner and record previous runs in a central place. In order to do this it will send instances your learner label and send back. To ease this process we have built the learner endpoint, which will take care of most of these communications for you.
+The learner endpoint is built to be used alongside the [Open-Eval](https://github.com/IllinoisCogComp/open-eval) system. The Open-Eval system will test your learner and record previous runs in a central place. In order to do this it will send instances to your learner to label and send back. To ease this process we have built the learner endpoint, which will take care of most of these communications for you.
 
 # Background
 
