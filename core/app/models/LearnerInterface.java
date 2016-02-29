@@ -9,8 +9,6 @@ import play.libs.F.Promise;
 
 /**
  * Temporary class to represent a dummy solver that lives within the evaluation framework
- *
- * @author Joshua Camp
  */
 
 public class LearnerInterface {

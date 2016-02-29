@@ -22,10 +22,10 @@ import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
  */
 
 public class FrontEndDBInterface {    
-    private String jdbcDriver;// = "com.mysql.jdbc.Driver";
-    private String mysqlURL;// = "jdbc:mysql://gargamel.cs.illinois.edu/openeval_db"; //Change this according to URL of MySQL server.
-    private String username;// = "oeroot"; //Username to access database.
-    private String password;// = "Fow,10#"; //Password for the above username. 
+    private String jdbcDriver;
+    private String mysqlURL;
+    private String username;
+    private String password; 
    
     public FrontEndDBInterface() {
     	BufferedReader reader;
