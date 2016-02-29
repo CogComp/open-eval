@@ -1,23 +1,17 @@
 package controllers; 
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Date;
-
-import play.*;
-import play.mvc.*;
-import play.Logger;
-
-import org.json.*;
-import com.mysql.jdbc.Driver;
 
 import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
 
@@ -28,11 +22,36 @@ import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
  */
 
 public class FrontEndDBInterface {    
-    private String jdbcDriver = "com.mysql.jdbc.Driver";
-    private String mysqlURL = "jdbc:mysql://gargamel.cs.illinois.edu/openeval_db"; //Change this according to URL of MySQL server.
-    private String username = "oeroot"; //Username to access database.
-    private String password = "Fow,10#"; //Password for the above username. 
+    private String jdbcDriver;// = "com.mysql.jdbc.Driver";
+    private String mysqlURL;// = "jdbc:mysql://gargamel.cs.illinois.edu/openeval_db"; //Change this according to URL of MySQL server.
+    private String username;// = "oeroot"; //Username to access database.
+    private String password;// = "Fow,10#"; //Password for the above username. 
    
+    public FrontEndDBInterface() {
+    	BufferedReader reader;
+		try {
+			reader = new BufferedReader(new FileReader("core.properties"));
+			String line;
+	    	while ((line = reader.readLine()) != null) {
+	    		String property = line.split("=")[0];
+	    		String value = line.split("=")[1];
+	    		switch (property) {
+	    			case "JDBC_DRIVER": jdbcDriver = value;
+	    			case "MYSQL_URL": mysqlURL = value;
+	    			case "DB_USERNAME": username = value;
+	    			case "DB_PASSWORD": password = value;
+	    		}
+	    	}
+	    	System.out.println(jdbcDriver);
+	    	System.out.println(mysqlURL);
+	    	System.out.println(username);
+	    	System.out.println(password);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
     /** Stores the received configuration in the MySQL configurations table and taskvariants table. */
     public void insertConfigToDB(String datasetName, String teamName, String description, String evaluator, String taskType, List<String> taskVariants) {
         try {            

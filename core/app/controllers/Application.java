@@ -208,14 +208,14 @@ public class Application extends Controller {
 
 		masterActor.tell(new SetUpJobMessage(configuration_id, url, record_id), masterActor);
 		WorkingViewModel viewModel = new WorkingViewModel();
-		viewModel.configuration_id = configuration_id;
+		viewModel.conf_id = configuration_id;
 		viewModel.percent_complete = 0;
 		return ok(working.render(viewModel));
 	}
 
 	public Result progressBar(String configuration_id) {
 		WorkingViewModel viewModel = new WorkingViewModel();
-		viewModel.configuration_id = configuration_id;
+		viewModel.conf_id = configuration_id;
 		viewModel.percent_complete = 0;
 		return ok(working.render(viewModel));
 	}
