@@ -25,7 +25,8 @@ public class FrontEndDBInterface {
     private String jdbcDriver;
     private String mysqlURL;
     private String username;
-    private String password; 
+    private String password;
+    private Integer timeout;
    
     public FrontEndDBInterface() {
     	BufferedReader reader;
@@ -37,13 +38,18 @@ public class FrontEndDBInterface {
 	    		String value = line.split("=")[1];
 	    		switch (property) {
 	    			case "JDBC_DRIVER": jdbcDriver = value;
+	    				break;
 	    			case "MYSQL_URL": mysqlURL = value;
+	    				break;
 	    			case "DB_USERNAME": username = value;
+	    				break;
 	    			case "DB_PASSWORD": password = value;
+	    				break;
+	    			case "DB_TIMEOUT": timeout = Integer.parseInt(value);
+	    				break;
 	    		}
 	    	}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     }
@@ -370,7 +376,7 @@ public class FrontEndDBInterface {
         }
         
         try { 
-            DriverManager.setLoginTimeout(2);
+            DriverManager.setLoginTimeout(timeout);
             Connection conn = DriverManager.getConnection(mysqlURL, username, password);
             return conn;
         } catch (SQLException e) {

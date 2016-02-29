@@ -4,7 +4,7 @@ The `core` module of Open-Eval, when run, hosts an instance of the webapp.  It i
 
 # Database
 
-To deploy this application, you'll need to have an SQL database set up.  We've provided an SQL dump file with the empty tables you'll need to get started.
+To deploy this application, you'll need to have an SQL database set up.  We've provided an SQL dump file with the empty tables you'll need to get started.  In the core.properties file, you'll need to fill out the database URL, username, and password.
 
 # Overview of Components
 

@@ -1,5 +1,8 @@
 package models;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 
 
@@ -15,6 +18,7 @@ public class LearnerInterface {
 	
 	WSRequest infoPoster;
 	WSRequest instancePoster;
+	int timeout;
 	
 	/**
 	 * Constructor. Initiates WSRequest object to send Http requests
@@ -24,6 +28,20 @@ public class LearnerInterface {
 		this.infoPoster = WS.url(url+"info");
 		this.instancePoster = WS.url(url+"instance");
 		System.out.println(this.infoPoster);
+		BufferedReader reader;
+		try {
+			reader = new BufferedReader(new FileReader("core/core.properties"));
+			String line;
+	    	while ((line = reader.readLine()) != null) {
+	    		String property = line.split("=")[0];
+	    		String value = line.split("=")[1];
+	    		switch (property) {
+	    			case "LEARNER_TIMEOUT": timeout = Integer.parseInt(value);
+	    		}
+	    	}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -36,7 +54,7 @@ public class LearnerInterface {
 		String taJson = SerializationHelper.serializeToJson(textAnnotation);
 		Promise<WSResponse> jsonPromise = instancePoster.post(taJson);
 
-		return jsonPromise.get(50000);
+		return jsonPromise.get(timeout);
 	}
 	
 	public String getInfo(){
@@ -44,7 +62,7 @@ public class LearnerInterface {
 		String jsonInfo;
 		try{
 			Promise<WSResponse> responsePromise = infoPoster.get();
-			WSResponse response = responsePromise.get(5000);
+			WSResponse response = responsePromise.get(timeout);
 			jsonInfo = response.getBody();
 		}	
 		catch(Exception e){
