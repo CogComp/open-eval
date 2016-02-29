@@ -13,7 +13,9 @@ import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 import edu.illinois.cs.cogcomp.nlp.corpusreaders.PennTreebankPOSReader; 
 
 public class POSReader {
-    /** Given a dataset name, this will return a List<TextAnnotation> from the database. 
+    private int queryOffset = 0;
+    
+     /** Given a dataset name, this will return a List<TextAnnotation> from the database. 
     */
     public List<TextAnnotation> getTextAnnotationsFromDB(String datasetName) {
         FrontEndDBInterface f = new FrontEndDBInterface();
@@ -40,6 +42,45 @@ public class POSReader {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        return textAnnotations; 
+    }
+    
+    
+    /** Given a dataset name, this will return a List<TextAnnotation> from the database with the specified number of TextAnnotations.  
+    */
+    public List<TextAnnotation> getTextAnnotationsFromDBPartial(String datasetName, int queryCount) {
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        Connection conn = f.getConnection();
+        
+        String sql = "SELECT textAnnotation FROM textannotations WHERE dataset_name = ? LIMIT ?,?";
+        ResultSet textAnnotationsRS; 
+        List<TextAnnotation> textAnnotations = new ArrayList<>();
+        try {
+            PreparedStatement stmt = conn.prepareStatement(sql); 
+            stmt.setString(1, datasetName);
+            stmt.setInt(2, queryOffset);
+            stmt.setInt(3, queryCount);
+            textAnnotationsRS = stmt.executeQuery(); 
+         
+            while (textAnnotationsRS.next()) {
+                String taJson = textAnnotationsRS.getString(1);
+                TextAnnotation ta; 
+                try {
+                    ta = SerializationHelper.deserializeFromJson(taJson);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                textAnnotations.add(ta); 
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        
+        if (textAnnotations.isEmpty()) { //All the text annotations have been returned. 
+            return null;
+        }
+        
+        queryOffset += queryCount;
         return textAnnotations; 
     }
     

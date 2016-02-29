@@ -30,7 +30,7 @@ public class FrontEndDBInterface {
     public FrontEndDBInterface() {
     	BufferedReader reader;
 		try {
-			reader = new BufferedReader(new FileReader("core.properties"));
+			reader = new BufferedReader(new FileReader("core/core.properties"));
 			String line;
 	    	while ((line = reader.readLine()) != null) {
 	    		String property = line.split("=")[0];
@@ -42,43 +42,32 @@ public class FrontEndDBInterface {
 	    			case "DB_PASSWORD": password = value;
 	    		}
 	    	}
-	    	System.out.println(jdbcDriver);
-	    	System.out.println(mysqlURL);
-	    	System.out.println(username);
-	    	System.out.println(password);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     }
+    /**----------------------CONFIGURATION DB FUNCTIONS----------------------------------*/    
+    
     
     /** Stores the received configuration in the MySQL configurations table and taskvariants table. */
-    public void insertConfigToDB(String datasetName, String teamName, String description, String evaluator, String taskType, List<String> taskVariants) {
+    public void insertConfigToDB(String datasetName, String teamName, String description, String evaluator, String taskType, String taskVariant) {
         try {            
-            Connection connection = getConnection();
+            Connection conn = getConnection();
             
             /*Storing basic configuration info.*/
-            String sql = "INSERT INTO configurations VALUES (?, '"+datasetName+"', '"+teamName+"', '"+description+"', '"+evaluator+"', '"+taskType+"');";
-            PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            String sql = "INSERT INTO configurations VALUES (?, ?, ?, ?, ?, ?, ?);";
+            PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setNull(1, Types.INTEGER); //Set null so MySQL can auto-increment the primary key (id).
+            stmt.setString(2, datasetName);
+            stmt.setString(3, teamName);
+            stmt.setString(4, description);
+            stmt.setString(5, evaluator);
+            stmt.setString(6, taskType);
+            stmt.setString(7, taskVariant);
             stmt.executeUpdate();
             
-            /*Storing info on the task-variants.*/
-            /*Have to get the ID of the newly created configuration.*/ 
-            ResultSet newID = stmt.getGeneratedKeys();
-            newID.first();
-            int id = newID.getInt(1);
-            
-            /*Inserting all the task variants in to taskVariants table.*/
-            sql = "INSERT INTO taskvariants VALUES (?, ?);";
-            stmt = connection.prepareStatement(sql);
-            for (String taskVariant : taskVariants){
-                stmt.setInt(1, id);
-                stmt.setString(2, taskVariant);
-                stmt.execute();
-            }
-            
-            connection.close();
+            conn.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -87,21 +76,20 @@ public class FrontEndDBInterface {
     /** Returns a list of all the configurations in the database to be displayed on landing page. */
     public List<models.Configuration> getConfigList() {
         try {
-            Connection connection = getConnection();
+            Connection conn = getConnection();
             
-            String sql = "SELECT teamName, description, datasetName, evaluator, id FROM configurations;";
-            PreparedStatement insertStmt = connection.prepareStatement(sql);
-            ResultSet configList = insertStmt.executeQuery();
+            String sql = "SELECT teamName, description, datasetName, taskType, taskVariant, evaluator, id FROM configurations;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet configList = stmt.executeQuery();
             
             List<models.Configuration> configs = new ArrayList<>();
             
             while (configList.next()) {
-                // need to make task name into config
-                models.Configuration config = new models.Configuration(configList.getString(1), configList.getString(2), configList.getString(3), "task", "We're displaying task variants?", configList.getString(4), Integer.toString(configList.getInt(5))); 
+                models.Configuration config = new models.Configuration(configList.getString(1), configList.getString(2), configList.getString(3), configList.getString(4), configList.getString(5), configList.getString(6), Integer.toString(configList.getInt(7))); 
                 configs.add(config);
             }
         
-            connection.close();
+            conn.close();
             return configs; 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -145,6 +133,8 @@ public class FrontEndDBInterface {
         }
         
     }
+    
+    /**----------------------RECORD DB FUNCTION------------------------------------*/
     
     /** Stores information at the start of a particular run.
     Returns the id of the record inserted. 
@@ -252,6 +242,8 @@ public class FrontEndDBInterface {
         }
     }
     
+    /**--------------------EVALUTATION DB FUNCTIONS-------------------------------------*/
+    
     public void insertEvaluationIntoDB(EvaluationRecord evalRecord, int record_id) {
         try {
             Connection conn = getConnection();
@@ -274,6 +266,96 @@ public class FrontEndDBInterface {
             stmt.executeUpdate();
             conn.close();
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    
+    /**------------------------TASK DB FUNCTIONS---------------------------------*/
+    
+    /**Gets all the tasks that Open Eval can do.*/
+    public List<String> getTasks() {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "SELECT name FROM tasks;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet tasksRS = stmt.executeQuery();
+            
+            List<String> tasks = new ArrayList<>();
+            while (tasksRS.next()) {
+                tasks.add(tasksRS.getString(1));
+            }
+            
+            conn.close();
+            return tasks;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    /** Gets all the datasets for a specific task. 
+    */
+    public List<String> getDatasetsForTask(String taskName) {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "SELECT name FROM datasets WHERE task = ?;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, taskName);
+            ResultSet datasetNamesRS = stmt.executeQuery();
+            
+            List<String> datasets = new ArrayList<>();
+            while (datasetNamesRS.next()) {
+                datasets.add(datasetNamesRS.getString(1));
+            }
+            
+            conn.close();
+            return datasets; 
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    /**Gets all the task variants of a task.
+    */
+    public List<String> getTaskVariantsForTask(String taskName) {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "SELECT name FROM taskvariants WHERE task_name = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, taskName);
+            ResultSet taskVariantsRS =  stmt.executeQuery();
+            
+            List<String> taskVariants = new ArrayList<>();
+            while (taskVariantsRS.next()) {
+                taskVariants.add(taskVariantsRS.getString(1));
+            }
+            
+            conn.close();
+            return taskVariants;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+   
+    /**Gets the evaluator for a task.*/
+    public String getEvaluatorForTask (String taskName) {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "SELECT name FROM evaluators WHERE task_name = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, taskName);
+            ResultSet evaluatorRS = stmt.executeQuery();
+            evaluatorRS.first();
+            String evaluator = evaluatorRS.getString(1);
+            
+            conn.close();
+            return evaluator;
+        }
+        catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
