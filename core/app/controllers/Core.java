@@ -64,31 +64,6 @@ public class Core {
         storeEvaluationIntoDb(evaluation.getEvaluationRecord(), record_id);
     }
 
-    /**
-     * Retrieve a stored configuration from the database
-     *
-     * @param conf_id
-     *            - database key for the configuration used to define the task
-     * @return - The Configuration object from the database
-     */
-    private static Configuration getConfigurationFromDb(int conf_id) {
-        FrontEndDBInterface db = new FrontEndDBInterface();
-        return db.getConfigInformation(conf_id);
-    }
-
-	/**
-	 * Create a new Evaluator to be used on the solved instances
-	 *
-	 * @param conf_id
-	 *            - Defines the type of evaluator the user needs
-	 * @return - Evaluator object to be used
-	 */
-	public static Evaluator getEvaluator(String conf_id){
-		Configuration runConfig = getConfigurationFromDb(conf_id);
-		Evaluator evaluator = new ConstituentLabelingEvaluator();
-		return evaluator;
-	}
-
 	public static void evaluate(Evaluator evaluator, ClassificationTester eval,  TextAnnotation gold,
 			TextAnnotation predicted) {
 		View goldView = gold.getView(ViewNames.POS);
@@ -135,7 +110,8 @@ public class Core {
         return config;
     }
     
-    private static Evaluator getEvaluator(Configuration runConfig) {
+    public static Evaluator getEvaluator(String conf_id) {
+        Configuration runConfig = getConfigurationFromDb(conf_id);
         Evaluator evaluator = null;
         
         switch (runConfig.evaluator) {
@@ -155,7 +131,6 @@ public class Core {
      * @return - list of TextAnnotation instances from the database
      */
     private static List<TextAnnotation> getInstancesFromDb(Configuration runConfig) {
-        String datasetName = runConfig.dataset;
         POSReader posReader = new POSReader();
         System.out.println("Retrieving instances from db");
         List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB(runConfig.dataset);
