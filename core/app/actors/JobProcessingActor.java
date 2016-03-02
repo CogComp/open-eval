@@ -3,6 +3,7 @@ package actors;
 import java.util.List;
 
 import actors.Messages.*;
+import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
@@ -35,6 +36,7 @@ public class JobProcessingActor extends UntypedActor {
 	@Override
 	public void onReceive(Object message) throws Exception {
 		if (message instanceof SetUpJobMessage) {
+			ActorRef master = getSender();
 			SetUpJobMessage jobInfo = (SetUpJobMessage) message;
 			this.conf_id = jobInfo.getConf_id();
 			this.record_id = jobInfo.getRecord_id();
@@ -65,15 +67,19 @@ public class JobProcessingActor extends UntypedActor {
 							catch(Exception e){
 								System.out.println(e);
 								skipped++;
+								completed++;
+								getSender().tell(new StatusUpdate(completed, skipped, total), getSelf());
 								return;
 							}
 							Core.evaluate(evaluator, eval, goldInstance, predictedInstance);
-							getSender().tell(new StatusUpdate(completed, skipped, total), getSelf());
 							completed++;
-							System.out.println(completed);
+							master.tell(new StatusUpdate(completed, skipped, total), getSelf());
+
+							System.out.println("Completed(worker):"+completed);
 							Core.storeResultsOfRunInDatabase(eval, record_id);
 						}
 					});
+					response.get(5000);
 				}
 			} catch (Exception ex) {
 				System.out.println("Error sending and receiving text annotations");
