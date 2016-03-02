@@ -29,7 +29,7 @@ public class InstanceController implements RouterNanoHTTPD.UriResponder
             JsonObject jsonObject = parser.parse(body).getAsJsonObject();
             jInstances = jsonObject.get(INSTANCES_KEY).getAsJsonArray();
         } catch (Exception ex){
-            return ResponseGenerator.generateErrorResponse(ex, "Error reading request");
+            return ResponseGenerator.generateResponse(String.format("Error reading request: %s", ex.toString()), Response.Status.BAD_REQUEST);
         }
 
         TextAnnotation[] textAnnotations = new TextAnnotation[jInstances.size()];
