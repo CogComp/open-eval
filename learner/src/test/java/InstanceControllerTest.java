@@ -1,3 +1,6 @@
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import edu.illinois.cs.cogcomp.annotation.Annotator;
 import edu.illinois.cs.cogcomp.annotation.AnnotatorException;
 import edu.illinois.cs.cogcomp.annotation.BasicTextAnnotationBuilder;
@@ -6,6 +9,7 @@ import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.router.RouterNanoHTTPD;
 import org.apache.commons.io.IOUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -15,10 +19,19 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class InstanceControllerTest
 {
+
+    private JsonParser parser;
+
+    @Before
+    public void setup(){
+        parser = new JsonParser();
+    }
 
     @Test
     public void testPost() throws Exception
@@ -28,14 +41,26 @@ public class InstanceControllerTest
         when(uriResource.initParameter(Annotator.class)).thenReturn(annotator);
 
         TextAnnotation[] textAnnotations = new TextAnnotation[] {getBasicTextAnnotation(), getBasicTextAnnotation()};
-        String requestBody = SerializationHelper.serializeToJson(textAnnotations[0]);
+        JsonArray jAnnotations = JsonTools.createJsonArrayFromArray(textAnnotations);
+        JsonObject request = new JsonObject();
+        request.add("instances", jAnnotations);
+
+        String requestBody = request.toString();
         NanoHTTPD.IHTTPSession session = mockPostData(requestBody);
 
         InstanceController controller = new InstanceController();
         NanoHTTPD.Response response = controller.post(uriResource,null,session);
 
         String responseBody = IOUtils.toString(response.getData());
-        assertEquals(requestBody,responseBody);
+        JsonObject result = parser.parse(responseBody).getAsJsonObject();
+        JsonArray instances = result.get("instances").getAsJsonArray();
+
+        assertEquals(2, instances.size());
+
+        JsonObject instance = instances.get(0).getAsJsonObject();
+        assertTrue(instance.has("textAnnotation"));
+        assertFalse(instance.has("error"));
+
         assertEquals(NanoHTTPD.Response.Status.OK, response.getStatus());
     }
 

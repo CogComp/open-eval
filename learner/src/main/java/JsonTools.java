@@ -1,11 +1,27 @@
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 
 /**
  * Created by ryan on 2/24/16.
  */
 public class JsonTools {
+
+    private static JsonParser parser = new JsonParser();
+
+    public static JsonArray createJsonArrayFromArray(TextAnnotation[] annotations){
+        JsonConverter<TextAnnotation> converter = new JsonConverter<TextAnnotation>() {
+            @Override
+            public JsonElement convertToJson(TextAnnotation object) {
+                String jsonTextAnnotation = SerializationHelper.serializeToJson(object);
+                return parser.parse(jsonTextAnnotation);
+            }
+        };
+        return createJsonArrayFromArray(annotations, converter);
+    }
 
     public static JsonArray createJsonArrayFromArray(String[] array){
         JsonConverter<String> converter = new JsonConverter<String>(){
