@@ -1,22 +1,44 @@
 package controllers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import play.libs.ws.WSResponse;
 import play.mvc.*;
 import play.data.DynamicForm;
-
+import play.mvc.Result;
+import play.libs.F.*;
 import views.html.*;
-
 import java.util.*;
-
 import models.*;
-
-
 import controllers.evaluators.Evaluation;
-
 import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
+import play.libs.F.Function;
+import play.libs.F.Promise;
+import actors.MasterActor;
+import actors.Messages.*;
+import akka.actor.*;
+import akka.*;
+import play.mvc.Controller;
+import javax.inject.*;
 
+import static akka.pattern.Patterns.ask;
 
+@Singleton
 public class Application extends Controller {
+
+	final ActorRef masterActor;
+
+	/**
+	 * The master actor is created when the application starts.
+	 * 
+	 * @param system
+	 */
+	@Inject
+	public Application(ActorSystem system) {
+		masterActor = system.actorOf(MasterActor.props);
+	}
 
     private List<models.Configuration> getConfigurations() {
         FrontEndDBInterface f = new FrontEndDBInterface();
@@ -38,37 +60,23 @@ public class Application extends Controller {
     public Result addConfiguration() {
         AddConfigurationViewModel viewModel = new AddConfigurationViewModel();
 
-        List<String> datasets = new ArrayList<>();
-        datasets.add("dataset A");
-        datasets.add("dataset B");
-        datasets.add("dataset C");
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        
+        List<String> tasks = f.getTasks();
 
         Map<String, List<String>> task_variants = new HashMap<>();
-        Map<String, List<String>> evaluators = new HashMap<>();
-
-        for (int i = 65; i < 65+3; i++) {
-            List<String> task_variants_i = new ArrayList<>();
-
-            task_variants_i.add("SPAN_IDENTIFICATION");
-            task_variants_i.add("SPAN_TAGGING");
-            task_variants_i.add("PREDICATE_ARGUMENT_LABELING");
-            task_variants_i.add("SPAN_CLUSTERING");
-            task_variants_i.add("DEPENDENCY_PARSING");
-            task_variants_i.add("CONSTITUENCY_PARSING");
-            
-            task_variants.put("dataset "+(char) i, task_variants_i);
-
-            List<String> evaluator_i = new ArrayList<>();
-            evaluator_i.add("evaluator A" + (char) i);
-            evaluator_i.add("evaluator B" + (char) i);
-            evaluator_i.add("evaluator C" + (char) i);
-            for (int j = 65; j < 65+3; j++) 
-                evaluators.put("task_variant "+(char)i+(char)j, evaluator_i);
+        Map<String, List<String>> datasets = new HashMap<>();
+        
+        for (String task : tasks) {
+            List<String> task_variants_i = f.getTaskVariantsForTask(task);
+            List<String> datasets_i = f.getDatasetsForTask(task);
+            task_variants.put(task, task_variants_i);
+            datasets.put(task, datasets_i);
         }
 
+        viewModel.tasks = tasks;
         viewModel.datasets = datasets;
         viewModel.task_variants = task_variants;
-        viewModel.evaluators = evaluators;
 
         return ok(addConfiguration.render(viewModel));
     }
@@ -83,16 +91,15 @@ public class Application extends Controller {
     public Result submitConfiguration() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
         FrontEndDBInterface f = new FrontEndDBInterface(); 
-        
-        List<String> taskVariants = new ArrayList<>(); 
-        taskVariants.add("tskVar1"); 
-        taskVariants.add("tskVar2");
-        taskVariants.add("tskVar3");
+
+        String taskName = bindedForm.get("task");
+        String taskVariant = bindedForm.get("taskvariant");
+        String evaluator = f.getEvaluatorForTask(taskName);
         
         try {
             f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),
-                               bindedForm.get("description"), bindedForm.get("evaluator"),
-                               "Text Annotation", taskVariants); 
+                               bindedForm.get("description"), evaluator,
+                               taskName, taskVariant); 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -131,38 +138,62 @@ public class Application extends Controller {
         return ok(addRun.render(viewModel));
     }
 
-    public Result submitRun() {
-        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+	public Result submitRun() {
+		DynamicForm bindedForm = new DynamicForm().bindFromRequest();
 
-        String configuration_id = bindedForm.get("configuration_id");
+		String configuration_id = bindedForm.get("configuration_id");
 
-        String url = bindedForm.get("url");
-        String author = bindedForm.get("author"); 
-        String repo = bindedForm.get("repo");
-        String comment = bindedForm.get("comment"); 
-        
-        FrontEndDBInterface f = new FrontEndDBInterface();
-        String record_id = f.storeRunInfo(Integer.parseInt(configuration_id), url, author, repo, comment); 
-       
-        WSResponse response = Core.startJob(configuration_id, url, record_id);
-        if(response == null) {
-            AddRunViewModel viewModel = new AddRunViewModel();
-            viewModel.configuration_id = configuration_id;
-            viewModel.default_url = url;
-            viewModel.default_author = author;
-            viewModel.default_repo = repo;
-            viewModel.default_comment = comment;
-            viewModel.error_message = "Server at given address was not found";
+		String url = bindedForm.get("url");
+		String author = bindedForm.get("author");
+		String repo = bindedForm.get("repo");
+		String comment = bindedForm.get("comment");
 
-            return ok(addRun.render(viewModel));
-        }
-        else
-        if(response.getStatus()==500)
-            return internalServerError(response.getBody());
-        else
-            return redirect("/configuration?conf="+configuration_id);
-    }
+		FrontEndDBInterface f = new FrontEndDBInterface();
+		String record_id = f.storeRunInfo(Integer.parseInt(configuration_id), url, author, repo, comment);
 
+		// TODO: Test connection. Replace Core.startJob() with
+		// Core.testConnection();
+		if (Core.testConnection(url) == null) {
+			AddRunViewModel viewModel = new AddRunViewModel();
+			viewModel.configuration_id = configuration_id;
+			viewModel.default_url = url;
+			viewModel.default_author = author;
+			viewModel.default_repo = repo;
+			viewModel.default_comment = comment;
+			viewModel.error_message = "Server at given address was not found";
+
+			return ok(addRun.render(viewModel));
+		}
+
+		masterActor.tell(new SetUpJobMessage(configuration_id, url, record_id), masterActor);
+		WorkingViewModel viewModel = new WorkingViewModel();
+		viewModel.configuration_id = configuration_id;
+		viewModel.percent_complete = 0;
+		return ok(working.render(viewModel));
+	}
+
+	public Result progressBar(String configuration_id) {
+		WorkingViewModel viewModel = new WorkingViewModel();
+		viewModel.configuration_id = configuration_id;
+		viewModel.percent_complete = 0;
+		return ok(working.render(viewModel));
+	}
+
+	public Promise<Result> getCurrentProgress() {
+		return Promise.wrap(ask(masterActor, new StatusRequest("requesting status"), 60000))
+				.map(new Function<Object, Result>() {
+					public Result apply(Object response) {
+
+						if (response instanceof StatusUpdate) {
+							StatusUpdate update = ((StatusUpdate) response);
+							double comp = ((double)update.getCompleted()) / ((double)update.getTotal());
+							int percentComplete = (int)(comp * 100.0);
+							return ok(Integer.toString(percentComplete));
+						}
+						return ok(Integer.toString(0));
+					}
+				});
+	}
     public Result record(String record_id) {
         RecordViewModel viewModel = new RecordViewModel();
         FrontEndDBInterface f = new FrontEndDBInterface();
@@ -174,9 +205,10 @@ public class Application extends Controller {
 
     public Result deleteRecord() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+        String conf_id = bindedForm.get("configuration_id");
         FrontEndDBInterface f = new FrontEndDBInterface();
         f.deleteRecordFromRecordID(Integer.parseInt(bindedForm.get("record_id")));
-        return redirect("/");
+        return redirect("/configuration?conf="+conf_id);
     }
 
     public Result about() {

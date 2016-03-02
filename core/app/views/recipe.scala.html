@@ -16,7 +16,7 @@
 
         .line {
           fill: none;
-          stroke: gray;
+          /*stroke: gray;*/
           stroke-width: 1.5px;
         }
 
@@ -126,19 +126,39 @@
           @for(record <- viewModel.configuration.records) {
             {'sdate':'@record.date',"close":+@record.metrics.f1,'id':@record.record_id},
           }
-        ]
+        ];
 
         precision_data = [
           @for(record <- viewModel.configuration.records) {
             {'sdate':'@record.date',"close":+@record.metrics.precision,'id':@record.record_id},
           }
-        ]
+        ];
 
         recall_data = [
           @for(record <- viewModel.configuration.records) {
             {'sdate':'@record.date',"close":+@record.metrics.recall,'id':@record.record_id},
           }
-        ]
+        ];
+
+        var parseDate = d3.time.format("%Y-%m-%d %H:%M:%S.0").parse;
+
+        f1_data.forEach(function(d) {
+            d.disp = d.sdate;
+            d.date = parseDate(d.sdate);
+            d.close = +d.close;
+        });
+
+        precision_data.forEach(function(d) {
+            d.disp = d.sdate;
+            d.date = parseDate(d.sdate);
+            d.close = +d.close;
+        });
+
+        recall_data.forEach(function(d) {
+            d.disp = d.sdate;
+            d.date = parseDate(d.sdate);
+            d.close = +d.close;
+        });
 
         function drawGraph(color, data, text) {
           $("#graph").append("<div class='infobox' style='display:none;'></div>");
@@ -162,8 +182,6 @@
           var margin = {top: 20, right: 20, bottom: 30, left: 50},
               width = 960 - margin.left - margin.right,
               height = 500 - margin.top - margin.bottom;
-
-          var parseDate = d3.time.format("%Y-%m-%d %H:%M:%S.0").parse;
 
           var x = d3.time.scale()
               .range([0, width]);
@@ -189,12 +207,6 @@
               .attr("class", "svg_graph")
               .append("g")
               .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-          data.forEach(function(d) {
-            d.disp = d.sdate;
-            d.date = parseDate(d.sdate);
-            d.close = +d.close;
-          });
 
           function xx(e) { return x(e.date); };
           function yy(e) { return y(e.close); };
@@ -227,7 +239,7 @@
               .data(data)
               .enter().append("circle")
               .attr("fill", color)
-              .attr("r", 8)
+              .attr("r", 6)
               .attr("cx", xx)
               .attr("cy", yy)
               .on("mouseover", function(d) { showData(this, d.disp, d.close, d.id, text);})
@@ -235,8 +247,21 @@
               .on("click", click);
 
           svg.append("path")
-              .datum(data)
+              .datum(f1_data)
               .attr("class", "line")
+              .attr('stroke', 'steelblue')
+              .attr("d", line);
+
+          svg.append("path")
+              .datum(precision_data)
+              .attr("class", "line")
+              .attr('stroke', 'red')
+              .attr("d", line);
+
+          svg.append("path")
+              .datum(recall_data)
+              .attr("class", "line")
+              .attr('stroke', 'green')
               .attr("d", line);
         }
 
@@ -255,7 +280,6 @@
         <script type="text/javascript">
           function alter_graph(selected) {
             var s = document.getElementById('selector').children[selected].innerHTML;
-            console.log(s);
             if (s==='f1') {
               deleteGraph();
               drawGraph("steelblue", f1_data, "f1");

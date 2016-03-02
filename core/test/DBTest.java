@@ -53,9 +53,7 @@ public class DBTest {
             
             /*Inserting new configuration into database*/
             FrontEndDBInterface f = new FrontEndDBInterface();
-            List<String> taskVariants = new ArrayList<>();
-            taskVariants.add("testTskVar"); 
-            f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", taskVariants); 
+            f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", "testTskVar"); 
         
             /*Checking to see if new count in database is old count + 1*/
             sql = "SELECT COUNT(*) FROM configurations;";
@@ -162,9 +160,7 @@ public class DBTest {
             
             /*Inserting new configuration into database.*/
             FrontEndDBInterface f = new FrontEndDBInterface();
-            List<String> taskVariants = new ArrayList<>();
-            taskVariants.add("testTskVar"); 
-            f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", taskVariants); 
+            f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", "testTskVar"); 
             
             /*Figuring out the configuration_id of the configuration we just inserted.*/
             String sql = "SELECT MAX(id) FROM configurations;";
@@ -206,9 +202,7 @@ public class DBTest {
                 
             /*Inserting new configuration into database.*/
             FrontEndDBInterface f = new FrontEndDBInterface();
-            List<String> taskVariants = new ArrayList<>();
-            taskVariants.add("testTskVar"); 
-            f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", taskVariants); 
+            f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", "testTskVar"); 
             
             /*Figuring out the configuration_id of the configuration we just inserted.*/
             String sql = "SELECT MAX(id) FROM configurations;";
@@ -257,9 +251,7 @@ public class DBTest {
             
             /*Inserting new configuration into database.*/
             FrontEndDBInterface f = new FrontEndDBInterface();
-            List<String> taskVariants = new ArrayList<>();
-            taskVariants.add("testTskVar"); 
-            f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", taskVariants); 
+            f.insertConfigToDB("testDataset", "testTeamName", "testDescription", "testEvaluator", "testTaskType", "testTskVar"); 
             
             /*Figuring out the configuration_id of the configuration we just inserted.*/
             String sql = "SELECT MAX(id) FROM configurations;";
@@ -295,5 +287,37 @@ public class DBTest {
          if (e.getMessage().contains("The driver has not received any packets from the server.")) //In the case where we cannot connect to the DB. 
             return;
       }
+    }
+    
+    @Test
+    public void testGetDatasetsForTask() {
+        try {
+            DriverManager.setLoginTimeout(2);
+            Connection conn = DriverManager.getConnection(mysqlURL, username, password);
+            
+            String sql = "INSERT INTO tasks VALUES (myFakeTask);";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.executeUpdate();
+            
+            sql = "INSERT INTO datasets VALUES(myFakeDataset, myFakeTask);";
+            stmt = conn.prepareStatement(sql);
+            stmt.executeUpdate();
+            
+            FrontEndDBInterface f = new FrontEndDBInterface();
+            List<String> datasets = f.getDatasetsForTask("myFakeTask");
+            assertEquals(datasets.get(1), "myFakeDataset");
+            
+            /*Getting rid of inserted data.*/
+            sql = "DELETE FROM tasks WHERE name = myFakeTask;";
+            stmt = conn.prepareStatement(sql);
+            stmt.executeUpdate();
+            sql = "DELETE FROM datasets WHERE name = myFakeDataset;";
+            stmt = conn.prepareStatement(sql);
+            stmt.executeUpdate();
+            conn.close();
+        } catch (SQLException e) {
+            if (e.getMessage().contains("The driver has not received any packets from the server.")) //In the case where we cannot connect to the DB. 
+                return;
+        } 
     }
 }
