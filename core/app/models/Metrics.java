@@ -10,6 +10,7 @@ public class Metrics {
     public double precision;
     public double recall;
     public double f1;
+    public String averageSolveTime;
 
     public int gold_count;
     public int correct_count;
@@ -25,6 +26,7 @@ public class Metrics {
         double precision,
         double recall,
         double f1,
+        String averageSolveTime,
 
         int gold_count,
         int correct_count,
@@ -35,6 +37,7 @@ public class Metrics {
         this.precision = precision;
         this.recall = recall;
         this.f1 = f1;
+        this.averageSolveTime = averageSolveTime;
 
         this.gold_count = gold_count;
         this.correct_count = correct_count;

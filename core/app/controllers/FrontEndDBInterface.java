@@ -184,7 +184,8 @@ public class FrontEndDBInterface {
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet metricsRS = stmt.executeQuery();
             metricsRS.first();
-            models.Metrics metrics = new models.Metrics(metricsRS.getDouble(1), metricsRS.getDouble(2), metricsRS.getDouble(3), metricsRS.getInt(4), 
+            // Need to make average time right & reflected in db
+            models.Metrics metrics = new models.Metrics(metricsRS.getDouble(1), metricsRS.getDouble(2), metricsRS.getDouble(3), "average solve time", metricsRS.getInt(4), 
                 metricsRS.getInt(5), metricsRS.getInt(6), metricsRS.getInt(7), metricsRS.getInt(8));   
                 
             conn.close();
