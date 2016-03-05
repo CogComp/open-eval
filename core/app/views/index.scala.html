@@ -125,7 +125,12 @@
     &lt;<span class="pl-ent">groupId</span>&gt;edu.illinois.cs.cogcomp&lt;/<span class="pl-ent">groupId</span>&gt;
     &lt;<span class="pl-ent">artifactId</span>&gt;openeval-learner&lt;/<span class="pl-ent">artifactId</span>&gt;
     &lt;<span class="pl-ent">version</span>&gt;"version"&lt;/<span class="pl-ent">version</span>&gt;
-&lt;/<span class="pl-ent">dependency</span>&gt;</pre></div>
+&lt;/<span class="pl-ent">dependency</span>&gt;</pre></div> 
+                                    <p>Or run through sbt by</p>
+                                    <ul>
+                                      <li>Add the following resolver: <div class="highlight highlight-text-xml">"CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"</div></li>
+                                      <li>Add the following dependency: <div class="highlight highlight-text-xml">"edu.illinois.cs.cogcomp" % "openeval-learner" % "version"</div></li>
+                                    </ul>
                                   </li>
                                   <li>Run <a href="/serve.sh">serve.sh</a> or <a href="/serve.bet">serve.bat</a></li>
                                   <li>Click run to start the job</li>
