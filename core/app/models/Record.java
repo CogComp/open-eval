@@ -29,7 +29,7 @@ public class Record {
         this.record_id = record_id;
         this.metrics = metrics;
         this.configuration_id = configuration_id;
-        this.isRunning = true;
+        this.isRunning = false;
     }
 
     public Record(String record_id, String date, String comment, String repo,
@@ -43,6 +43,10 @@ public class Record {
     
     public Record() {
         
+    }
+
+    public void startRunning() {
+        this.isRunning = true;
     }
 
     public void stopRunning() {

@@ -48,25 +48,35 @@
           cursor: pointer;
           font-weight: bold;
          }
+
+         .running {
+          background-color: yellow;
+         }
       </style>
     </head>
     <body class="body">
         <script type="text/javascript">
           f1_data = [
             @for(record <- viewModel.configuration.records) {
-              {'sdate':'@record.date',"close":+@record.metrics.f1,'id':@record.record_id},
+              @if(!record.isRunning) {
+                {'sdate':'@record.date',"close":+@record.metrics.f1,'id':@record.record_id},
+              }
             }
           ];
 
           precision_data = [
             @for(record <- viewModel.configuration.records) {
-              {'sdate':'@record.date',"close":+@record.metrics.precision,'id':@record.record_id},
+              @if(!record.isRunning) {
+                {'sdate':'@record.date',"close":+@record.metrics.precision,'id':@record.record_id},
+              }
             }
           ];
 
           recall_data = [
             @for(record <- viewModel.configuration.records) {
-              {'sdate':'@record.date',"close":+@record.metrics.recall,'id':@record.record_id},
+              @if(!record.isRunning) {
+                {'sdate':'@record.date',"close":+@record.metrics.recall,'id':@record.record_id},
+              }
             }
           ];
 
@@ -223,7 +233,7 @@
           </thead>
           <tbody>
             @for(record <- viewModel.configuration.records) {
-              <tr>
+              <tr @if(record.isRunning) {class="running"} >
                 <td>
                   <a href="record?record_id=@record.record_id">
                     @record.record_id
