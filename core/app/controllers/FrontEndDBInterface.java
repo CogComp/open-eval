@@ -66,6 +66,7 @@ public class FrontEndDBInterface {
             Connection conn = getConnection();
             
             String sql = "SELECT teamName, description, datasetName, taskType, taskVariant, evaluator, id FROM configurations;";
+            // need to join on records to get one with most recent date
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet configList = stmt.executeQuery();
             
