@@ -5,6 +5,7 @@
 <html lang="en">
     <head>
       <script type="text/javascript" src="@routes.Assets.versioned("javascripts/sorttable.js")"></script>
+      <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))">
       <style type="text/css">
         table.sortable th:hover {
           cursor: pointer;
@@ -14,6 +15,9 @@
     </head>
     <body>
         <div class="body">
+            <ol class="breadcrumb">
+              <li><a href="/">Open Eval</a></li>
+            </ol>
             @header()
 
             @if(viewModel.configurations.length == 0) {
