@@ -160,8 +160,9 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection(); 
         
-            String sql = "SELECT record_id, date, comment, repo, author FROM records WHERE configuration_id = " + configuration_id + ";";
+            String sql = "SELECT record_id, date, comment, repo, author FROM records WHERE configuration_id = ? ORDER BY date DESC;";
             PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, configuration_id);
             ResultSet recordsRS = stmt.executeQuery();
             
             List<models.Record> records = new ArrayList<>();
