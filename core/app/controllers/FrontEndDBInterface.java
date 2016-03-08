@@ -347,6 +347,29 @@ public class FrontEndDBInterface {
         }
     }
     
+    /** TASK VARIANT DB FUNCTIONS. */
+    public List<String> getViewsForTaskVariant(String taskVariant) {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "SELECT view FROM views WHERE task_variant = ?;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet viewsRS = stmt.executeQuery();
+            
+            List<String> views = new ArrayList<>();
+            while (viewsRS.next()) {
+                views.add(viewsRS.getString(1));
+            }
+            
+            conn.close();
+            return views;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        
+        
+    }
+    
     
     /** Returns a connection to the Gargamel database.*/
     public Connection getConnection() {
