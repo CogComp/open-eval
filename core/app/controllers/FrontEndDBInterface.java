@@ -65,11 +65,13 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection();
             
-            String sql = "SELECT configurations.teamName, configurations.description, configurations.datasetName, configurations.taskType, " + 
-                            "configurations.taskVariant, configurations.evaluator, configurations.id" + 
-                            " FROM configurations INNER JOIN" + 
-                            " (SELECT configuration_id FROM records GROUP BY configuration_id ORDER BY date DESC) q1" + 
-                            " ON configurations.id = q1.configuration_id;";
+            String sql = "SELECT configurations.teamName, configurations.description, configurations.datasetName, " + 
+                            "configurations.taskType, configurations.taskVariant, configurations.evaluator, configurations.id" + 
+                            " FROM configurations INNER JOIN" +  
+                            " (SELECT configuration_id FROM" + 
+                            " (SELECT configuration_id, MAX(date) AS maxDate FROM records GROUP BY configuration_id) q1" + 
+                            " ORDER BY maxDate DESC) q2" +
+                            " ON configurations.id = q2.configuration_id;";
            
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet configList = stmt.executeQuery();
@@ -78,6 +80,7 @@ public class FrontEndDBInterface {
             
             while (configList.next()) {
                 models.Configuration config = new models.Configuration(configList.getString(1), configList.getString(2), configList.getString(3), configList.getString(4), configList.getString(5), configList.getString(6), Integer.toString(configList.getInt(7))); 
+                config.records = getRecordsFromConfID(configList.getInt(7));
                 configs.add(config);
             }
         
