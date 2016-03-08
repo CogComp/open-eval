@@ -6,6 +6,16 @@
 <html lang="en">
     <body>
         <div class="body">
+            <ol class="breadcrumb">
+              <li><a href="/">Open Eval</a></li>
+              <li><a href="/configuration?conf=@viewModel.record.configuration_id">
+                <!-- should change to get name from db -->
+                Configuration @viewModel.record.configuration_id
+              </a></li>
+              <li><a href="/record?record_id=@viewModel.record.record_id">
+                Record @viewModel.record.record_id
+              </a></li>
+            </ol>
             @header()
             <div class="table-responsive">
               <table class="table">
@@ -38,6 +48,14 @@
                     </td>
                     <td>
                       @viewModel.record.metrics.f1
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      Average Solve Time
+                    </td>
+                    <td>
+                      @viewModel.record.metrics.averageSolveTime
                     </td>
                   </tr>
                   <tr>
