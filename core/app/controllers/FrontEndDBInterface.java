@@ -65,8 +65,12 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection();
             
-            String sql = "SELECT teamName, description, datasetName, taskType, taskVariant, evaluator, id FROM configurations;";
-            // need to join on records to get one with most recent date
+            String sql = "SELECT configurations.teamName, configurations.description, configurations.datasetName, configurations.taskType, " + 
+                            "configurations.taskVariant, configurations.evaluator, configurations.id" + 
+                            " FROM configurations INNER JOIN" + 
+                            " (SELECT configuration_id FROM records GROUP BY configuration_id ORDER BY date DESC) q1" + 
+                            " ON configurations.id = q1.configuration_id;";
+           
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet configList = stmt.executeQuery();
             
