@@ -128,6 +128,7 @@ public class Application extends Controller {
     public Result addRun(String configuration_id) {
         AddRunViewModel viewModel = new AddRunViewModel();
 
+        // should also get name passed through here
         viewModel.configuration_id = configuration_id;
         viewModel.default_url = "";
         viewModel.default_author = "";
