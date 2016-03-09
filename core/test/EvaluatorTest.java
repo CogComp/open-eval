@@ -3,6 +3,7 @@ import edu.illinois.cs.cogcomp.annotation.AnnotatorException;
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
+import edu.illinois.cs.cogcomp.core.experiments.evaluators.ConstituentLabelingEvaluator;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.SpanLabelingEvaluator;
 import edu.illinois.cs.cogcomp.core.utilities.DummyTextAnnotationGenerator;
@@ -33,7 +34,7 @@ public class EvaluatorTest {
     public void basicTest(){
         TextAnnotation correctTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false);
         TextAnnotation incorrectTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false);
-        Evaluator evaluator = new SpanLabelingEvaluator();
+        Evaluator evaluator = new ConstituentLabelingEvaluator();
         ClassificationTester eval = new ClassificationTester();
         Core.evaluate(evaluator, eval, correctTextAnnotation, incorrectTextAnnotation);
         Assert.assertTrue(eval.getEvaluationRecord().getGoldCount()>= 1);
@@ -42,7 +43,7 @@ public class EvaluatorTest {
 
     @Test
     public void multiTest() {
-        Evaluator evaluator = new SpanLabelingEvaluator();
+        Evaluator evaluator = new ConstituentLabelingEvaluator();
         ClassificationTester eval = new ClassificationTester();
         for (int i = 0; i < 1000; i++) {
             TextAnnotation correctTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false);
