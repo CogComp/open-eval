@@ -3,6 +3,9 @@ package models;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 
 
@@ -28,20 +31,8 @@ public class LearnerInterface {
 		this.infoPoster = WS.url(url+"info");
 		this.instancePoster = WS.url(url+"instance");
 		System.out.println(this.infoPoster);
-		BufferedReader reader;
-		try {
-			reader = new BufferedReader(new FileReader("core/core.properties"));
-			String line;
-	    	while ((line = reader.readLine()) != null) {
-	    		String property = line.split("=")[0];
-	    		String value = line.split("=")[1];
-	    		switch (property) {
-	    			case "LEARNER_TIMEOUT": timeout = Integer.parseInt(value);
-	    		}
-	    	}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		Config conf = ConfigFactory.load();
+		timeout = conf.getInt("learner.default.timeout");
 	}
 
 	/**

@@ -1,7 +1,6 @@
 package controllers; 
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,7 +12,11 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
 import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
+import play.api.db.DB;
 
 /**
  * Class to store and retrieve configurations and history. 
@@ -28,30 +31,15 @@ public class FrontEndDBInterface {
     private String password;
     private Integer timeout;
    
+    Config conf = ConfigFactory.load();
+    
     public FrontEndDBInterface() {
-    	BufferedReader reader;
-		try {
-			reader = new BufferedReader(new FileReader("core/core.properties"));
-			String line;
-	    	while ((line = reader.readLine()) != null) {
-	    		String property = line.split("=")[0];
-	    		String value = line.split("=")[1];
-	    		switch (property) {
-	    			case "JDBC_DRIVER": jdbcDriver = value;
-	    				break;
-	    			case "MYSQL_URL": mysqlURL = value;
-	    				break;
-	    			case "DB_USERNAME": username = value;
-	    				break;
-	    			case "DB_PASSWORD": password = value;
-	    				break;
-	    			case "DB_TIMEOUT": timeout = Integer.parseInt(value);
-	    				break;
-	    		}
-	    	}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+    	
+    	jdbcDriver = conf.getString("db.default.driver");
+    	mysqlURL = conf.getString("db.default.url");
+    	username = conf.getString("db.default.username");
+    	password = conf.getString("db.default.password");
+    	timeout = conf.getInt("db.default.timeout");
     }
     /**----------------------CONFIGURATION DB FUNCTIONS----------------------------------*/    
     
