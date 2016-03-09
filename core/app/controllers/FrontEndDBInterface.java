@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.sql.Timestamp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,7 @@ public class FrontEndDBInterface {
             Connection conn = getConnection();
             
             /*Storing basic configuration info.*/
-            String sql = "INSERT INTO configurations VALUES (?, ?, ?, ?, ?, ?, ?);";
+            String sql = "INSERT INTO configurations(id, datasetName, teamName, description, evaluator, taskType, taskVariant) VALUES (?, ?, ?, ?, ?, ?, ?);";
             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setNull(1, Types.INTEGER); //Set null so MySQL can auto-increment the primary key (id).
             stmt.setString(2, datasetName);
@@ -52,6 +53,7 @@ public class FrontEndDBInterface {
             stmt.setString(5, evaluator);
             stmt.setString(6, taskType);
             stmt.setString(7, taskVariant);
+            //stmt.setTimestamp(8,  Timestamp.valueOf("0000-00-00 00:00:00"));
             stmt.executeUpdate();
             
             conn.close();
@@ -65,13 +67,7 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection();
             
-            String sql = "SELECT configurations.teamName, configurations.description, configurations.datasetName, " + 
-                            "configurations.taskType, configurations.taskVariant, configurations.evaluator, configurations.id" + 
-                            " FROM configurations INNER JOIN" +  
-                            " (SELECT configuration_id FROM" + 
-                            " (SELECT configuration_id, MAX(date) AS maxDate FROM records GROUP BY configuration_id) q1" + 
-                            " ORDER BY maxDate DESC) q2" +
-                            " ON configurations.id = q2.configuration_id;";
+            String sql = "SELECT teamName, description, datasetName, taskType, taskVariant, evaluator, id FROM configurations ORDER BY lastUpdated DESC;";
            
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet configList = stmt.executeQuery();
@@ -150,6 +146,19 @@ public class FrontEndDBInterface {
             ResultSet newID = stmt.getGeneratedKeys();
             newID.first();
             int record_id = newID.getInt(1);
+            
+            /*Updating configurations with time of last run.*/
+            sql = "SELECT date FROM records WHERE record_id = ?;";
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, record_id);
+            ResultSet newDateRS = stmt.executeQuery();
+            newDateRS.first();
+            String newDate = newDateRS.getTimestamp(1).toString();
+            sql = "UPDATE configurations SET lastUpdated = ? WHERE id = ?;";
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, newDate);
+            stmt.setInt(2, configuration_id);
+            stmt.executeUpdate();
             
             conn.close();
             return Integer.toString(record_id);
@@ -390,7 +399,7 @@ public class FrontEndDBInterface {
         }
         
         try { 
-            DriverManager.setLoginTimeout(2);
+            DriverManager.setLoginTimeout(5);
             Connection conn = DriverManager.getConnection(mysqlURL, username, password);
             return conn;
         } catch (SQLException e) {
