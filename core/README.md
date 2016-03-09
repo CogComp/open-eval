@@ -4,7 +4,7 @@ The `core` module of Open-Eval, when run, hosts an instance of the webapp.  It i
 
 # Database
 
-To deploy this application, you'll need to have an SQL database set up.  We've provided an SQL dump file (TODO: this) with the empty tables you'll need to get started.  In the core.properties file, you'll need to fill out the database URL, username, and password.
+To deploy this application, you'll need to have an SQL database set up.  We've provided an SQL script (TODO: this) that will set up the empty tables you'll need to get started.  In the `core.properties` file, you'll need to fill out the database URL, username, and password.
 
 # Overview of Components
 
@@ -29,7 +29,7 @@ To deploy this application, you'll need to have an SQL database set up.  We've p
  - In the [method](https://github.com/IllinoisCogComp/open-eval/blob/master/core/app/controllers/Core.java#L183) `Core.getEvaluator(Configuration runConfig)`, add your evaluator name to the switch statement.
  - Add *the same* evaluator name to the database
 
- # How to add your own datasets
+# How to add your own datasets
 
 **Placeholder**
  - put em in the database or somethin idk figure it out
