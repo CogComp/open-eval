@@ -219,7 +219,7 @@ public class DBTest {
             evalRecord.incrementGold(8);
             evalRecord.incrementPredicted(4);
             evalRecord.incrementCorrect(4);
-            f.insertEvaluationIntoDB(evalRecord, Integer.parseInt(record_id));
+            f.insertEvaluationIntoDB(evalRecord, Integer.parseInt(record_id), true);
             
             /*Testing to see if record was updated in database.*/
             sql = "SELECT gold_count FROM records WHERE record_id = " + record_id + ";";
@@ -267,7 +267,7 @@ public class DBTest {
             evalRecord.incrementGold(8);
             evalRecord.incrementPredicted(4);
             evalRecord.incrementCorrect(4);
-            f.insertEvaluationIntoDB(evalRecord, Integer.parseInt(record_id));
+            f.insertEvaluationIntoDB(evalRecord, Integer.parseInt(record_id), true);
             
             models.Record record = f.getRecordFromRecordID(Integer.parseInt(record_id));
             models.Metrics metrics = record.metrics;
