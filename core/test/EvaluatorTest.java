@@ -5,7 +5,6 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.ConstituentLabelingEvaluator;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
-import edu.illinois.cs.cogcomp.core.experiments.evaluators.SpanLabelingEvaluator;
 import edu.illinois.cs.cogcomp.core.utilities.DummyTextAnnotationGenerator;
 import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
 
