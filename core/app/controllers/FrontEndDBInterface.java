@@ -53,7 +53,6 @@ public class FrontEndDBInterface {
             stmt.setString(5, evaluator);
             stmt.setString(6, taskType);
             stmt.setString(7, taskVariant);
-            //stmt.setTimestamp(8,  Timestamp.valueOf("0000-00-00 00:00:00"));
             stmt.executeUpdate();
             
             conn.close();
