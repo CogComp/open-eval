@@ -132,13 +132,14 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection();
             
-            String sql = "INSERT INTO records (configuration_id, url, author, repo, comment) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO records (configuration_id, url, author, repo, comment, isRunning) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setInt(1, configuration_id);
             stmt.setString(2, url);
             stmt.setString(3, author);
             stmt.setString(4, repo);
             stmt.setString(5, comment);
+            stmt.setBoolean(6, true);
             stmt.executeUpdate(); 
             
             ResultSet newID = stmt.getGeneratedKeys();
@@ -170,7 +171,7 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection(); 
         
-            String sql = "SELECT record_id, date, comment, repo, author FROM records WHERE configuration_id = ? ORDER BY date DESC;";
+            String sql = "SELECT record_id, date, comment, repo, author, isRunning FROM records WHERE configuration_id = ? ORDER BY date DESC;";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, configuration_id);
             ResultSet recordsRS = stmt.executeQuery();
@@ -182,6 +183,7 @@ public class FrontEndDBInterface {
                 models.Metrics metrics = getMetricsFromRecordID(record_id);
                 models.Record record = new models.Record(Integer.toString(record_id), recordsRS.getTimestamp(2).toString(), recordsRS.getString(3), 
                     recordsRS.getString(4), recordsRS.getString(5), metrics); 
+                record.isRunning = recordsRS.getBoolean(6);
                 records.add(record);
             }
             
@@ -248,11 +250,10 @@ public class FrontEndDBInterface {
     
     /**--------------------EVALUTATION DB FUNCTIONS-------------------------------------*/
     
-    public void insertEvaluationIntoDB(EvaluationRecord evalRecord, int record_id) {
+    public void insertEvaluationIntoDB(EvaluationRecord evalRecord, int record_id, boolean isRunning) {
         try {
             Connection conn = getConnection();
-            
-            String sql = "UPDATE records SET f1=?, precision_score=?, recall=?, gold_count=?, correct_count=?, predicted_count=?, missed_count=?, extra_count=?";
+            String sql = "UPDATE records SET f1=?, precision_score=?, recall=?, gold_count=?, correct_count=?, predicted_count=?, missed_count=?, extra_count=?, isRunning=?";
             sql += " WHERE record_id = ?;";
      
             PreparedStatement stmt = conn.prepareStatement(sql);
@@ -265,7 +266,8 @@ public class FrontEndDBInterface {
             stmt.setInt(6, evalRecord.getPredictedCount());
             stmt.setInt(7, evalRecord.getMissedCount());
             stmt.setInt(8, evalRecord.getExtraCount());
-            stmt.setInt(9, record_id);
+            stmt.setBoolean(9, isRunning);
+            stmt.setInt(10, record_id);
             
             stmt.executeUpdate();
             conn.close();
