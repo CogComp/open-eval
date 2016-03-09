@@ -43,7 +43,7 @@ public class FrontEndDBInterface {
             Connection conn = getConnection();
             
             /*Storing basic configuration info.*/
-            String sql = "INSERT INTO configurations VALUES (?, ?, ?, ?, ?, ?, ?);";
+            String sql = "INSERT INTO configurations(id, datasetName, teamName, description, evaluator, taskType, taskVariant) VALUES (?, ?, ?, ?, ?, ?, ?);";
             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setNull(1, Types.INTEGER); //Set null so MySQL can auto-increment the primary key (id).
             stmt.setString(2, datasetName);
@@ -65,8 +65,8 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection();
             
-            String sql = "SELECT teamName, description, datasetName, taskType, taskVariant, evaluator, id FROM configurations;";
-            // need to join on records to get one with most recent date
+            String sql = "SELECT teamName, description, datasetName, taskType, taskVariant, evaluator, id FROM configurations ORDER BY lastUpdated DESC;";
+           
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet configList = stmt.executeQuery();
             
@@ -74,6 +74,7 @@ public class FrontEndDBInterface {
             
             while (configList.next()) {
                 models.Configuration config = new models.Configuration(configList.getString(1), configList.getString(2), configList.getString(3), configList.getString(4), configList.getString(5), configList.getString(6), Integer.toString(configList.getInt(7))); 
+                config.records = getRecordsFromConfID(configList.getInt(7));
                 configs.add(config);
             }
         
@@ -144,6 +145,19 @@ public class FrontEndDBInterface {
             newID.first();
             int record_id = newID.getInt(1);
             
+            /*Updating configurations with time of last run.*/
+            sql = "SELECT date FROM records WHERE record_id = ?;";
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, record_id);
+            ResultSet newDateRS = stmt.executeQuery();
+            newDateRS.first();
+            String newDate = newDateRS.getTimestamp(1).toString();
+            sql = "UPDATE configurations SET lastUpdated = ? WHERE id = ?;";
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, newDate);
+            stmt.setInt(2, configuration_id);
+            stmt.executeUpdate();
+            
             conn.close();
             return Integer.toString(record_id);
         } catch (Exception e) {
@@ -156,8 +170,9 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection(); 
         
-            String sql = "SELECT record_id, date, comment, repo, author FROM records WHERE configuration_id = " + configuration_id + ";";
+            String sql = "SELECT record_id, date, comment, repo, author FROM records WHERE configuration_id = ? ORDER BY date DESC;";
             PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, configuration_id);
             ResultSet recordsRS = stmt.executeQuery();
             
             List<models.Record> records = new ArrayList<>();
@@ -349,6 +364,29 @@ public class FrontEndDBInterface {
         }
     }
     
+    /** TASK VARIANT DB FUNCTIONS. */
+    public List<String> getViewsForTaskVariant(String taskVariant) {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "SELECT view FROM views WHERE task_variant = ?;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet viewsRS = stmt.executeQuery();
+            
+            List<String> views = new ArrayList<>();
+            while (viewsRS.next()) {
+                views.add(viewsRS.getString(1));
+            }
+            
+            conn.close();
+            return views;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        
+        
+    }
+    
     
     /** Returns a connection to the Gargamel database.*/
     public Connection getConnection() {
@@ -359,7 +397,7 @@ public class FrontEndDBInterface {
         }
         
         try { 
-            DriverManager.setLoginTimeout(2);
+            DriverManager.setLoginTimeout(5);
             Connection conn = DriverManager.getConnection(mysqlURL, username, password);
             return conn;
         } catch (SQLException e) {
