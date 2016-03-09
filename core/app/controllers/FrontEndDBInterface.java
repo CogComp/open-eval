@@ -1,7 +1,5 @@
 package controllers; 
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -16,7 +14,6 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
-import play.api.db.DB;
 
 /**
  * Class to store and retrieve configurations and history. 
