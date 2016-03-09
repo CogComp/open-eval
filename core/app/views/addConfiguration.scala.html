@@ -34,6 +34,12 @@
     </head>
     <body>
         <div class="body">
+            <ol class="breadcrumb">
+              <li><a href="/">Open Eval</a></li>
+              <li><a href="/addConfiguration">
+                Add Configuration
+              </a></li>
+            </ol>
             @header()
             <form action="submitConfiguration" method="post" id="usrform">
               <table class="table" style="width: 40%;">
@@ -98,7 +104,7 @@
                   </tr>
                 </tbody>
               </table>
-              <input type="submit">
+              <button class="btn btn-default">Create Configuration</button>
             </form>
         </div>
     </body>
