@@ -213,6 +213,6 @@ public class Core {
      */
     private static void storeEvaluationIntoDb(EvaluationRecord eval, String record_id) {
         FrontEndDBInterface f = new FrontEndDBInterface();
-        f.insertEvaluationIntoDB(eval, Integer.parseInt(record_id));
+        f.insertEvaluationIntoDB(eval, Integer.parseInt(record_id), true); //Need to change this so it doesn't just always send true. 
     }
 }

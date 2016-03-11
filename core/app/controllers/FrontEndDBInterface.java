@@ -43,7 +43,7 @@ public class FrontEndDBInterface {
             Connection conn = getConnection();
             
             /*Storing basic configuration info.*/
-            String sql = "INSERT INTO configurations VALUES (?, ?, ?, ?, ?, ?, ?);";
+            String sql = "INSERT INTO configurations(id, datasetName, teamName, description, evaluator, taskType, taskVariant) VALUES (?, ?, ?, ?, ?, ?, ?);";
             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setNull(1, Types.INTEGER); //Set null so MySQL can auto-increment the primary key (id).
             stmt.setString(2, datasetName);
@@ -65,7 +65,8 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection();
             
-            String sql = "SELECT teamName, description, datasetName, taskType, taskVariant, evaluator, id FROM configurations;";
+            String sql = "SELECT teamName, description, datasetName, taskType, taskVariant, evaluator, id FROM configurations ORDER BY lastUpdated DESC;";
+           
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet configList = stmt.executeQuery();
             
@@ -73,6 +74,7 @@ public class FrontEndDBInterface {
             
             while (configList.next()) {
                 models.Configuration config = new models.Configuration(configList.getString(1), configList.getString(2), configList.getString(3), configList.getString(4), configList.getString(5), configList.getString(6), Integer.toString(configList.getInt(7))); 
+                config.records = getRecordsFromConfID(configList.getInt(7));
                 configs.add(config);
             }
         
@@ -130,18 +132,32 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection();
             
-            String sql = "INSERT INTO records (configuration_id, url, author, repo, comment) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO records (configuration_id, url, author, repo, comment, isRunning) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setInt(1, configuration_id);
             stmt.setString(2, url);
             stmt.setString(3, author);
             stmt.setString(4, repo);
             stmt.setString(5, comment);
+            stmt.setBoolean(6, true);
             stmt.executeUpdate(); 
             
             ResultSet newID = stmt.getGeneratedKeys();
             newID.first();
             int record_id = newID.getInt(1);
+            
+            /*Updating configurations with time of last run.*/
+            sql = "SELECT date FROM records WHERE record_id = ?;";
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, record_id);
+            ResultSet newDateRS = stmt.executeQuery();
+            newDateRS.first();
+            String newDate = newDateRS.getTimestamp(1).toString();
+            sql = "UPDATE configurations SET lastUpdated = ? WHERE id = ?;";
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, newDate);
+            stmt.setInt(2, configuration_id);
+            stmt.executeUpdate();
             
             conn.close();
             return Integer.toString(record_id);
@@ -155,8 +171,9 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection(); 
         
-            String sql = "SELECT record_id, date, comment, repo, author FROM records WHERE configuration_id = " + configuration_id + ";";
+            String sql = "SELECT record_id, date, comment, repo, author, isRunning FROM records WHERE configuration_id = ? ORDER BY date DESC;";
             PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, configuration_id);
             ResultSet recordsRS = stmt.executeQuery();
             
             List<models.Record> records = new ArrayList<>();
@@ -166,6 +183,7 @@ public class FrontEndDBInterface {
                 models.Metrics metrics = getMetricsFromRecordID(record_id);
                 models.Record record = new models.Record(Integer.toString(record_id), recordsRS.getTimestamp(2).toString(), recordsRS.getString(3), 
                     recordsRS.getString(4), recordsRS.getString(5), metrics); 
+                record.isRunning = recordsRS.getBoolean(6);
                 records.add(record);
             }
             
@@ -184,7 +202,8 @@ public class FrontEndDBInterface {
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet metricsRS = stmt.executeQuery();
             metricsRS.first();
-            models.Metrics metrics = new models.Metrics(metricsRS.getDouble(1), metricsRS.getDouble(2), metricsRS.getDouble(3), metricsRS.getInt(4), 
+            // Need to make average time right & reflected in db
+            models.Metrics metrics = new models.Metrics(metricsRS.getDouble(1), metricsRS.getDouble(2), metricsRS.getDouble(3), "average solve time", metricsRS.getInt(4), 
                 metricsRS.getInt(5), metricsRS.getInt(6), metricsRS.getInt(7), metricsRS.getInt(8));   
                 
             conn.close();
@@ -231,11 +250,10 @@ public class FrontEndDBInterface {
     
     /**--------------------EVALUTATION DB FUNCTIONS-------------------------------------*/
     
-    public void insertEvaluationIntoDB(EvaluationRecord evalRecord, int record_id) {
+    public void insertEvaluationIntoDB(EvaluationRecord evalRecord, int record_id, boolean isRunning) {
         try {
             Connection conn = getConnection();
-            
-            String sql = "UPDATE records SET f1=?, precision_score=?, recall=?, gold_count=?, correct_count=?, predicted_count=?, missed_count=?, extra_count=?";
+            String sql = "UPDATE records SET f1=?, precision_score=?, recall=?, gold_count=?, correct_count=?, predicted_count=?, missed_count=?, extra_count=?, isRunning=?";
             sql += " WHERE record_id = ?;";
      
             PreparedStatement stmt = conn.prepareStatement(sql);
@@ -248,7 +266,8 @@ public class FrontEndDBInterface {
             stmt.setInt(6, evalRecord.getPredictedCount());
             stmt.setInt(7, evalRecord.getMissedCount());
             stmt.setInt(8, evalRecord.getExtraCount());
-            stmt.setInt(9, record_id);
+            stmt.setBoolean(9, isRunning);
+            stmt.setInt(10, record_id);
             
             stmt.executeUpdate();
             conn.close();
@@ -347,6 +366,29 @@ public class FrontEndDBInterface {
         }
     }
     
+    /** TASK VARIANT DB FUNCTIONS. */
+    public List<String> getViewsForTaskVariant(String taskVariant) {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "SELECT view FROM views WHERE task_variant = ?;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet viewsRS = stmt.executeQuery();
+            
+            List<String> views = new ArrayList<>();
+            while (viewsRS.next()) {
+                views.add(viewsRS.getString(1));
+            }
+            
+            conn.close();
+            return views;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        
+        
+    }
+    
     
     /** Returns a connection to the Gargamel database.*/
     public Connection getConnection() {
@@ -357,7 +399,7 @@ public class FrontEndDBInterface {
         }
         
         try { 
-            DriverManager.setLoginTimeout(2);
+            DriverManager.setLoginTimeout(5);
             Connection conn = DriverManager.getConnection(mysqlURL, username, password);
             return conn;
         } catch (SQLException e) {
