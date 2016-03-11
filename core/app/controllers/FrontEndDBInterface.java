@@ -28,10 +28,11 @@ public class FrontEndDBInterface {
     private String password;
     private Integer timeout;
    
-    Config conf = ConfigFactory.load();
+    Config conf;
     
     public FrontEndDBInterface() {
     	
+    	conf = ConfigFactory.load();
     	jdbcDriver = conf.getString("db.default.driver");
     	mysqlURL = conf.getString("db.default.url");
     	username = conf.getString("db.default.username");
