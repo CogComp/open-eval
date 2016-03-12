@@ -33,9 +33,9 @@ public class CoreTest {
         String url = "fakeurl:9000";
         String conf_id = "1";
         String record_id = "1";
-        WSResponse status = null;
+        String status = null;
         try {
-            status = Core.startJob(conf_id, url, record_id);
+            status = Core.testConnection(url);
         } catch (Exception e) {
             if (e.getMessage().contains("The driver has not received any packets from the server.")) //In the case where we cannot connect to the DB. 
                 return;

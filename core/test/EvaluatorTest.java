@@ -2,6 +2,9 @@ import controllers.Core;
 import edu.illinois.cs.cogcomp.annotation.AnnotatorException;
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
+import edu.illinois.cs.cogcomp.core.experiments.evaluators.ConstituentLabelingEvaluator;
+import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
 import edu.illinois.cs.cogcomp.core.utilities.DummyTextAnnotationGenerator;
 import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
 
@@ -28,34 +31,25 @@ public class EvaluatorTest {
     }
     @Test
     public void basicTest(){
-        List<TextAnnotation> correct = new ArrayList<>();
-        List<TextAnnotation> guessed = new ArrayList<>();
-        List<Boolean> skip = new ArrayList<>();
         TextAnnotation correctTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false);
         TextAnnotation incorrectTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false);
-        correct.add(correctTextAnnotation);
-        guessed.add(incorrectTextAnnotation);
-        skip.add(false);
-        Configuration config = new Configuration("testName", "testDescrip", "testDataset", "testTaskType", "testTskVar", "Constituent Labeling", "1");
-        EvaluationRecord record = Core.evaluate(config, correct, guessed, skip);
-        Assert.assertTrue(record.getGoldCount()>= 1);
-        Assert.assertTrue(record.getPredictedCount()>= 1);
+        Evaluator evaluator = new ConstituentLabelingEvaluator();
+        ClassificationTester eval = new ClassificationTester();
+        Core.evaluate(evaluator, eval, correctTextAnnotation, incorrectTextAnnotation);
+        Assert.assertTrue(eval.getEvaluationRecord().getGoldCount()>= 1);
+        Assert.assertTrue(eval.getEvaluationRecord().getPredictedCount()>= 1);
     }
 
     @Test
     public void multiTest() {
-        List<TextAnnotation> correct = new ArrayList<>();
-        List<TextAnnotation> guessed = new ArrayList<>();
-        List<Boolean> skip = new ArrayList<>();
+        Evaluator evaluator = new ConstituentLabelingEvaluator();
+        ClassificationTester eval = new ClassificationTester();
         for (int i = 0; i < 1000; i++) {
             TextAnnotation correctTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false);
             TextAnnotation incorrectTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false);
-            correct.add(correctTextAnnotation);
-            guessed.add(incorrectTextAnnotation);
-            skip.add(false);
+            Core.evaluate(evaluator, eval, correctTextAnnotation, incorrectTextAnnotation);
         }
-        Configuration config = new Configuration("testName", "testDescrip", "testDataset", "testTaskType", "testTskVar", "Constituent Labeling", "1");
-        EvaluationRecord record = Core.evaluate(config, correct, guessed, skip);
+        EvaluationRecord record = eval.getEvaluationRecord();
         Assert.assertTrue(record.getGoldCount()>=1000);
         Assert.assertTrue(record.getPredictedCount()>=1000);
         Assert.assertTrue(record.getCorrectCount()<=record.getPredictedCount() && record.getCorrectCount()>=0);
