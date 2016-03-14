@@ -16,9 +16,9 @@
             @header()
             <h5><center><i><div id="database"></div></i></center></h5>
 
-			<div class="progress" id="progressouter">
-   				<div class="progress-bar" id="progress"></div>
-			</div>
+            <div class="progress" id="progressouter">
+                <div class="progress-bar" id="progress"></div>
+            </div>
             <div>
                <table style='display:inline-block'>
                     <tr>
@@ -46,20 +46,20 @@
                 </table>
             </div>
 
-			<script src="http://code.jquery.com/jquery.js"></script>
-    		<script type="text/javascript">
-    			$(document).ready(function(){
-					  var progresspump = setInterval(function(){
-					    // Query the completion percentage from the server.
-					    $.get("/working/prog", function(data){
-					      // Extract JSON data.
+            <script src="http://code.jquery.com/jquery.js"></script>
+            <script type="text/javascript">
+                $(document).ready(function(){
+                        var progresspump = setInterval(function(){
+                        // Query the completion percentage from the server.
+                        $.get("/working/prog", function(data){
+                          // Extract JSON data.
                           var progress_info = data;
                           var percent = progress_info.percent_complete;
                           var completed = progress_info.completed;
                           var skipped = progress_info.skipped;
                           var total = progress_info.total;
-					      $("#progress").css('width',percent+'%');
-					      $("#progress").html(percent+'%');
+                          $("#progress").css('width',percent+'%');
+                          $("#progress").html(percent+'%');
                           // If no Text Annotations have been completed, notify the user that the instances are
                           // being pulled from the database.
                           if (completed == 0) {
@@ -71,13 +71,13 @@
                           $("#total").html(total);
                           $("#skipped").html(skipped);
 					      /* go to evaluation page. */
-					      if(percent > 99) {
-							window.location = "/configuration?conf=" + @viewModel.conf_id;
-							clearInterval(progresspump);
-					      }
-					    })
-					  }, 1000);});
-    		</script>
+                          if(percent > 99) {
+                           window.location = "/configuration?conf=" + @viewModel.conf_id;
+                           clearInterval(progresspump);
+                          }
+                        })
+                      }, 1000);});
+    	   </script>
         </div>
     </body>
 </html>
