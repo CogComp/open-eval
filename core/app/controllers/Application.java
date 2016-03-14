@@ -8,6 +8,7 @@ import play.libs.ws.WSResponse;
 import play.mvc.*;
 import play.data.DynamicForm;
 import play.mvc.Result;
+import play.libs.Json;
 import play.libs.F.*;
 import views.html.*;
 import java.util.*;
@@ -22,6 +23,8 @@ import akka.actor.*;
 import akka.*;
 import play.mvc.Controller;
 import javax.inject.*;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import static akka.pattern.Patterns.ask;
 
@@ -184,14 +187,23 @@ public class Application extends Controller {
 		return Promise.wrap(ask(masterActor, new StatusRequest("requesting status"), 60000))
 				.map(new Function<Object, Result>() {
 					public Result apply(Object response) {
-
+						ObjectNode result = Json.newObject();
 						if (response instanceof StatusUpdate) {
 							StatusUpdate update = ((StatusUpdate) response);
 							double comp = ((double)update.getCompleted()) / ((double)update.getTotal());
 							int percentComplete = (int)(comp * 100.0);
-							return ok(Integer.toString(percentComplete));
+							System.out.println("Percent Complete: " + Integer.toString(percentComplete));
+							result.put("percent_complete", Integer.toString(percentComplete));
+							result.put("completed", Integer.toString(update.getCompleted()));
+							result.put("skipped", Integer.toString(update.getSkipped()));
+							result.put("total", Integer.toString(update.getTotal()));
+							return ok(result);
 						}
-						return ok(Integer.toString(0));
+						result.put("percent_complete", "0");
+						result.put("completed", "0");
+						result.put("skipped", "0");
+						result.put("total", "0");
+						return ok(result);
 					}
 				});
 	}

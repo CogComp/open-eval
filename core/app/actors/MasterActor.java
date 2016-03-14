@@ -13,7 +13,7 @@ public class MasterActor extends UntypedActor {
 
 	int completed = 0;
 	int skipped = 0;
-	int total = 1;
+	int total = 0;
 	String conf_id;
 	String record_id;
 
