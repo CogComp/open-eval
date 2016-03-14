@@ -12,6 +12,8 @@ import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 import models.Job;
 import controllers.Core;
+import models.LearnerInstancesResponse;
+import models.LearnerSettings;
 import play.libs.F;
 import play.libs.F.Promise;
 import play.libs.ws.WSResponse;
@@ -41,6 +43,7 @@ public class JobProcessingActor extends UntypedActor {
             this.conf_id = jobInfo.getConf_id();
             this.record_id = jobInfo.getRecord_id();
             this.url = jobInfo.getUrl();
+            LearnerSettings learnerSettings = jobInfo.getLearnerSettings();
             Job job = Core.setUpJob(conf_id, url, record_id);
             Evaluator evaluator = Core.getEvaluator(conf_id);
             ClassificationTester eval = new ClassificationTester();
@@ -53,32 +56,24 @@ public class JobProcessingActor extends UntypedActor {
             System.out.println("Created Job Processor Worker");
             System.out.println("Sending and recieving annotations:");
             try {
-                for (int i = 0; i < unprocessedInstances.size(); i++) {
-                    Promise<WSResponse> response = job.sendAndReceiveRequestsFromSolver(unprocessedInstances.get(i));
-                    TextAnnotation goldInstance = goldInstances.get(i);
-                    response.onRedeem(new F.Callback<WSResponse>() {
-                        @Override
-                        public void invoke(WSResponse wsResponse) throws Throwable {
-                            TextAnnotation predictedInstance;
-                            try {
-                                String resultJson = wsResponse.getBody();
-                                predictedInstance = SerializationHelper.deserializeFromJson(resultJson);
-                            } catch (Exception e) {
-                                System.out.println(e);
-                                skipped++;
-                                completed++;
-                                getSender().tell(new StatusUpdate(completed, skipped, total), getSelf());
-                                return;
-                            }
-                            Core.evaluate(evaluator, eval, goldInstance, predictedInstance);
-                            completed++;
-                            master.tell(new StatusUpdate(completed, skipped, total), getSelf());
+                int maxBatchSize = learnerSettings.maxNumInstancesAccepted;
+                for (int startIndex = 0; startIndex < unprocessedInstances.size(); startIndex+=maxBatchSize) {
+                    int batchSize = Math.min(maxBatchSize, unprocessedInstances.size() - startIndex);
+                    TextAnnotation[] batch = makeBatch(unprocessedInstances, startIndex, batchSize);
+                    LearnerInstancesResponse response = job.sendAndReceiveRequestsFromSolver(batch);
 
-                            System.out.println("Completed(worker):" + completed);
-                            Core.storeResultsOfRunInDatabase(eval, record_id);
+                    for(int batchIndex = 0;batchIndex<batchSize;batchIndex++){
+                        if (response.textAnnotations[batchIndex] != null){
+                            TextAnnotation goldInstance = goldInstances.get(startIndex + batchIndex);
+                            Core.evaluate(evaluator, eval, goldInstance, response.textAnnotations[batchIndex]);
+                        } else {
+                            skipped++;
                         }
-                    });
-                    response.get(5000);
+                        completed++;
+                        Core.storeResultsOfRunInDatabase(eval, record_id);
+                    }
+                    master.tell(new StatusUpdate(completed, skipped, total), getSelf());
+                    System.out.println(String.format("Completed batch of size %s, starting at %s", batchSize, startIndex));
                 }
             } catch (Exception ex) {
                 System.out.println("Error sending and receiving text annotations");
@@ -86,6 +81,14 @@ public class JobProcessingActor extends UntypedActor {
             System.out.println("Done");
         } else
             unhandled(message);
+    }
+
+    private TextAnnotation[] makeBatch(List<TextAnnotation> unprocessedInstances, int startIndex, int batchSize){
+        TextAnnotation[] batch = new TextAnnotation[batchSize];
+        for (int i=0;i<batchSize;i++){
+            batch[i] = unprocessedInstances.get(startIndex + i);
+        }
+        return batch;
     }
 
 }
