@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -106,8 +109,8 @@ public class LearnerInterface {
 			int maxInstancesToSend = response.get("maxNumInstancesAccepted").asInt();
 			JsonNode requiredViewsJson = response.get("requiredViews");
 			ObjectMapper mapper = new ObjectMapper();
-			String[] requiredViews = mapper.readValue(requiredViewsJson.toString(), String[].class);
-			settings = new LearnerSettings(addedView, requiredViews, maxInstancesToSend);
+			String[] viewArray = mapper.readValue(requiredViewsJson.toString(), String[].class);
+			settings = new LearnerSettings(addedView, Arrays.asList(viewArray), maxInstancesToSend);
 		}
 		catch(Exception e){
 			settings = null;

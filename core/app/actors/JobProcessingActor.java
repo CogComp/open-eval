@@ -54,7 +54,7 @@ public class JobProcessingActor extends UntypedActor {
             System.out.println("Sending and recieving annotations:");
             try {
                 for (int i = 0; i < unprocessedInstances.size(); i++) {
-                    Promise<WSResponse> response = job.sendAndReceiveRequestFromSolver(unprocessedInstances.get(i));
+                    Promise<WSResponse> response = job.sendAndReceiveRequestsFromSolver(unprocessedInstances.get(i));
                     TextAnnotation goldInstance = goldInstances.get(i);
                     response.onRedeem(new F.Callback<WSResponse>() {
                         @Override

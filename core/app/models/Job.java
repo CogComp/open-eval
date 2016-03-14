@@ -43,9 +43,8 @@ public class Job {
 		skip = new ArrayList<>();
 	}
 
-	public Promise<WSResponse> sendAndReceiveRequestFromSolver(TextAnnotation ta) {
-		Promise<WSResponse> response = learnerInterface.processRequest(ta);
-		return response;
+	public LearnerInstancesResponse sendAndReceiveRequestsFromSolver(TextAnnotation[] tas) {
+		return learnerInterface.processRequests(tas);
 	}
 
 

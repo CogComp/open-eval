@@ -1,6 +1,7 @@
 package actors;
 
 import models.Job;
+import models.LearnerSettings;
 
 public class Messages {
 
@@ -8,12 +9,14 @@ public class Messages {
 		private String conf_id;
 		private String url;
 		private String record_id;
+		private LearnerSettings learnerSettings;
 
-		public SetUpJobMessage(String conf_id, String url, String record_id) {
+		public SetUpJobMessage(String conf_id, String url, String record_id, LearnerSettings learnerSettings) {
 			super();
 			this.conf_id = conf_id;
 			this.url = url;
 			this.record_id = record_id;
+			this.learnerSettings = learnerSettings;
 		}
 
 		public String getConf_id() {
@@ -27,6 +30,8 @@ public class Messages {
 		public String getRecord_id() {
 			return record_id;
 		}
+
+		public LearnerSettings getLearnerSettings() { return learnerSettings; }
 	}
 
 	public static class StartJobMessage {
