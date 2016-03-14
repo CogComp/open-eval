@@ -185,27 +185,27 @@ public class Application extends Controller {
 
 	public Promise<Result> getCurrentProgress() {
 		return Promise.wrap(ask(masterActor, new StatusRequest("requesting status"), 60000))
-				.map(new Function<Object, Result>() {
-					public Result apply(Object response) {
-						ObjectNode result = Json.newObject();
-						if (response instanceof StatusUpdate) {
-							StatusUpdate update = ((StatusUpdate) response);
-							double comp = ((double)update.getCompleted()) / ((double)update.getTotal());
-							int percentComplete = (int)(comp * 100.0);
-							System.out.println("Percent Complete: " + Integer.toString(percentComplete));
-							result.put("percent_complete", Integer.toString(percentComplete));
-							result.put("completed", Integer.toString(update.getCompleted()));
-							result.put("skipped", Integer.toString(update.getSkipped()));
-							result.put("total", Integer.toString(update.getTotal()));
+			.map(new Function<Object, Result>() {
+			    public Result apply(Object response) {
+			    	ObjectNode result = Json.newObject();
+			        if (response instanceof StatusUpdate) {
+			        	StatusUpdate update = ((StatusUpdate) response);
+			        	double comp = ((double)update.getCompleted()) / ((double)update.getTotal());
+			        	int percentComplete = (int)(comp * 100.0);
+			        	System.out.println("Percent Complete: " + Integer.toString(percentComplete));
+						result.put("percent_complete", Integer.toString(percentComplete));
+						result.put("completed", Integer.toString(update.getCompleted()));
+						result.put("skipped", Integer.toString(update.getSkipped()));
+						result.put("total", Integer.toString(update.getTotal()));
 							return ok(result);
-						}
-						result.put("percent_complete", "0");
-						result.put("completed", "0");
-						result.put("skipped", "0");
-						result.put("total", "0");
-						return ok(result);
-					}
-				});
+					}	
+					result.put("percent_complete", "0");
+					result.put("completed", "0");
+					result.put("skipped", "0");
+					result.put("total", "0");
+					return ok(result);	
+				}	
+			});		
 	}
     public Result record(String record_id) {
         RecordViewModel viewModel = new RecordViewModel();
