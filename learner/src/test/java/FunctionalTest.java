@@ -1,3 +1,4 @@
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import edu.illinois.cs.cogcomp.annotation.Annotator;
@@ -21,6 +22,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class FunctionalTest
 {
@@ -56,9 +58,8 @@ public class FunctionalTest
     {
         String[] viewsToAdd = {ViewNames.POS};
         TextAnnotation goldTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false);
-        View goldPosView = goldTextAnnotation.getView(ViewNames.POS);
         goldTextAnnotation.removeView(ViewNames.POS);
-        String json = SerializationHelper.serializeToJson(goldTextAnnotation);
+        String json = RequestResponseBuilder.getMultipleAnnotationRequestBody();
 
         System.out.println("Request: " + json);
 
@@ -70,13 +71,12 @@ public class FunctionalTest
 
         System.out.println("Response: " + responseBody);
 
+        JsonArray jsonArray = new JsonParser().parse(responseBody).getAsJsonArray();
+        JsonObject instance = jsonArray.get(0).getAsJsonObject().get("textAnnotation").getAsJsonObject();
+        String instanceString = instance.toString();
+        TextAnnotation learnerResult = SerializationHelper.deserializeFromJson(instanceString);
 
-        TextAnnotation learnerResult = SerializationHelper.deserializeFromJson(responseBody);
-        goldTextAnnotation.addView(ViewNames.POS,goldPosView);
-
-        System.out.println("Solution: " + SerializationHelper.serializeToJson(goldTextAnnotation));
-
-        assertEquals(goldTextAnnotation,learnerResult);
+        assertTrue(learnerResult.hasView(ViewNames.POS));
         assertEquals(200,response.getStatusLine().getStatusCode());
     }
 

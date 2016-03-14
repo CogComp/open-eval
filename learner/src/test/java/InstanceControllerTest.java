@@ -25,20 +25,12 @@ import static org.mockito.Mockito.*;
 
 public class InstanceControllerTest
 {
-
-    private JsonParser parser;
-
-    @Before
-    public void setup(){
-        parser = new JsonParser();
-    }
-
     @Test
     public void testPost() throws Exception
     {
         TestCase testCase = new TestCase();
-        NanoHTTPD.Response response = testCase.execute(getMultipleAnnotationRequestBody());
-        JsonArray instances = getInstancesFromJson(response);
+        NanoHTTPD.Response response = testCase.execute(RequestResponseBuilder.getMultipleAnnotationRequestBody());
+        JsonArray instances = RequestResponseBuilder.getInstancesFromJson(response);
 
         assertEquals(2, instances.size());
 
@@ -54,8 +46,8 @@ public class InstanceControllerTest
     {
         TestCase testCase = new TestCase();
         doThrow(new AnnotatorException("")).when(testCase.annotator).addView(any());
-        NanoHTTPD.Response response = testCase.execute(getMultipleAnnotationRequestBody());
-        JsonArray instances = getInstancesFromJson(response);
+        NanoHTTPD.Response response = testCase.execute(RequestResponseBuilder.getMultipleAnnotationRequestBody());
+        JsonArray instances = RequestResponseBuilder.getInstancesFromJson(response);
 
         assertEquals(2, instances.size());
 
@@ -109,13 +101,7 @@ public class InstanceControllerTest
         assertTrue(body.startsWith("Error reading request"));
     }
 
-    private TextAnnotation getBasicTextAnnotation()
-    {
-        String[] sentences = {"The dog runs"};
-        ArrayList<String[]> list = new ArrayList<String[]>();
-        list.add(sentences);
-        return BasicTextAnnotationBuilder.createTextAnnotationFromTokens(list);
-    }
+
 
     private static NanoHTTPD.IHTTPSession mockPostData(String body) throws IOException, NanoHTTPD.ResponseException
     {
@@ -132,21 +118,6 @@ public class InstanceControllerTest
             }
         }).when(session).parseBody(anyMap());
         return session;
-    }
-
-    private String getMultipleAnnotationRequestBody(){
-        TextAnnotation[] textAnnotations = new TextAnnotation[] {getBasicTextAnnotation(), getBasicTextAnnotation()};
-        JsonArray jAnnotations = JsonTools.createJsonArrayFromArray(textAnnotations);
-        JsonObject request = new JsonObject();
-        request.add("instances", jAnnotations);
-
-        return request.toString();
-    }
-
-    private JsonArray getInstancesFromJson(NanoHTTPD.Response response) throws IOException {
-        String responseBody = IOUtils.toString(response.getData());
-        JsonObject result = parser.parse(responseBody).getAsJsonObject();
-        return result.get("instances").getAsJsonArray();
     }
 
     private class TestCase {

@@ -15,8 +15,6 @@ import java.util.Map;
 
 public class InstanceController implements RouterNanoHTTPD.UriResponder
 {
-    public static final String INSTANCES_KEY = "instances";
-
     @Override
     public Response post(RouterNanoHTTPD.UriResource uriResource, Map<String, String> map, NanoHTTPD.IHTTPSession session)
     {
@@ -26,8 +24,7 @@ public class InstanceController implements RouterNanoHTTPD.UriResponder
 
         try{
             String body = readBody(session);
-            JsonObject jsonObject = parser.parse(body).getAsJsonObject();
-            jInstances = jsonObject.get(INSTANCES_KEY).getAsJsonArray();
+            jInstances = parser.parse(body).getAsJsonArray();
         } catch (Exception ex){
             return ResponseGenerator.generateResponse(String.format("Error reading request: %s", ex.toString()), Response.Status.BAD_REQUEST);
         }
@@ -39,10 +36,8 @@ public class InstanceController implements RouterNanoHTTPD.UriResponder
         annotateInstances(annotator, textAnnotations, errors);
 
         JsonArray newJInstances = serializeInstances(parser, textAnnotations, errors);
-        JsonObject result = new JsonObject();
 
-        result.add(INSTANCES_KEY, newJInstances);
-        return NanoHTTPD.newFixedLengthResponse(result.toString());
+        return NanoHTTPD.newFixedLengthResponse(newJInstances.toString());
     }
 
     private JsonArray serializeInstances(JsonParser parser, TextAnnotation[] textAnnotations, String[] errors) {
