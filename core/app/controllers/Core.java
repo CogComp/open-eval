@@ -47,6 +47,7 @@ public class Core {
         List<TextAnnotation> correctInstances = getInstancesFromDb(runConfig);
         System.out.println(url);
         LearnerInterface learner = new LearnerInterface(url);
+        //Todo: make this save the info
         String jsonInfo = learner.getInfo();
         if (jsonInfo.equals("err")) {
             System.out.println("Could not connect to server");
@@ -69,41 +70,6 @@ public class Core {
         storeEvaluationIntoDb(eval, record_id);
     }
 
-    /**
-     * Send instances to the solver and return back an evaluation on the results
-     *
-     * @param conf_id
-     *            - database key for the configuration used to define the task
-     * @param url
-     *            - url of the server to send the instances through API calls to
-     * @return - The evaluation on the solver result
-     */
-    public static WSResponse startJob(String conf_id, String url, String record_id) {
-        Configuration runConfig = getConfigurationFromDb(conf_id);
-
-        List<TextAnnotation> correctInstances = getInstancesFromDb(runConfig);
-        List<TextAnnotation> cleansedInstances = getInstancesFromDb(runConfig);
-        System.out.println(url);
-        LearnerInterface learner = new LearnerInterface(url);
-        String jsonInfo = learner.getInfo();
-        if (jsonInfo.equals("err")) {
-            System.out.println("Could not connect to server");
-            return null;
-        }
-        cleanseInstances(cleansedInstances, jsonInfo);
-        if (cleansedInstances == null) {
-            System.out.println("Error in cleanser");
-            return null;
-        }
-        Job newJob = new Job(learner, cleansedInstances);
-        WSResponse solverResponse = newJob.sendAndReceiveRequestsFromSolver();
-        List<TextAnnotation> solvedInstances = newJob.getSolverInstances();
-        List<Boolean> skip = newJob.getSkip();
-        EvaluationRecord eval = evaluate(runConfig, correctInstances, solvedInstances, skip);
-        storeEvaluationIntoDb(eval, record_id);
-        System.out.println(solverResponse);
-        return solverResponse;
-    }
 
     /**
      * Retrieve a stored configuration from the database

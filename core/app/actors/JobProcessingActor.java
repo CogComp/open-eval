@@ -44,7 +44,8 @@ public class JobProcessingActor extends UntypedActor {
 			System.out.println("Created Job Processor Worker");
 			System.out.println("Sending and recieving annotations:");
 			try {
-				for (TextAnnotation ta : unprocessedInstances) {
+				for (TextAnnotation ta : unprocessedInstances) {\
+					// Todo: have this take into account the max instances and send in multiple instances
 					job.sendAndReceiveRequestFromSolver(ta);
 					completed++;
 					getSender().tell(new StatusUpdate(completed, skipped, total), getSelf());

@@ -38,6 +38,7 @@ public class Job {
 		skip = new ArrayList<>();
 	}
 
+	// Todo: Make this process multiple instances
 	public WSResponse sendAndReceiveRequestFromSolver(TextAnnotation ta) {
 		WSResponse response = null;
 		String resultJson;
@@ -52,30 +53,6 @@ public class Job {
 			System.out.println(e);
 			solverInstances.add(null);
 			skip.add(true);
-		}
-		return response;
-	}
-
-	/**
-	 * Sends all unprocessed instances to the solver and receives the results.
-	 */
-	public WSResponse sendAndReceiveRequestsFromSolver() {
-		this.solverInstances = new ArrayList<>();
-		WSResponse response = null;
-		String resultJson;
-		TextAnnotation processedInstance;
-		for (TextAnnotation ta : unprocessedInstances) {
-			response = learnerInterface.processRequests(ta);
-			try {
-				resultJson = response.getBody();
-				processedInstance = SerializationHelper.deserializeFromJson(resultJson);
-				solverInstances.add(processedInstance);
-				skip.add(false);
-			} catch (Exception e) {
-				System.out.println(e);
-				solverInstances.add(null);
-				skip.add(true);
-			}
 		}
 		return response;
 	}
