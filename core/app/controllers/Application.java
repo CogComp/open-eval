@@ -43,104 +43,103 @@ public class Application extends Controller {
 		masterActor = system.actorOf(MasterActor.props);
 	}
 
-    private List<models.Configuration> getConfigurations() {
-        FrontEndDBInterface f = new FrontEndDBInterface();
-        List<models.Configuration> configList;         
-        try {
-            configList = f.getConfigList();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return configList;
-    }
+	private List<models.Configuration> getConfigurations() {
+		FrontEndDBInterface f = new FrontEndDBInterface();
+		List<models.Configuration> configList;
+		try {
+			configList = f.getConfigList();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return configList;
+	}
 
-    public Result index() {
-        IndexViewModel viewModel = new IndexViewModel();
-        viewModel.configurations = getConfigurations();
-        return ok(index.render(viewModel));
-    }
+	public Result index() {
+		IndexViewModel viewModel = new IndexViewModel();
+		viewModel.configurations = getConfigurations();
+		return ok(index.render(viewModel));
+	}
 
-    public Result addConfiguration() {
-        AddConfigurationViewModel viewModel = new AddConfigurationViewModel();
+	public Result addConfiguration() {
+		AddConfigurationViewModel viewModel = new AddConfigurationViewModel();
 
-        FrontEndDBInterface f = new FrontEndDBInterface();
-        
-        List<String> tasks = f.getTasks();
+		FrontEndDBInterface f = new FrontEndDBInterface();
 
-        Map<String, List<String>> task_variants = new HashMap<>();
-        Map<String, List<String>> datasets = new HashMap<>();
-        
-        for (String task : tasks) {
-            List<String> task_variants_i = f.getTaskVariantsForTask(task);
-            List<String> datasets_i = f.getDatasetsForTask(task);
-            task_variants.put(task, task_variants_i);
-            datasets.put(task, datasets_i);
-        }
+		List<String> tasks = f.getTasks();
 
-        viewModel.tasks = tasks;
-        viewModel.datasets = datasets;
-        viewModel.task_variants = task_variants;
+		Map<String, List<String>> task_variants = new HashMap<>();
+		Map<String, List<String>> datasets = new HashMap<>();
 
-        return ok(addConfiguration.render(viewModel));
-    }
+		for (String task : tasks) {
+			List<String> task_variants_i = f.getTaskVariantsForTask(task);
+			List<String> datasets_i = f.getDatasetsForTask(task);
+			task_variants.put(task, task_variants_i);
+			datasets.put(task, datasets_i);
+		}
 
-    public Result deleteConfiguration() {
-        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
-        FrontEndDBInterface f = new FrontEndDBInterface();
-        f.deleteConfigAndRecords(Integer.parseInt(bindedForm.get("conf")));
-        return redirect("/");
-    }
+		viewModel.tasks = tasks;
+		viewModel.datasets = datasets;
+		viewModel.task_variants = task_variants;
 
-    public Result submitConfiguration() {
-        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
-        FrontEndDBInterface f = new FrontEndDBInterface(); 
+		return ok(addConfiguration.render(viewModel));
+	}
 
-        String taskName = bindedForm.get("task");
-        String taskVariant = bindedForm.get("taskvariant");
-        String evaluator = f.getEvaluatorForTask(taskName);
-        
-        try {
-            f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),
-                               bindedForm.get("description"), evaluator,
-                               taskName, taskVariant); 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+	public Result deleteConfiguration() {
+		DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+		FrontEndDBInterface f = new FrontEndDBInterface();
+		f.deleteConfigAndRecords(Integer.parseInt(bindedForm.get("conf")));
+		return redirect("/");
+	}
 
-        return redirect("/");
-    }
+	public Result submitConfiguration() {
+		DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+		FrontEndDBInterface f = new FrontEndDBInterface();
 
-    public Result configuration(String configuration_id) {
-        RecipeViewModel viewModel = new RecipeViewModel();
-        FrontEndDBInterface f = new FrontEndDBInterface(); 
-        models.Configuration conf; 
-        
-        try {
-            conf = f.getConfigInformation(Integer.parseInt(configuration_id)); 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        
-        List<Record> records = f.getRecordsFromConfID(Integer.parseInt(configuration_id));
-        conf.records = records;
-        viewModel.configuration = conf;
+		String taskName = bindedForm.get("task");
+		String taskVariant = bindedForm.get("taskvariant");
+		String evaluator = f.getEvaluatorForTask(taskName);
 
-        return ok(recipe.render(viewModel));
-    }
+		try {
+			f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),
+					bindedForm.get("description"), evaluator, taskName, taskVariant);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 
-    public Result addRun(String configuration_id) {
-        AddRunViewModel viewModel = new AddRunViewModel();
+		return redirect("/");
+	}
 
-        // should also get name passed through here
-        viewModel.configuration_id = configuration_id;
-        viewModel.default_url = "";
-        viewModel.default_author = "";
-        viewModel.default_repo = "";
-        viewModel.default_comment = "";
-        viewModel.error_message = "";
+	public Result configuration(String configuration_id) {
+		RecipeViewModel viewModel = new RecipeViewModel();
+		FrontEndDBInterface f = new FrontEndDBInterface();
+		models.Configuration conf;
 
-        return ok(addRun.render(viewModel));
-    }
+		try {
+			conf = f.getConfigInformation(Integer.parseInt(configuration_id));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		List<Record> records = f.getRecordsFromConfID(Integer.parseInt(configuration_id));
+		conf.records = records;
+		viewModel.configuration = conf;
+
+		return ok(recipe.render(viewModel));
+	}
+
+	public Result addRun(String configuration_id) {
+		AddRunViewModel viewModel = new AddRunViewModel();
+
+		// should also get name passed through here
+		viewModel.configuration_id = configuration_id;
+		viewModel.default_url = "";
+		viewModel.default_author = "";
+		viewModel.default_repo = "";
+		viewModel.default_comment = "";
+		viewModel.error_message = "";
+
+		return ok(addRun.render(viewModel));
+	}
 
 	public Result submitRun() {
 		DynamicForm bindedForm = new DynamicForm().bindFromRequest();
@@ -185,46 +184,47 @@ public class Application extends Controller {
 
 	public Promise<Result> getCurrentProgress() {
 		return Promise.wrap(ask(masterActor, new StatusRequest("requesting status"), 60000))
-			.map(new Function<Object, Result>() {
-			    public Result apply(Object response) {
-			    	ObjectNode result = Json.newObject();
-			        if (response instanceof StatusUpdate) {
-			        	StatusUpdate update = ((StatusUpdate) response);
-			        	double comp = ((double)update.getCompleted()) / ((double)update.getTotal());
-			        	int percentComplete = (int)(comp * 100.0);
-			        	System.out.println("Percent Complete: " + Integer.toString(percentComplete));
-						result.put("percent_complete", Integer.toString(percentComplete));
-						result.put("completed", Integer.toString(update.getCompleted()));
-						result.put("skipped", Integer.toString(update.getSkipped()));
-						result.put("total", Integer.toString(update.getTotal()));
+				.map(new Function<Object, Result>() {
+					public Result apply(Object response) {
+						ObjectNode result = Json.newObject();
+						if (response instanceof StatusUpdate) {
+							StatusUpdate update = ((StatusUpdate) response);
+							double comp = ((double) update.getCompleted()) / ((double) update.getTotal());
+							int percentComplete = (int) (comp * 100.0);
+							System.out.println("Percent Complete: " + Integer.toString(percentComplete));
+							result.put("percent_complete", Integer.toString(percentComplete));
+							result.put("completed", Integer.toString(update.getCompleted()));
+							result.put("skipped", Integer.toString(update.getSkipped()));
+							result.put("total", Integer.toString(update.getTotal()));
 							return ok(result);
-					}	
-					result.put("percent_complete", "0");
-					result.put("completed", "0");
-					result.put("skipped", "0");
-					result.put("total", "0");
-					return ok(result);	
-				}	
-			});		
+						}
+						result.put("percent_complete", "0");
+						result.put("completed", "0");
+						result.put("skipped", "0");
+						result.put("total", "0");
+						return ok(result);
+					}
+				});
 	}
-    public Result record(String record_id) {
-        RecordViewModel viewModel = new RecordViewModel();
-        FrontEndDBInterface f = new FrontEndDBInterface();
-        Record associated_record = f.getRecordFromRecordID(Integer.parseInt(record_id));
-   
-        viewModel.record = associated_record;
-        return ok(record.render(viewModel));
-    }
 
-    public Result deleteRecord() {
-        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
-        String conf_id = bindedForm.get("configuration_id");
-        FrontEndDBInterface f = new FrontEndDBInterface();
-        f.deleteRecordFromRecordID(Integer.parseInt(bindedForm.get("record_id")));
-        return redirect("/configuration?conf="+conf_id);
-    }
+	public Result record(String record_id) {
+		RecordViewModel viewModel = new RecordViewModel();
+		FrontEndDBInterface f = new FrontEndDBInterface();
+		Record associated_record = f.getRecordFromRecordID(Integer.parseInt(record_id));
 
-    public Result about() {
-        return ok(about.render());
-    }
+		viewModel.record = associated_record;
+		return ok(record.render(viewModel));
+	}
+
+	public Result deleteRecord() {
+		DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+		String conf_id = bindedForm.get("configuration_id");
+		FrontEndDBInterface f = new FrontEndDBInterface();
+		f.deleteRecordFromRecordID(Integer.parseInt(bindedForm.get("record_id")));
+		return redirect("/configuration?conf=" + conf_id);
+	}
+
+	public Result about() {
+		return ok(about.render());
+	}
 }
