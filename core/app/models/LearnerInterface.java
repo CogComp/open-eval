@@ -2,18 +2,26 @@ package models;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.BufferedReader;
+import java.io.FileReader;
+
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 
 
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
+import play.api.libs.ws.*;
 import play.libs.ws.*;
 import play.libs.F.Promise;
 import play.mvc.Http;
+import play.libs.ws.WS;
+import play.libs.ws.WSRequest;
+import play.libs.ws.WSResponse;
 
 /**
  * Temporary class to represent a dummy solver that lives within the evaluation framework
- *
- * @author Joshua Camp
  */
 
 public class LearnerInterface {
@@ -24,6 +32,8 @@ public class LearnerInterface {
 	private static final String TEXT_ANNOTATION_PROPERTY = "textAnnotation";
 	private static final String ERROR_PROPERTY = "error";
 
+	int timeout;
+	
 	/**
 	 * Constructor. Initiates WSRequest object to send Http requests
 	 * @param url - Url of the server to send instances to
@@ -32,6 +42,8 @@ public class LearnerInterface {
 		this.infoPoster = WS.url(url+"info");
 		this.instancePoster = WS.url(url+"instance");
 		System.out.println(this.infoPoster);
+		Config conf = ConfigFactory.load();
+		timeout = conf.getInt("learner.default.timeout");
 	}
 
 	/**
@@ -89,7 +101,7 @@ public class LearnerInterface {
 		LearnerSettings settings;
 		try{
 			Promise<WSResponse> responsePromise = infoPoster.get();
-			JsonNode response = responsePromise.get(5000).asJson();
+			JsonNode response = responsePromise.get(timeout).asJson();
 			String addedView = response.get("addedView").asText();
 			int maxInstancesToSend = response.get("maxNumInstancesAccepted").asInt();
 			JsonNode requiredViewsJson = response.get("requiredViews");

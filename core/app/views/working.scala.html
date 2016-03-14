@@ -13,14 +13,14 @@
     </head>
     <body>
         <div class="body">
-            <h1><center><big><b><i><a href="/">Open-Eval</a></i></b></big></center></h1>
-            <h4><center>Your datasets are being processed. This may take a moment.</center></h4>
+            @header()
+            <h4><center><i>Your datasets are being processed. This may take a moment.</i></center></h4>
 
 			<div class="progress" id="progressouter">
    				<div class="progress-bar" id="progress"></div>
 			</div>
 
-			<script src="http://code.jquery.com/jquery.js"></script>\
+			<script src="http://code.jquery.com/jquery.js"></script>
     		<script type="text/javascript">
     			$(document).ready(function(){
 					  var progresspump = setInterval(function(){
@@ -32,7 +32,7 @@
 
 					      /* go to evaluation page. */
 					      if(data > 99) {
-							window.location = "/configuration?conf=" + @viewModel.configuration_id;
+							window.location = "/configuration?conf=" + @viewModel.conf_id;
 							clearInterval(progresspump);
 					      }
 					    })

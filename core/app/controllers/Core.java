@@ -47,7 +47,6 @@ public class Core {
         List<TextAnnotation> correctInstances = getInstancesFromDb(runConfig);
         System.out.println(url);
         LearnerInterface learner = new LearnerInterface(url);
-        //Todo: make this save the info
         String jsonInfo = learner.getInfo();
         if (jsonInfo.equals("err")) {
             System.out.println("Could not connect to server");
@@ -58,55 +57,20 @@ public class Core {
             System.out.println("Error in cleanser");
             return null;
         }
-        return new Job(learner, cleansedInstances);
+        return new Job(learner, cleansedInstances, correctInstances);
     }
 
-    public static void storeResultsOfRunInDatabase(Job newJob, String record_id, String conf_id) {
-        Configuration runConfig = getConfigurationFromDb(conf_id);
-        List<TextAnnotation> correctInstances = getInstancesFromDb(runConfig);
-        List<TextAnnotation> solvedInstances = newJob.getSolverInstances();
-        List<Boolean> skip = newJob.getSkip();
-        EvaluationRecord eval = evaluate(runConfig, correctInstances, solvedInstances, skip);
-        storeEvaluationIntoDb(eval, record_id);
+    public static void storeResultsOfRunInDatabase(ClassificationTester evaluation, String record_id) {
+        storeEvaluationIntoDb(evaluation.getEvaluationRecord(), record_id);
     }
 
-
-    /**
-     * Retrieve a stored configuration from the database
-     *
-     * @param conf_id
-     *            - database key for the configuration used to define the task
-     * @return - The Configuration object from the database
-     */
-    private static Configuration getConfigurationFromDb(int conf_id) {
-        FrontEndDBInterface db = new FrontEndDBInterface();
-        return db.getConfigInformation(conf_id);
-    }
-
-    /**
-     * Create a new Evaluator to be used on the solved instances
-     *
-     * @param runConfig
-     *            - Defines the type of evaluator the user needs
-     * @return - Evaluator object to be used
-     */
-    public static EvaluationRecord evaluate(Configuration runConfig, List<TextAnnotation> correctInstances,
-        List<TextAnnotation> solvedInstances, List<Boolean> skip) {
-        Evaluator evaluator = getEvaluator(runConfig);
-        //Evaluator evaluator = new ConstituentLabelingEvaluator();
-        ClassificationTester eval = new ClassificationTester();
-        for (int i = 0; i < correctInstances.size(); i++) {
-            if (skip.get(i)) {
-                continue;
-            }
-            View gold = correctInstances.get(i).getView(ViewNames.POS);
-            View predicted = solvedInstances.get(i).getView(ViewNames.POS);
-            evaluator.setViews(gold, predicted);
-            evaluator.evaluate(eval);
-        }
-        System.out.println(eval.getEvaluationRecord());
-        return eval.getEvaluationRecord();
-    }
+	public static void evaluate(Evaluator evaluator, ClassificationTester eval,  TextAnnotation gold,
+			TextAnnotation predicted) {
+		View goldView = gold.getView(ViewNames.POS);
+		View predictedView = predicted.getView(ViewNames.POS);
+		evaluator.setViews(goldView, predictedView);
+		evaluator.evaluate(eval);
+	}
 
     /**
      * Cleanse the correct instances
@@ -146,7 +110,8 @@ public class Core {
         return config;
     }
     
-    private static Evaluator getEvaluator(Configuration runConfig) {
+    public static Evaluator getEvaluator(String conf_id) {
+        Configuration runConfig = getConfigurationFromDb(conf_id);
         Evaluator evaluator = null;
         
         switch (runConfig.evaluator) {
@@ -166,7 +131,6 @@ public class Core {
      * @return - list of TextAnnotation instances from the database
      */
     private static List<TextAnnotation> getInstancesFromDb(Configuration runConfig) {
-        String datasetName = runConfig.dataset;
         POSReader posReader = new POSReader();
         System.out.println("Retrieving instances from db");
         List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB(runConfig.dataset);
