@@ -66,6 +66,7 @@ public class JobProcessingActor extends UntypedActor {
                             } catch (Exception e) {
                                 System.out.println(e);
                                 skipped++;
+                                completed++;
                                 getSender().tell(new StatusUpdate(completed, skipped, total), getSelf());
                                 return;
                             }
