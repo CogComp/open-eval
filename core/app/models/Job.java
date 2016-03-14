@@ -42,7 +42,7 @@ public class Job {
 		WSResponse response = null;
 		String resultJson;
 		TextAnnotation processedInstance;
-		response = learnerInterface.processRequest(ta);
+		response = learnerInterface.processRequests(ta);
 		try {
 			resultJson = response.getBody();
 			processedInstance = SerializationHelper.deserializeFromJson(resultJson);
@@ -65,7 +65,7 @@ public class Job {
 		String resultJson;
 		TextAnnotation processedInstance;
 		for (TextAnnotation ta : unprocessedInstances) {
-			response = learnerInterface.processRequest(ta);
+			response = learnerInterface.processRequests(ta);
 			try {
 				resultJson = response.getBody();
 				processedInstance = SerializationHelper.deserializeFromJson(resultJson);
