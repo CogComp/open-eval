@@ -78,7 +78,9 @@
                               </td>
                             } else {
                               <td>
-                                @configuration.records(0).date [ @configuration.records(0).metrics.f1 ]
+                                <a href="record?record_id=@configuration.records(0).record_id">
+                                  @configuration.records(0).date [ @configuration.records(0).metrics.f1 ]
+                                </a>
                               </td>
                             }
                           } else {
