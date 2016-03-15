@@ -29,10 +29,10 @@
   </head>
   <body>
     <div class="body">
+        @header()
         <ol class="breadcrumb">
           <li><a href="/">Open Eval</a></li>
         </ol>
-        @header()
 
         @if(viewModel.configurations.length == 0) {
             <div class="jumbotron">

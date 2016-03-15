@@ -6,6 +6,7 @@
 <html lang="en">
     <body>
         <div class="body">
+            @header()
             <ol class="breadcrumb">
               <li><a href="/">Open Eval</a></li>
               <li><a href="/configuration?conf=@viewModel.record.configuration_id">
@@ -16,7 +17,6 @@
                 Record @viewModel.record.record_id
               </a></li>
             </ol>
-            @header()
             <div class="table-responsive">
               <table class="table">
                 <thead>

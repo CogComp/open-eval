@@ -5,6 +5,7 @@
 <html lang="en">
     <body>
         <div class="body">
+            @header()
             <ol class="breadcrumb">
               <li><a href="/">Open Eval</a></li>
               <li><a href="/configuration?conf=@viewModel.configuration_id">
@@ -16,7 +17,6 @@
                 Add run
               </a></li>
             </ol>
-            @header()
             <h3>New run of configuration</h3>
             <p>This will run a job at the provided address and will create a new record.</p>
             <font color="red">@viewModel.error_message</font>
