@@ -66,7 +66,6 @@ public class JobProcessingActor extends UntypedActor {
                             } catch (Exception e) {
                                 System.out.println(e);
                                 skipped++;
-                                completed++;
                                 getSender().tell(new StatusUpdate(completed, skipped, total), getSelf());
                                 return;
                             }
@@ -75,13 +74,17 @@ public class JobProcessingActor extends UntypedActor {
                             master.tell(new StatusUpdate(completed, skipped, total), getSelf());
 
                             System.out.println("Completed(worker):" + completed);
-                            Core.storeResultsOfRunInDatabase(eval, record_id);
+                            if(completed+skipped < total)
+                                Core.storeResultsOfRunInDatabase(eval, record_id, true);
+                            else
+                                Core.storeResultsOfRunInDatabase(eval, record_id, false);
                         }
                     });
                     response.get(5000);
                 }
             } catch (Exception ex) {
                 System.out.println("Error sending and receiving text annotations");
+                Core.storeResultsOfRunInDatabase(eval, record_id, false);
             }
             System.out.println("Done");
         } else
