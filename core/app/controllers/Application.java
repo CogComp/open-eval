@@ -189,8 +189,13 @@ public class Application extends Controller {
 						ObjectNode result = Json.newObject();
 						if (response instanceof StatusUpdate) {
 							StatusUpdate update = ((StatusUpdate) response);
-							double comp = ((double) update.getCompleted()) / ((double) update.getTotal());
-							int percentComplete = (int) (comp * 100.0);
+							int percentComplete;
+							if (update.getTotal() > 0) {
+								double comp = ((double) update.getCompleted()) / ((double) update.getTotal());
+								percentComplete = (int) (comp * 100.0);
+							} else {
+								percentComplete = 0;
+							}
 							System.out.println("Percent Complete: " + Integer.toString(percentComplete));
 							result.put("percent_complete", Integer.toString(percentComplete));
 							result.put("completed", Integer.toString(update.getCompleted()));

@@ -22,6 +22,9 @@ public class MasterActor extends UntypedActor {
 		// When told to start a job, MasterActor spawns a JobProcessingActor to
 		// carry out the job.
 		if (message instanceof SetUpJobMessage) {
+			completed = 0;
+			skipped = 0;
+			total = 0;
 			SetUpJobMessage jobInfo = (SetUpJobMessage) message;
 			this.conf_id = jobInfo.getConf_id();
 			this.record_id = jobInfo.getRecord_id();
