@@ -191,7 +191,7 @@ public class Application extends Controller {
                             StatusUpdate update = ((StatusUpdate) response);
                             int percentComplete;
                             if (update.getTotal() > 0) {
-                                double comp = ((double) update.getCompleted()) / ((double) update.getTotal());
+                                double comp = ((double) (update.getCompleted() + update.getSkipped())) / ((double) update.getTotal());
                                 percentComplete = (int) (comp * 100.0);
                             } else {
                                 percentComplete = 0;
