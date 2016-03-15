@@ -58,25 +58,19 @@
         <script type="text/javascript">
           f1_data = [
             @for(record <- viewModel.configuration.records) {
-              @if(!record.isRunning) {
-                {'sdate':'@record.date',"close":+@record.metrics.f1,'id':@record.record_id},
-              }
+              {'sdate':'@record.date',"close":+@record.metrics.f1,'id':@record.record_id},
             }
           ];
 
           precision_data = [
             @for(record <- viewModel.configuration.records) {
-              @if(!record.isRunning) {
-                {'sdate':'@record.date',"close":+@record.metrics.precision,'id':@record.record_id},
-              }
+              {'sdate':'@record.date',"close":+@record.metrics.precision,'id':@record.record_id},
             }
           ];
 
           recall_data = [
             @for(record <- viewModel.configuration.records) {
-              @if(!record.isRunning) {
-                {'sdate':'@record.date',"close":+@record.metrics.recall,'id':@record.record_id},
-              }
+              {'sdate':'@record.date',"close":+@record.metrics.recall,'id':@record.record_id},
             }
           ];
 
