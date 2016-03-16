@@ -1,5 +1,6 @@
 package actors;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import actors.Messages.*;
@@ -59,7 +60,7 @@ public class JobProcessingActor extends UntypedActor {
                 int maxBatchSize = learnerSettings.maxNumInstancesAccepted;
                 for (int startIndex = 0; startIndex < unprocessedInstances.size(); startIndex+=maxBatchSize) {
                     int batchSize = Math.min(maxBatchSize, unprocessedInstances.size() - startIndex);
-                    TextAnnotation[] batch = makeBatch(unprocessedInstances, startIndex, batchSize);
+                    List<TextAnnotation> batch = makeBatch(unprocessedInstances, startIndex, batchSize);
                     LearnerInstancesResponse response = job.sendAndReceiveRequestsFromSolver(batch);
 
                     for(int batchIndex = 0;batchIndex<batchSize;batchIndex++){
@@ -87,10 +88,10 @@ public class JobProcessingActor extends UntypedActor {
             unhandled(message);
     }
 
-    private TextAnnotation[] makeBatch(List<TextAnnotation> unprocessedInstances, int startIndex, int batchSize){
-        TextAnnotation[] batch = new TextAnnotation[batchSize];
+    private List<TextAnnotation> makeBatch(List<TextAnnotation> unprocessedInstances, int startIndex, int batchSize){
+        List<TextAnnotation> batch = new ArrayList<>();
         for (int i=0;i<batchSize;i++){
-            batch[i] = unprocessedInstances.get(startIndex + i);
+            batch.add(unprocessedInstances.get(startIndex + i));
         }
         return batch;
     }

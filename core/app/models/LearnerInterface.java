@@ -54,8 +54,8 @@ public class LearnerInterface {
 	 * @param textAnnotations - The unsolved instances to send to the solver
 	 * @return The solved TextAnnotation instance retrieved from the solver
 	 */
-	public LearnerInstancesResponse processRequests(TextAnnotation[] textAnnotations) {
-		System.out.println(String.format("Sending %n TextAnnotations", textAnnotations.length));
+	public LearnerInstancesResponse processRequests(List<TextAnnotation> textAnnotations) {
+		System.out.println(String.format("Sending %n TextAnnotations", textAnnotations.size()));
 
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("[");
@@ -69,11 +69,11 @@ public class LearnerInterface {
 		Promise<WSResponse> jsonPromise = instancePoster.post(stringBuilder.toString());
 		WSResponse response = jsonPromise.get(50000);
 
-		TextAnnotation[] results = new TextAnnotation[textAnnotations.length];
-		String[] errors = new String[textAnnotations.length];
+		TextAnnotation[] results = new TextAnnotation[textAnnotations.size()];
+		String[] errors = new String[textAnnotations.size()];
 		String requestWideError = null;
 
-		if (response.getStatus() == Http.Status.ACCEPTED) {
+		if (response.getStatus() == Http.Status.OK) {
 			JsonNode json = response.asJson();
 
 			for(int i=0;i<json.size();i++){

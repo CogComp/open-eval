@@ -1,6 +1,6 @@
 val cogcompNLPVersion = "3.0.21"
 lazy val root = (project in file(".")).
-  aggregate(core, learner)
+  aggregate(core, learner, crossTest)
 
 lazy val commonSettings = Seq(
   organization := "edu.illinois.cs.cogcomp",
