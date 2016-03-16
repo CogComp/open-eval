@@ -61,8 +61,8 @@ public class Core {
         return new Job(learner, cleansedInstances, correctInstances);
     }
 
-    public static void storeResultsOfRunInDatabase(ClassificationTester evaluation, String record_id) {
-        storeEvaluationIntoDb(evaluation.getEvaluationRecord(), record_id);
+    public static void storeResultsOfRunInDatabase(ClassificationTester evaluation, String record_id, boolean isRunning) {
+        storeEvaluationIntoDb(evaluation.getEvaluationRecord(), record_id, isRunning);
     }
 
 	public static void evaluate(Evaluator evaluator, ClassificationTester eval,  TextAnnotation gold,
@@ -132,8 +132,8 @@ public class Core {
      * Store evaluation from the run into the DB. (Right now only stores the
      * macroEvaluationRecord.)
      */
-    private static void storeEvaluationIntoDb(EvaluationRecord eval, String record_id) {
+    private static void storeEvaluationIntoDb(EvaluationRecord eval, String record_id, boolean isRunning) {
         FrontEndDBInterface f = new FrontEndDBInterface();
-        f.insertEvaluationIntoDB(eval, Integer.parseInt(record_id), true); //Need to change this so it doesn't just always send true. 
+        f.insertEvaluationIntoDB(eval, Integer.parseInt(record_id), isRunning); //Need to change this so it doesn't just always send true.
     }
 }

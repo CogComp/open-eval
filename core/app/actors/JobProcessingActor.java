@@ -66,17 +66,21 @@ public class JobProcessingActor extends UntypedActor {
                         if (response.textAnnotations[batchIndex] != null){
                             TextAnnotation goldInstance = goldInstances.get(startIndex + batchIndex);
                             Core.evaluate(evaluator, eval, goldInstance, response.textAnnotations[batchIndex]);
+                            completed++;
                         } else {
                             skipped++;
                         }
-                        completed++;
-                        Core.storeResultsOfRunInDatabase(eval, record_id);
+                        if(completed+skipped < total)
+                            Core.storeResultsOfRunInDatabase(eval, record_id, true);
+                        else
+                            Core.storeResultsOfRunInDatabase(eval, record_id, false);
                     }
                     master.tell(new StatusUpdate(completed, skipped, total), getSelf());
                     System.out.println(String.format("Completed batch of size %s, starting at %s", batchSize, startIndex));
                 }
             } catch (Exception ex) {
                 System.out.println("Error sending and receiving text annotations");
+                Core.storeResultsOfRunInDatabase(eval, record_id, false);
             }
             System.out.println("Done");
         } else
