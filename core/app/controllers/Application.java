@@ -144,7 +144,7 @@ public class Application extends Controller {
     public Result submitRun() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
 
-        String configuration_id = bindedForm.get("configuration_id");
+        String conf_id = bindedForm.get("configuration_id");
 
         String url = bindedForm.get("url");
         String author = bindedForm.get("author");
@@ -155,7 +155,7 @@ public class Application extends Controller {
 
         if (Core.testConnection(url) == null) {
             AddRunViewModel viewModel = new AddRunViewModel();
-            viewModel.configuration_id = configuration_id;
+            viewModel.configuration_id = conf_id;
             viewModel.default_url = url;
             viewModel.default_author = author;
             viewModel.default_repo = repo;
@@ -165,24 +165,26 @@ public class Application extends Controller {
             return ok(addRun.render(viewModel));
         }
 
-        String record_id = f.storeRunInfo(Integer.parseInt(configuration_id), url, author, repo, comment);
+        String record_id = f.storeRunInfo(Integer.parseInt(conf_id), url, author, repo, comment);
 
-        masterActor.tell(new SetUpJobMessage(configuration_id, url, record_id), masterActor);
+        masterActor.tell(new SetUpJobMessage(conf_id, url, record_id), masterActor);
         WorkingViewModel viewModel = new WorkingViewModel();
-        viewModel.conf_id = configuration_id;
+        viewModel.record_id = record_id;
+        viewModel.conf_id = conf_id;
         viewModel.percent_complete = 0;
         return ok(working.render(viewModel));
     }
 
-    public Result progressBar(String configuration_id) {
+    public Result progressBar(String record_id, String conf_id) {
         WorkingViewModel viewModel = new WorkingViewModel();
-        viewModel.conf_id = configuration_id;
+        viewModel.conf_id = conf_id;
+        viewModel.record_id = record_id;
         viewModel.percent_complete = 0;
         return ok(working.render(viewModel));
     }
 
-    public Promise<Result> getCurrentProgress() {
-        return Promise.wrap(ask(masterActor, new StatusRequest("requesting status"), 60000))
+    public Promise<Result> getCurrentProgress(String record_id) {
+        return Promise.wrap(ask(masterActor, new StatusRequest(record_id), 60000))
                 .map(new Function<Object, Result>() {
                     public Result apply(Object response) {
                         ObjectNode result = Json.newObject();

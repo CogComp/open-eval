@@ -51,7 +51,7 @@
                 $(document).ready(function(){
                         var progresspump = setInterval(function(){
                         // Query the completion percentage from the server.
-                        $.get("/working/prog", function(data){
+                        $.get("/working/prog?record=" + @viewModel.record_id, function(data){
                           // Extract JSON data.
                           var progress_info = data;
                           var percent = progress_info.percent_complete;

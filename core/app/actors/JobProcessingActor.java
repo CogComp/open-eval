@@ -66,12 +66,12 @@ public class JobProcessingActor extends UntypedActor {
                             } catch (Exception e) {
                                 System.out.println(e);
                                 skipped++;
-                                getSender().tell(new StatusUpdate(completed, skipped, total), getSelf());
+                                getSender().tell(new StatusUpdate(completed, skipped, total, record_id), getSelf());
                                 return;
                             }
                             Core.evaluate(evaluator, eval, goldInstance, predictedInstance);
                             completed++;
-                            master.tell(new StatusUpdate(completed, skipped, total), getSelf());
+                            master.tell(new StatusUpdate(completed, skipped, total, record_id), getSelf());
 
                             System.out.println("Completed(worker):" + completed);
                             if(completed+skipped < total)
