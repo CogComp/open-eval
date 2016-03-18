@@ -197,7 +197,6 @@ public class Application extends Controller {
                             } else {
                                 percentComplete = 0;
                             }
-                            System.out.println("Percent Complete: " + Integer.toString(percentComplete));
                             result.put("percent_complete", Integer.toString(percentComplete));
                             result.put("completed", Integer.toString(update.getCompleted()));
                             result.put("skipped", Integer.toString(update.getSkipped()));

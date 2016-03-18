@@ -45,7 +45,7 @@ public class LearnerInterface {
      * @return The solved TextAnnotation instance retrieved from the solver
      */
     public Promise<WSResponse> processRequest(TextAnnotation textAnnotation) {
-        System.out.println("Sending:"+textAnnotation.getText());
+        //System.out.println("Sending:"+textAnnotation.getText());
         String taJson = SerializationHelper.serializeToJson(textAnnotation);
         Promise<WSResponse> jsonPromise = instancePoster.post(taJson);
 

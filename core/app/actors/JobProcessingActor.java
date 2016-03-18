@@ -73,7 +73,7 @@ public class JobProcessingActor extends UntypedActor {
                             completed++;
                             master.tell(new StatusUpdate(completed, skipped, total, record_id), getSelf());
 
-                            System.out.println("Completed(worker):" + completed);
+                            //System.out.println("Completed(worker):" + completed);
                             if(completed+skipped < total)
                                 Core.storeResultsOfRunInDatabase(eval, record_id, true);
                             else

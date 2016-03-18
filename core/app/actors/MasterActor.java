@@ -39,7 +39,6 @@ public class MasterActor extends UntypedActor {
         // TextAnnotation, it
         // updates the master.
         else if (message instanceof StatusUpdate) {
-            System.out.println("Got Status Update");
             StatusUpdate update = (StatusUpdate) message;
             int completed = update.getCompleted();
             int skipped = update.getSkipped();
@@ -50,7 +49,6 @@ public class MasterActor extends UntypedActor {
         // returns the
         // number of completed, skipped, and total TextAnnotations.
         else if (message instanceof StatusRequest) {
-            System.out.println("Got Status Message");
             String id = ((StatusRequest) message).getRecord_id();
             RunStatus status = runStatuses.get(id);
             getSender().tell(new StatusUpdate(status.getCompleted(), status.getSkipped(), status.getTotal(), id), getSelf());
