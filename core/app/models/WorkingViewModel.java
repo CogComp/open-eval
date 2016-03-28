@@ -2,5 +2,5 @@ package models;
 
 public class WorkingViewModel {
 	public int percent_complete;
-	public String configuration_id;
+	public String conf_id;
 }
