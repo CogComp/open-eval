@@ -2,6 +2,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import edu.illinois.cs.cogcomp.annotation.BasicTextAnnotationBuilder;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+import edu.illinois.cs.cogcomp.core.utilities.JsonTools;
 import fi.iki.elonen.NanoHTTPD;
 import org.apache.commons.io.IOUtils;
 
