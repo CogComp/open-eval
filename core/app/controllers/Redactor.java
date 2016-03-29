@@ -7,6 +7,7 @@ import java.util.List;
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TokenLabelView;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
 
 public class Redactor {
@@ -31,7 +32,7 @@ public class Redactor {
      */
     public static List<TextAnnotation> removeAnnotations(List<TextAnnotation> textAnnotations, List<String> viewsToKeep) {
         if (viewsToKeep == null) {
-            viewsToKeep = Collections.EMPTY_LIST;
+            viewsToKeep = new ArrayList<String>();
         }
         viewsToKeep.add(ViewNames.SENTENCE);
         List<String> viewsToRemove = new ArrayList<>();
@@ -63,22 +64,21 @@ public class Redactor {
      */
     public static List<TextAnnotation> removeTokenLabels(List<TextAnnotation> textAnnotations) {
         for (TextAnnotation textAnnotation : textAnnotations) {
-	        View view = textAnnotation.getView(ViewNames.TOKENS);
-	        
-	        // Iterate through the views and replace each constituent with one whose label is empty.
-	        List<Constituent> constituents = view.getConstituents();
-	        for (Constituent c : constituents) {
-	            String redactedLabel = "";
-	            String redactedViewName = c.getViewName();
-	            int start = c.getStartCharOffset();
-	            int end = c.getEndCharOffset();
-	            Constituent cleansedConstituent = new Constituent(redactedLabel, redactedViewName,
-	                                            textAnnotation, start, end);
-	            view.removeConstituent(c);
-	            view.addConstituent(cleansedConstituent);
-	        }
-	        textAnnotation.addView(view.getViewName(), view);
-    	}
+            View view = textAnnotation.getView(ViewNames.TOKENS);
+            if (view instanceof TokenLabelView) {
+                TokenLabelView tokenLabelView = (TokenLabelView) view;
+                int start = tokenLabelView.getStartSpan();
+                int end = tokenLabelView.getEndSpan();
+                List<Constituent> constituents = tokenLabelView.getConstituents();
+                for (Constituent c : constituents) {
+                    tokenLabelView.removeConstituent(c);
+                }
+                for (int i = start; i < end; i++) {
+                    tokenLabelView.addTokenLabel(i, "", 1.0);
+                }
+                textAnnotation.addView(view.getViewName(), view);
+            }
+        }
         return textAnnotations;
     }
 }
