@@ -17,6 +17,7 @@ import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
 import models.Configuration;
 import models.Job;
 import models.LearnerInterface;
+import models.LearnerSettings;
 import play.libs.ws.WSResponse;
 
 /**

@@ -23,6 +23,8 @@ import play.libs.ws.WS;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 
+import models.LearnerSettings;
+
 /**
  * Temporary class to represent a dummy solver that lives within the evaluation framework
  */
