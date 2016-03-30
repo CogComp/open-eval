@@ -156,10 +156,7 @@ public class Application extends Controller {
         String comment = bindedForm.get("comment");
 
         FrontEndDBInterface f = new FrontEndDBInterface();
-        String record_id = f.storeRunInfo(Integer.parseInt(configuration_id), url, author, repo, comment);
 
-        // TODO: Test connection. Replace Core.startJob() with
-        // Core.testConnection();
         if (Core.testConnection(url) == null) {
             AddRunViewModel viewModel = new AddRunViewModel();
             viewModel.configuration_id = configuration_id;
@@ -171,6 +168,8 @@ public class Application extends Controller {
 
             return ok(addRun.render(viewModel));
         }
+
+        String record_id = f.storeRunInfo(Integer.parseInt(configuration_id), url, author, repo, comment);
 
         masterActor.tell(new SetUpJobMessage(configuration_id, url, record_id), masterActor);
         WorkingViewModel viewModel = new WorkingViewModel();
