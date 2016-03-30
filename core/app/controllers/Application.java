@@ -216,6 +216,11 @@ public class Application extends Controller {
         FrontEndDBInterface f = new FrontEndDBInterface();
         Record associated_record = f.getRecordFromRecordID(Integer.parseInt(record_id));
 
+        if (associated_record.isRunning) {
+            // Josh how do we set real progress Page Link?
+            associated_record.progressPageLink = "https://www.google.com";
+        }
+
         viewModel.record = associated_record;
         return ok(record.render(viewModel));
     }

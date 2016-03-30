@@ -19,6 +19,7 @@ public class Record {
     public String configuration_id;
     public String record_id;
     public boolean isRunning;
+    public String progressPageLink;
 
     public Record(String record_id, String date, String comment, String repo,
                   String author, Metrics metrics, String configuration_id) {
@@ -30,6 +31,7 @@ public class Record {
         this.metrics = metrics;
         this.configuration_id = configuration_id;
         this.isRunning = false;
+        this.progressPageLink = "";
     }
 
     public Record(String record_id, String date, String comment, String repo,

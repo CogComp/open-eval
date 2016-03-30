@@ -17,6 +17,9 @@
                 Record @viewModel.record.record_id
               </a></li>
             </ol>
+            @if(viewModel.record.isRunning) {
+              <a href="@viewModel.record.progressPageLink">Progress page link</a>
+            }
             <div class="table-responsive">
               <table class="table">
                 <thead>
@@ -130,6 +133,14 @@
                       <a href="/configuration?conf=@viewModel.record.configuration_id">
                         @viewModel.record.configuration_id
                       </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      finished
+                    </td>
+                    <td>
+                      @(!viewModel.record.isRunning)
                     </td>
                   </tr>
                 </tbody>
