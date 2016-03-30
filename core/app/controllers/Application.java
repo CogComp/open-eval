@@ -231,4 +231,70 @@ public class Application extends Controller {
     public Result about() {
         return ok(about.render());
     }
+
+    public List<String> getTeamNames() {
+        List<String> teamNames = new ArrayList<>();
+
+        teamNames.add("team NN1");
+        teamNames.add("team NN2");
+        teamNames.add("team CRF1");
+        teamNames.add("team CRF2");
+        teamNames.add("team Perc1");
+        teamNames.add("team Perc2");
+        teamNames.add("team SVM1");
+        teamNames.add("team SVM2");
+        teamNames.add("team Exp1");
+        teamNames.add("team Exp2");
+
+        return teamNames;
+    }
+
+    public Result login() {
+        LoginViewModel viewModel = new LoginViewModel();
+
+        viewModel.teamNames = getTeamNames();
+
+        return ok(login.render(viewModel));
+    }
+
+    public Result addUser() {
+        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+
+        String username = bindedForm.get("username");
+        String verify = bindedForm.get("verify");
+        String password = bindedForm.get("password");
+        String teamName = bindedForm.get("teamName");
+
+        if(! password.equals(verify)) {
+            String error = "Password and password verification do not match"; 
+            LoginViewModel viewModel = new LoginViewModel();
+            viewModel.errorMessage = error;
+            viewModel.username = username;
+            viewModel.teamNames = getTeamNames();
+            viewModel.teamName = teamName;
+            return ok(login.render(viewModel));
+        }
+        
+        // set some cookie?
+        return redirect("/");
+    }
+
+    public Result loginUser() {
+        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+
+        String username = bindedForm.get("loginUsername");
+        String password = bindedForm.get("loginPassword");
+
+        if(/*some error occues*/ password.equals("errorCheck")) {
+            String error = "Some error"; 
+            LoginViewModel viewModel = new LoginViewModel();
+            viewModel.errorMessage = error;
+            viewModel.loginUsername = username;
+            viewModel.teamNames = getTeamNames();
+            return ok(login.render(viewModel));
+        }
+        
+        // set some cookie?
+        return redirect("/");
+    }
 }

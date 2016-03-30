@@ -37,3 +37,10 @@ GET        /working/prog         controllers.Application.getCurrentProgress()
 
 # FAQs
 GET        /about                controllers.Application.about()
+
+# Authentication
+GET        /login                controllers.Application.login()
+
+POST       /addUser              controllers.Application.addUser()
+
+POST       /loginUser            controllers.Application.loginUser()
