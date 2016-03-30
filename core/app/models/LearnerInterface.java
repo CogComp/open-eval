@@ -32,11 +32,11 @@ public class LearnerInterface {
 	 * @param url - Url of the server to send instances to
 	 */
 	public LearnerInterface(String url) {
+		Config conf = ConfigFactory.load();
+		timeout = conf.getInt("learner.default.timeout");
 		this.infoPoster = WS.url(url+"info");
 		this.instancePoster = WS.url(url+"instance");
 		System.out.println(this.infoPoster);
-		Config conf = ConfigFactory.load();
-		timeout = conf.getInt("learner.default.timeout");
 	}
 
 	/**
@@ -44,7 +44,7 @@ public class LearnerInterface {
 	 * @param textAnnotation - The unsolved instance to send to the solver
 	 * @return The solved TextAnnotation instance retrieved from the solver
 	 */
-	public Promise<WSResponse> processRequest(TextAnnotation textAnnotation) {
+	public Promise<WSResponse> processRequest(TextAnnotation textAnnotation) throws Exception{
 		System.out.println("Sending:"+textAnnotation.getText());
 		String taJson = SerializationHelper.serializeToJson(textAnnotation);
 		Promise<WSResponse> jsonPromise = instancePoster.post(taJson);

@@ -41,6 +41,7 @@ public class MasterActor extends UntypedActor {
             skipped = update.getSkipped();
             total = update.getTotal();
             System.out.println("Completed: " + completed);
+            System.out.println("Skipped: " + skipped);
             System.out.println("Total: " + total);
         }
         // When the progress bar page polls for an updated status, Master

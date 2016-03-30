@@ -34,7 +34,7 @@ public class JobProcessingActor extends UntypedActor {
      * notifies its parent, the MasterActor, of its progress.
      */
     @Override
-    public void onReceive(Object message) throws Exception {
+    public void onReceive(Object message){
         if (message instanceof SetUpJobMessage) {
             ActorRef master = getSender();
             SetUpJobMessage jobInfo = (SetUpJobMessage) message;
@@ -52,39 +52,53 @@ public class JobProcessingActor extends UntypedActor {
 
             System.out.println("Created Job Processor Worker");
             System.out.println("Sending and recieving annotations:");
-            try {
-                for (int i = 0; i < unprocessedInstances.size(); i++) {
-                    Promise<WSResponse> response = job.sendAndReceiveRequestFromSolver(unprocessedInstances.get(i));
-                    TextAnnotation goldInstance = goldInstances.get(i);
-                    response.onRedeem(new F.Callback<WSResponse>() {
-                        @Override
-                        public void invoke(WSResponse wsResponse) throws Throwable {
-                            TextAnnotation predictedInstance;
-                            try {
-                                String resultJson = wsResponse.getBody();
-                                predictedInstance = SerializationHelper.deserializeFromJson(resultJson);
-                            } catch (Exception e) {
-                                System.out.println(e);
-                                skipped++;
-                                getSender().tell(new StatusUpdate(completed, skipped, total), getSelf());
-                                return;
-                            }
-                            Core.evaluate(evaluator, eval, goldInstance, predictedInstance);
-                            completed++;
-                            master.tell(new StatusUpdate(completed, skipped, total), getSelf());
-
-                            System.out.println("Completed(worker):" + completed);
-                            if(completed+skipped < total)
-                                Core.storeResultsOfRunInDatabase(eval, record_id, true);
-                            else
-                                Core.storeResultsOfRunInDatabase(eval, record_id, false);
-                        }
-                    });
-                    response.get(5000);
+            for (int i = 0; i < unprocessedInstances.size(); i++) {
+                Promise<WSResponse> response;
+                try {
+                    response = job.sendAndReceiveRequestFromSolver(unprocessedInstances.get(i));
+                } catch(Exception e){
+                    System.out.println(e);
+                    skipped++;
+                    master.tell(new StatusUpdate(completed, skipped, total), getSelf());
+                    continue;
                 }
-            } catch (Exception ex) {
-                System.out.println("Error sending and receiving text annotations");
-                Core.storeResultsOfRunInDatabase(eval, record_id, false);
+                TextAnnotation goldInstance = goldInstances.get(i);
+                response.onFailure(new F.Callback<Throwable>(){
+                    @Override
+                    public void invoke(Throwable error) {
+                        skipped++;
+                        master.tell(new StatusUpdate(completed, skipped, total), getSelf());
+                        if (completed + skipped >= total)
+                            Core.storeResultsOfRunInDatabase(eval, record_id, false);
+                    }
+                });
+                System.out.println("INITIALIZED ERROR CHECK");
+                response.onRedeem(new F.Callback<WSResponse>() {
+                    @Override
+                    public void invoke(WSResponse wsResponse) throws Throwable {
+                        TextAnnotation predictedInstance;
+                        try {
+                            String resultJson = wsResponse.getBody();
+                            predictedInstance = SerializationHelper.deserializeFromJson(resultJson);
+                        } catch (Exception e) {
+                            System.out.println(e);
+                            skipped++;
+                            master.tell(new StatusUpdate(completed, skipped, total), getSelf());
+                            return;
+                        }
+                        Core.evaluate(evaluator, eval, goldInstance, predictedInstance);
+                        completed++;
+                        master.tell(new StatusUpdate(completed, skipped, total), getSelf());
+
+                        System.out.println("Completed(worker):" + completed);
+                        if (completed + skipped < total)
+                            Core.storeResultsOfRunInDatabase(eval, record_id, true);
+                        else
+                            Core.storeResultsOfRunInDatabase(eval, record_id, false);
+                    }
+                });
+
+                response.get(5000);
             }
             System.out.println("Done");
         } else
