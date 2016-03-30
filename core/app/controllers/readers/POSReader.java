@@ -108,7 +108,7 @@ public class POSReader {
     private void insertIntoDatasets(String corpusName) {
         FrontEndDBInterface f = new FrontEndDBInterface(); 
         Connection conn = f.getConnection(); 
-        String sql = "INSERT INTO datasets VALUES (?);";
+        String sql = "INSERT INTO datasets VALUES (?, 'Part of Speech Tagging') ;";
         
         try {
             PreparedStatement stmt = conn.prepareStatement(sql);

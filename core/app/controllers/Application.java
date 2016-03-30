@@ -24,6 +24,8 @@ import akka.*;
 import play.mvc.Controller;
 import javax.inject.*;
 
+import controllers.readers.POSReader;
+
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import static akka.pattern.Patterns.ask;
@@ -55,6 +57,8 @@ public class Application extends Controller {
     }
 
     public Result index() {
+        //POSReader p = new POSReader();
+        //p.insertDatasetIntoDB("test-500.br", "C:\\Users\\Deepak\\Desktop\\Current School\\Open Eval\\Datasets\\posdata\\22-24-500.br");
         IndexViewModel viewModel = new IndexViewModel();
         viewModel.configurations = getConfigurations();
         return ok(index.render(viewModel));
