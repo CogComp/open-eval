@@ -230,9 +230,13 @@
             @for(record <- viewModel.configuration.records) {
               <tr @if(record.isRunning) {class="running"} >
                 <td>
-                  <a href="record?record_id=@record.record_id">
-                    @record.record_id
-                  </a>
+                  @if(record.isRunning) {
+                    <a href="working?conf=@viewModel.configuration.configuration_id&record=@record.record_id">
+                  } else {
+                    <a href="record?record_id=@record.record_id">
+                  }
+                      @record.record_id
+                    </a>
                 </td>
                 <td>@record.date</td>
                 <td>@record.author</td>
