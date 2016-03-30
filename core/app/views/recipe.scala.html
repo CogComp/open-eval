@@ -237,9 +237,19 @@
                 <td>@record.date</td>
                 <td>@record.author</td>
                 <td>
-                  <a href="@record.repo">
-                    code link
-                  </a>
+                  @if(record.repo.length() < 4) {
+                    (No link provided)
+                  } else {
+                    @if(record.repo.substring(0,4).equals("http")) {
+                      <a href="@record.repo">
+                        @record.repo code link
+                      </a>
+                    } else {
+                      <a href="http://@record.repo">
+                        @record.repo code link
+                      </a>
+                    }
+                  }
                 </td>
                 <td>@record.comment</td>
                 <td><span class="score">@record.metrics.f1</span></td>
