@@ -233,7 +233,7 @@ public class Application extends Controller {
                         result.put("correctCount", eval.getCorrectCount());
                         result.put("predictedCount", eval.getPredictedCount());
                         result.put("missedCount", eval.getMissedCount());
-                        result.put("extraCount", eval.getExtraCount())
+                        result.put("extraCount", eval.getExtraCount());
 
                         return ok(result);
                     }
