@@ -54,7 +54,8 @@ public class Application extends Controller {
         return configList;
     }
 
-    public Result index() {
+    @Security.Authenticated(Secured.class)
+    public Result index() {        
         IndexViewModel viewModel = new IndexViewModel();
         viewModel.configurations = getConfigurations();
         return ok(index.render(viewModel));
@@ -168,10 +169,8 @@ public class Application extends Controller {
         String record_id = f.storeRunInfo(Integer.parseInt(configuration_id), url, author, repo, comment);
 
         masterActor.tell(new SetUpJobMessage(configuration_id, url, record_id), masterActor);
-        WorkingViewModel viewModel = new WorkingViewModel();
-        viewModel.conf_id = configuration_id;
-        viewModel.percent_complete = 0;
-        return ok(working.render(viewModel));
+
+        return redirect("/record?record_id="+record_id);
     }
 
     public Result progressBar(String configuration_id) {
@@ -183,43 +182,38 @@ public class Application extends Controller {
 
     public Promise<Result> getCurrentProgress() {
         return Promise.wrap(ask(masterActor, new StatusRequest("requesting status"), 60000))
-                .map(new Function<Object, Result>() {
-                    public Result apply(Object response) {
-                        ObjectNode result = Json.newObject();
-                        if (response instanceof StatusUpdate) {
-                            StatusUpdate update = ((StatusUpdate) response);
-                            int percentComplete;
-                            if (update.getTotal() > 0) {
-                                double comp = ((double) update.getCompleted()) / ((double) update.getTotal());
-                                percentComplete = (int) (comp * 100.0);
-                            } else {
-                                percentComplete = 0;
-                            }
-                            System.out.println("Percent Complete: " + Integer.toString(percentComplete));
-                            result.put("percent_complete", Integer.toString(percentComplete));
-                            result.put("completed", Integer.toString(update.getCompleted()));
-                            result.put("skipped", Integer.toString(update.getSkipped()));
-                            result.put("total", Integer.toString(update.getTotal()));
-                            return ok(result);
+            .map(new Function<Object, Result>() {
+                public Result apply(Object response) {
+                    ObjectNode result = Json.newObject();
+                    if (response instanceof StatusUpdate) {
+                        StatusUpdate update = ((StatusUpdate) response);
+                        int percentComplete;
+                        if (update.getTotal() > 0) {
+                            double comp = ((double) update.getCompleted()) / ((double) update.getTotal());
+                            percentComplete = (int) (comp * 100.0);
+                        } else {
+                            percentComplete = 0;
                         }
-                        result.put("percent_complete", "0");
-                        result.put("completed", "0");
-                        result.put("skipped", "0");
-                        result.put("total", "0");
+                        System.out.println("Percent Complete: " + Integer.toString(percentComplete));
+                        result.put("percent_complete", Integer.toString(percentComplete));
+                        result.put("completed", Integer.toString(update.getCompleted()));
+                        result.put("skipped", Integer.toString(update.getSkipped()));
+                        result.put("total", Integer.toString(update.getTotal()));
                         return ok(result);
                     }
-                });
+                    result.put("percent_complete", "0");
+                    result.put("completed", "0");
+                    result.put("skipped", "0");
+                    result.put("total", "0");
+                    return ok(result);
+                }
+            });
     }
 
     public Result record(String record_id) {
         RecordViewModel viewModel = new RecordViewModel();
         FrontEndDBInterface f = new FrontEndDBInterface();
         Record associated_record = f.getRecordFromRecordID(Integer.parseInt(record_id));
-
-        if (associated_record.isRunning) {
-            // Josh how do we set real progress Page Link?
-            associated_record.progressPageLink = "https://www.google.com";
-        }
 
         viewModel.record = associated_record;
         return ok(record.render(viewModel));
@@ -280,7 +274,8 @@ public class Application extends Controller {
             return ok(login.render(viewModel));
         }
         
-        // set some cookie?
+        session().clear();
+        session("username", username);
         return redirect("/");
     }
 
@@ -300,6 +295,13 @@ public class Application extends Controller {
         }
         
         // set some cookie?
+        session().clear();
+        session("username", username);
+        return redirect("/");
+    }
+
+    public Result logout() {
+        session().clear();
         return redirect("/");
     }
 }
