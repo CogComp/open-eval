@@ -54,6 +54,7 @@ public class Application extends Controller {
         return configList;
     }
 
+    // eventually things should all be seperated into a class, and this should be at the class level
     @Security.Authenticated(Secured.class)
     public Result index() {        
         IndexViewModel viewModel = new IndexViewModel();
@@ -61,6 +62,7 @@ public class Application extends Controller {
         return ok(index.render(viewModel));
     }
 
+    @Security.Authenticated(Secured.class)
     public Result addConfiguration() {
         AddConfigurationViewModel viewModel = new AddConfigurationViewModel();
 
@@ -85,13 +87,19 @@ public class Application extends Controller {
         return ok(addConfiguration.render(viewModel));
     }
 
+    @Security.Authenticated(Secured.class)
     public Result deleteConfiguration() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
         FrontEndDBInterface f = new FrontEndDBInterface();
-        f.deleteConfigAndRecords(Integer.parseInt(bindedForm.get("conf")));
+        String conf_id = bindedForm.get("conf");
+        if (!Secured.canAccess(request().username(), conf_id)) {
+            return this.authError();
+        }
+        f.deleteConfigAndRecords(Integer.parseInt(conf_id));
         return redirect("/");
     }
 
+    @Security.Authenticated(Secured.class)
     public Result submitConfiguration() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
         FrontEndDBInterface f = new FrontEndDBInterface();
@@ -110,7 +118,11 @@ public class Application extends Controller {
         return redirect("/");
     }
 
+    @Security.Authenticated(Secured.class)
     public Result configuration(String configuration_id) {
+        if (!Secured.canAccess(request().username(), configuration_id)) {
+            return this.authError();
+        }
         RecipeViewModel viewModel = new RecipeViewModel();
         FrontEndDBInterface f = new FrontEndDBInterface();
         models.Configuration conf;
@@ -128,13 +140,17 @@ public class Application extends Controller {
         return ok(recipe.render(viewModel));
     }
 
+    @Security.Authenticated(Secured.class)
     public Result addRun(String configuration_id) {
+        if (!Secured.canAccess(request().username(), configuration_id)) {
+            return this.authError();
+        }
         AddRunViewModel viewModel = new AddRunViewModel();
 
         // should also get name passed through here
         viewModel.configuration_id = configuration_id;
         viewModel.default_url = "";
-        viewModel.default_author = "";
+        viewModel.default_author = request().username();
         viewModel.default_repo = "";
         viewModel.default_comment = "";
         viewModel.error_message = "";
@@ -142,10 +158,14 @@ public class Application extends Controller {
         return ok(addRun.render(viewModel));
     }
 
+    @Security.Authenticated(Secured.class)
     public Result submitRun() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
 
         String configuration_id = bindedForm.get("configuration_id");
+        if (!Secured.canAccess(request().username(), configuration_id)) {
+            return this.authError();
+        }
 
         String url = bindedForm.get("url");
         String author = bindedForm.get("author");
@@ -210,18 +230,27 @@ public class Application extends Controller {
             });
     }
 
+    @Security.Authenticated(Secured.class)
     public Result record(String record_id) {
         RecordViewModel viewModel = new RecordViewModel();
         FrontEndDBInterface f = new FrontEndDBInterface();
         Record associated_record = f.getRecordFromRecordID(Integer.parseInt(record_id));
 
+        if (!Secured.canAccess(request().username(), associated_record.configuration_id)) {
+            return this.authError();
+        }
+
         viewModel.record = associated_record;
         return ok(record.render(viewModel));
     }
 
+    @Security.Authenticated(Secured.class)
     public Result deleteRecord() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
         String conf_id = bindedForm.get("configuration_id");
+        if (!Secured.canAccess(request().username(), conf_id)) {
+            return this.authError();
+        }
         FrontEndDBInterface f = new FrontEndDBInterface();
         f.deleteRecordFromRecordID(Integer.parseInt(bindedForm.get("record_id")));
         return redirect("/configuration?conf=" + conf_id);
@@ -231,7 +260,7 @@ public class Application extends Controller {
         return ok(about.render());
     }
 
-    public List<String> getTeamNames() {
+    private List<String> getTeamNames() {
         List<String> teamNames = new ArrayList<>();
 
         teamNames.add("team NN1");
@@ -264,15 +293,30 @@ public class Application extends Controller {
         String password = bindedForm.get("password");
         String teamName = bindedForm.get("teamName");
 
+        LoginViewModel viewModel = new LoginViewModel();
+        viewModel.username = username;
+        viewModel.teamNames = getTeamNames();
+        viewModel.teamName = teamName;
         if(! password.equals(verify)) {
             String error = "Password and password verification do not match"; 
-            LoginViewModel viewModel = new LoginViewModel();
             viewModel.errorMessage = error;
-            viewModel.username = username;
-            viewModel.teamNames = getTeamNames();
-            viewModel.teamName = teamName;
+            return ok(login.render(viewModel));
+        } else if (password.length() == 0) {
+            String error = "Password cannot be of length 0";
+            viewModel.errorMessage = error;
             return ok(login.render(viewModel));
         }
+
+        boolean teamPassCorrect = true;
+        //@Deepak add check that the team password is correct
+        if (!teamPassCorrect) {
+            String error = "Team password is incorrect";
+            viewModel.errorMessage = error;
+            return ok(login.render(viewModel));
+        }
+
+
+        //@Deepak insert a record into the user db with this username and pw
         
         session().clear();
         session("username", username);
@@ -285,6 +329,7 @@ public class Application extends Controller {
         String username = bindedForm.get("loginUsername");
         String password = bindedForm.get("loginPassword");
 
+        //@Deepak get password for username from db
         if(/*some error occues*/ password.equals("errorCheck")) {
             String error = "Some error"; 
             LoginViewModel viewModel = new LoginViewModel();
@@ -294,14 +339,18 @@ public class Application extends Controller {
             return ok(login.render(viewModel));
         }
         
-        // set some cookie?
         session().clear();
         session("username", username);
         return redirect("/");
     }
 
+    @Security.Authenticated(Secured.class)
     public Result logout() {
         session().clear();
         return redirect("/");
+    }
+
+    private Result authError() {
+        return forbidden("403 Forbidden: User does not have access to this configuration");
     }
 }
