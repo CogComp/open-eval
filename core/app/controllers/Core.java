@@ -2,6 +2,7 @@ package controllers;
 
 import java.util.List;
 
+import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
 import models.LearnerSettings;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -13,7 +14,6 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
 import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
 import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.ConstituentLabelingEvaluator;
-import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
 import models.Configuration;
 import models.Job;
 import models.LearnerInterface;

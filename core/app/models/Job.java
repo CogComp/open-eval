@@ -43,7 +43,7 @@ public class Job {
 		skip = new ArrayList<>();
 	}
 
-	public LearnerInstancesResponse sendAndReceiveRequestsFromSolver(List<TextAnnotation> tas) {
+	public Promise<LearnerInstancesResponse> sendAndReceiveRequestsFromSolver(List<TextAnnotation> tas) {
 		return learnerInterface.processRequests(tas);
 	}
 

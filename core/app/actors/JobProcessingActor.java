@@ -61,23 +61,32 @@ public class JobProcessingActor extends UntypedActor {
                 for (int startIndex = 0; startIndex < unprocessedInstances.size(); startIndex+=maxBatchSize) {
                     int batchSize = Math.min(maxBatchSize, unprocessedInstances.size() - startIndex);
                     List<TextAnnotation> batch = makeBatch(unprocessedInstances, startIndex, batchSize);
-                    LearnerInstancesResponse response = job.sendAndReceiveRequestsFromSolver(batch);
+                    Promise<LearnerInstancesResponse> response = job.sendAndReceiveRequestsFromSolver(batch);
 
-                    for(int batchIndex = 0;batchIndex<batchSize;batchIndex++){
-                        if (response.textAnnotations[batchIndex] != null){
-                            TextAnnotation goldInstance = goldInstances.get(startIndex + batchIndex);
-                            Core.evaluate(evaluator, eval, goldInstance, response.textAnnotations[batchIndex]);
-                            completed++;
-                        } else {
-                            skipped++;
+                    int batchStartIndex = startIndex;
+
+                    response.onRedeem(new F.Callback<LearnerInstancesResponse>() {
+                        @Override
+                        public void invoke(LearnerInstancesResponse learnerInstancesResponse) throws Throwable {
+                            for(int batchIndex = 0;batchIndex<batchSize;batchIndex++){
+                                if (learnerInstancesResponse.textAnnotations[batchIndex] != null){
+                                    TextAnnotation goldInstance = goldInstances.get(batchStartIndex + batchIndex);
+                                    Core.evaluate(evaluator, eval, goldInstance, learnerInstancesResponse.textAnnotations[batchIndex]);
+                                    completed++;
+                                } else {
+                                    skipped++;
+                                }
+                                if(completed+skipped < total)
+                                    Core.storeResultsOfRunInDatabase(eval, record_id, true);
+                                else
+                                    Core.storeResultsOfRunInDatabase(eval, record_id, false);
+                            }
+                            master.tell(new StatusUpdate(completed, skipped, total), getSelf());
+                            System.out.println(String.format("Completed batch of size %s", batchSize));
                         }
-                        if(completed+skipped < total)
-                            Core.storeResultsOfRunInDatabase(eval, record_id, true);
-                        else
-                            Core.storeResultsOfRunInDatabase(eval, record_id, false);
-                    }
-                    master.tell(new StatusUpdate(completed, skipped, total), getSelf());
-                    System.out.println(String.format("Completed batch of size %s, starting at %s", batchSize, startIndex));
+                    });
+
+                    response.get(30000);
                 }
             } catch (Exception ex) {
                 System.out.println("Error sending and receiving text annotations");

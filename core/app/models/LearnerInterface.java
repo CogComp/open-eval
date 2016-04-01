@@ -16,6 +16,7 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 import play.api.libs.ws.*;
+import play.libs.F;
 import play.libs.ws.*;
 import play.libs.F.Promise;
 import play.mvc.Http;
@@ -56,7 +57,7 @@ public class LearnerInterface {
 	 * @param textAnnotations - The unsolved instances to send to the solver
 	 * @return The solved TextAnnotation instance retrieved from the solver
 	 */
-	public LearnerInstancesResponse processRequests(List<TextAnnotation> textAnnotations) {
+	public Promise<LearnerInstancesResponse> processRequests(List<TextAnnotation> textAnnotations) {
 		System.out.println(String.format("Sending %n TextAnnotations", textAnnotations.size()));
 
 		StringBuilder stringBuilder = new StringBuilder();
@@ -68,37 +69,43 @@ public class LearnerInterface {
 		}
 		stringBuilder.replace(stringBuilder.length() - 1, stringBuilder.length(), "]");
 
-		Promise<WSResponse> jsonPromise = instancePoster.post(stringBuilder.toString());
-		WSResponse response = jsonPromise.get(50000);
+		Promise<LearnerInstancesResponse> promise = Promise.promise(new F.Function0<LearnerInstancesResponse>() {
+			@Override
+			public LearnerInstancesResponse apply() throws Throwable {
+				Promise<WSResponse> jsonPromise = instancePoster.post(stringBuilder.toString());
+				WSResponse response = jsonPromise.get(50000);
 
-		TextAnnotation[] results = new TextAnnotation[textAnnotations.size()];
-		String[] errors = new String[textAnnotations.size()];
-		String requestWideError = null;
+				TextAnnotation[] results = new TextAnnotation[textAnnotations.size()];
+				String[] errors = new String[textAnnotations.size()];
+				String requestWideError = null;
 
-		if (response.getStatus() == Http.Status.OK) {
-			JsonNode json = response.asJson();
+				if (response.getStatus() == Http.Status.OK) {
+					JsonNode json = response.asJson();
 
-			for(int i=0;i<json.size();i++){
-				JsonNode instanceInfo = json.get(i);
+					for(int i=0;i<json.size();i++){
+						JsonNode instanceInfo = json.get(i);
 
-				if(instanceInfo.has(TEXT_ANNOTATION_PROPERTY)) {
-					String textAnnotationJson = instanceInfo.get(TEXT_ANNOTATION_PROPERTY).toString();
-					try {
-						results[i] = SerializationHelper.deserializeFromJson(textAnnotationJson);
-					} catch (Exception e) {
-						errors[i] = "Server side error parsing Text Annotation: " + e.getLocalizedMessage();
+						if(instanceInfo.has(TEXT_ANNOTATION_PROPERTY)) {
+							String textAnnotationJson = instanceInfo.get(TEXT_ANNOTATION_PROPERTY).toString();
+							try {
+								results[i] = SerializationHelper.deserializeFromJson(textAnnotationJson);
+							} catch (Exception e) {
+								errors[i] = "Server side error parsing Text Annotation: " + e.getLocalizedMessage();
+							}
+						}
+						else if (instanceInfo.has(ERROR_PROPERTY)){
+							errors[i] = instanceInfo.get(ERROR_PROPERTY).asText();
+						}
 					}
 				}
-				else if (instanceInfo.has(ERROR_PROPERTY)){
-					errors[i] = instanceInfo.get(ERROR_PROPERTY).asText();
+				else {
+					requestWideError = response.getBody();
 				}
+				return new LearnerInstancesResponse(results, errors, requestWideError);
 			}
-		}
-		else {
-			requestWideError = response.getBody();
-		}
-		return new LearnerInstancesResponse(results, errors, requestWideError);
+		});
 
+		return promise;
 	}
 	
 	public LearnerSettings getInfo(){
