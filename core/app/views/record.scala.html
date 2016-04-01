@@ -56,21 +56,24 @@
                 $(document).ready(function(){
                   var progresspump = setInterval(function(){
                   // Query the completion percentage from the server.
-                  $.get("/working/prog", function(data){
+                  $.get("/working/prog?record=@viewModel.record.record_id", function(data){
                     // Extract JSON data.
                     var progress_info = data;
                     var percent = progress_info.percent_complete;
                     var completed = progress_info.completed;
                     var skipped = progress_info.skipped;
                     var total = progress_info.total;
+                    var error = progress_info.error;
                     $("#progress").css('width',percent+'%');
                     $("#progress").html(percent+'%');
                     // If no Text Annotations have been completed, notify the user that the instances are
                     // being pulled from the database.
-                    if (completed == 0) {
+                    if (completed == 0 && error === "") {
                       $("#database").html("Retrieving instances from database...");
-                    } else {
+                    } else if(error === ""){
                       $("#database").html("Your datasets are being processed. This may take a moment.");
+                    } else {
+                      $("#database").html(error).css('color', 'red');
                     }
                     $("#completed").html(completed);
                     $("#total").html(total);

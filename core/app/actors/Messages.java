@@ -3,15 +3,6 @@ package actors;
 import models.Job;
 
 public class Messages {
-
-	public static class ErrorMessage {
-		private String error;
-
-		public ErrorMessage(String error) { this.error = error; }
-
-		public String getError() {return error;}
-	}
-
     public static class SetUpJobMessage {
         private String conf_id;
         private String url;
@@ -55,12 +46,14 @@ public class Messages {
         private int skipped;
         private int total;
         private String record_id;
+        private String error;
 
-        public StatusUpdate(int completed, int skipped, int total, String record_id) {
+        public StatusUpdate(int completed, int skipped, int total, String record_id, String error) {
             this.completed = completed;
             this.skipped = skipped;
             this.total = total;
             this.record_id = record_id;
+            this.error = error;
         }
 
         public int getTotal() {
@@ -77,6 +70,10 @@ public class Messages {
         
         public String getRecord_id() {
             return record_id;
+        }
+
+        public String getError() {
+            return error;
         }
     }
 

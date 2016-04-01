@@ -28,11 +28,17 @@ public class Core {
      * Otherwise, it returns the info string returned by the learner server.
      */
     public static String testConnection(String url) {
-        LearnerInterface learner = new LearnerInterface(url);
+        LearnerInterface learner;
+        try {
+            learner = new LearnerInterface(url);
+        }
+        catch(IllegalArgumentException e){
+            return "Invalid Url";
+        }
         String jsonInfo = learner.getInfo();
         if (jsonInfo.equals("err")) {
             System.out.println("Could not connect to server");
-            return null;
+            return "Server at given address was not found";
         }
         return jsonInfo;
     }

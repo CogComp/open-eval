@@ -175,14 +175,15 @@ public class Application extends Controller {
 
         FrontEndDBInterface f = new FrontEndDBInterface();
 
-        if (Core.testConnection(url) == null) {
+        String info = Core.testConnection(url);
+        if (info.equals("Server at given address was not found") || info.equals("Invalid Url")) {
             AddRunViewModel viewModel = new AddRunViewModel();
             viewModel.configuration_id = conf_id;
             viewModel.default_url = url;
             viewModel.default_author = author;
             viewModel.default_repo = repo;
             viewModel.default_comment = comment;
-            viewModel.error_message = "Server at given address was not found";
+            viewModel.error_message = info;
 
             return ok(addRun.render(viewModel));
         }
@@ -221,6 +222,7 @@ public class Application extends Controller {
                         result.put("completed", Integer.toString(update.getCompleted()));
                         result.put("skipped", Integer.toString(update.getSkipped()));
                         result.put("total", Integer.toString(update.getTotal()));
+                        result.put("error", update.getError());
                         return ok(result);
                     }
                     result.put("percent_complete", "0");

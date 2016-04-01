@@ -62,12 +62,7 @@ public class JobProcessingActor extends UntypedActor {
                     System.out.println("ERROR:"+e);
                     Core.storeResultsOfRunInDatabase(eval, record_id, false);
                     skipped+=total-i;
-                    master.tell(new StatusUpdate(completed, skipped, total), getSelf());
-                    break;
-                }
-                if(response == null){
-                    skipped+=total-i;
-                    master.tell(new StatusUpdate(completed, skipped, total), getSelf());
+                    master.tell(new StatusUpdate(completed, skipped, total, record_id, "Could not send annotation to learner"), getSelf());
                     break;
                 }
                 TextAnnotation goldInstance = goldInstances.get(i);
@@ -76,7 +71,7 @@ public class JobProcessingActor extends UntypedActor {
                     public void invoke(Throwable error) {
                         System.out.println("ERROR ERROR ERROR");
                         skipped++;
-                        master.tell(new StatusUpdate(completed, skipped, total), getSelf());
+                        master.tell(new StatusUpdate(completed, skipped, total, record_id, "Communication error with learner"), getSelf());
                         if (completed + skipped >= total)
                             Core.storeResultsOfRunInDatabase(eval, record_id, false);
                     }
@@ -92,9 +87,8 @@ public class JobProcessingActor extends UntypedActor {
                         } catch (Exception e) {
                             System.out.println(e);
                             skipped++;
-                            master.tell(new StatusUpdate(completed, skipped, total), getSelf());
+                            master.tell(new StatusUpdate(completed, skipped, total, record_id, "Received bad response"), getSelf());
                             if (completed + skipped < total)
-
                                 Core.storeResultsOfRunInDatabase(eval, record_id, true);
                             else
                                 Core.storeResultsOfRunInDatabase(eval, record_id, false);
@@ -102,7 +96,7 @@ public class JobProcessingActor extends UntypedActor {
                         }
                         Core.evaluate(evaluator, eval, goldInstance, predictedInstance);
                         completed++;
-                        master.tell(new StatusUpdate(completed, skipped, total), getSelf());
+                        master.tell(new StatusUpdate(completed, skipped, total, record_id, ""), getSelf());
 
                         System.out.println("Completed(worker):" + completed);
                         if (completed + skipped < total)
@@ -112,10 +106,11 @@ public class JobProcessingActor extends UntypedActor {
                     }
                 });
                 try{
-                    response.get(5000);
+                    response.get(500000);
                 }
                 catch(Exception e){
-                    master.tell(new ErrorMessage("Lost Connection to Learner"), getSelf());
+                    master.tell(new StatusUpdate(completed, skipped, total, record_id, "Communication error with learner"), getSelf());
+                    Core.storeResultsOfRunInDatabase(eval, record_id, false);
                     break;
                 }
             }
