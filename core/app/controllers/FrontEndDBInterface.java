@@ -39,6 +39,55 @@ public class FrontEndDBInterface {
     	password = conf.getString("db.default.password");
     	timeout = conf.getInt("db.default.timeout");
     }
+    
+    /**----------------------USER & TEAM DB FUNCTIONS-------------------------------------------*/
+    public void insertNewUserToDB(String userName, String password, String team) {
+        try {
+            Connection conn = getConnection();
+            
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(password.getBytes("UTF-8"));
+            byte[] passByteArr = md.digest();
+            String passHex = bytesToHex(passByteArr);
+            
+            String sql = "INSERT INTO users(username, password, team);";
+            
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, userName);
+            stmt.setString(2, passHex);
+            stmt.setString(3, team);
+            
+            stmt.executeUpdate();
+            conn.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public boolean checkTeamPassword(String teamName, String teamPassword) {
+        try {
+            Connection conn = getConnection();
+           
+            String sql = "SELECT password FROM teams WHERE name = ?;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, teamName);
+            
+            ResultSet passwordRS = stmt.executeQuery();
+            passwordRS.first();
+            String teamPassHashDB = passwordRS.getString(1);
+            
+            /*Hashing the users password.*/
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(password.getBytes("UTF-8"));
+            byte[] passByteArr = md.digest();
+            String teamPassHashUser = bytesToHex(passByteArr);
+            
+            /*Comparing the user's password with the one in the database.*/
+            
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
     /**----------------------CONFIGURATION DB FUNCTIONS----------------------------------*/    
     
     
@@ -392,6 +441,18 @@ public class FrontEndDBInterface {
         }
         
         
+    }
+    
+    /**---------------------HELPER FUNCTIONS-----------------------------------*/
+    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
     }
     
     
