@@ -62,6 +62,11 @@ public class Application extends Controller {
         return ok(index.render(viewModel));
     }
 
+    public Result welcome() {
+        WelcomeViewModel viewModel = new WelcomeViewModel();
+        return ok(welcome.render(viewModel));
+    }
+
     @Security.Authenticated(Secured.class)
     public Result addConfiguration() {
         AddConfigurationViewModel viewModel = new AddConfigurationViewModel();
