@@ -21,7 +21,7 @@ public class Record {
     public boolean isRunning;
 
     public Record(String record_id, String date, String comment, String repo,
-                  String author, Metrics metrics, String configuration_id) {
+                  String author, Metrics metrics, String configuration_id, boolean ir) {
         this.date = date;
         this.comment = comment;
         this.repo = repo;
@@ -29,8 +29,11 @@ public class Record {
         this.record_id = record_id;
         this.metrics = metrics;
         this.configuration_id = configuration_id;
-        this.isRunning = false;
-    }
+        this.isRunning = ir;    }
+
+    public Record(String record_id, String date, String comment, String repo,
+                  String author, Metrics metrics, String configuration_id) {
+        this(record_id, date, comment, repo, author, metrics, configuration_id, false);    }
 
     public Record(String record_id, String date, String comment, String repo,
                   String author, Metrics metrics) {

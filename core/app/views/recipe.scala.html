@@ -58,25 +58,19 @@
         <script type="text/javascript">
           f1_data = [
             @for(record <- viewModel.configuration.records) {
-              @if(!record.isRunning) {
-                {'sdate':'@record.date',"close":+@record.metrics.f1,'id':@record.record_id},
-              }
+              {'sdate':'@record.date',"close":+@record.metrics.f1,'id':@record.record_id},
             }
           ];
 
           precision_data = [
             @for(record <- viewModel.configuration.records) {
-              @if(!record.isRunning) {
-                {'sdate':'@record.date',"close":+@record.metrics.precision,'id':@record.record_id},
-              }
+              {'sdate':'@record.date',"close":+@record.metrics.precision,'id':@record.record_id},
             }
           ];
 
           recall_data = [
             @for(record <- viewModel.configuration.records) {
-              @if(!record.isRunning) {
-                {'sdate':'@record.date',"close":+@record.metrics.recall,'id':@record.record_id},
-              }
+              {'sdate':'@record.date',"close":+@record.metrics.recall,'id':@record.record_id},
             }
           ];
 
@@ -114,13 +108,13 @@
           min_date = min_date.substring(0, min_date.length - 2);
           max_date = max_date.substring(0, max_date.length - 2);
         </script>
+        @header()
         <ol class="breadcrumb">
           <li><a href="/">Open Eval</a></li>
           <li><a href="/configuration?conf=@viewModel.configuration.configuration_id">
             Configuration @viewModel.configuration.configuration_name
           </a></li>
         </ol>
-        @header()
         <p>
           @defining(viewModel.configuration){conf =>
             @conf.description
@@ -218,6 +212,7 @@
             </tr>
           </tbody>
         </table>
+        <em>click table header to sort</em>
         <table class="table table-bordered sortable">
           <thead>
             <tr>
@@ -235,16 +230,30 @@
             @for(record <- viewModel.configuration.records) {
               <tr @if(record.isRunning) {class="running"} >
                 <td>
-                  <a href="record?record_id=@record.record_id">
-                    @record.record_id
-                  </a>
+                  @if(record.isRunning) {
+                    <a href="working?conf=@viewModel.configuration.configuration_id&record=@record.record_id">
+                  } else {
+                    <a href="record?record_id=@record.record_id">
+                  }
+                      @record.record_id
+                    </a>
                 </td>
                 <td>@record.date</td>
                 <td>@record.author</td>
                 <td>
-                  <a href="@record.repo">
-                    code link
-                  </a>
+                  @if(record.repo.length() < 4) {
+                    (No link provided)
+                  } else {
+                    @if(record.repo.substring(0,4).equals("http")) {
+                      <a href="@record.repo">
+                        code link
+                      </a>
+                    } else {
+                      <a href="http://@record.repo">
+                        code link
+                      </a>
+                    }
+                  }
                 </td>
                 <td>@record.comment</td>
                 <td><span class="score">@record.metrics.f1</span></td>

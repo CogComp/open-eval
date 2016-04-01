@@ -2,22 +2,16 @@ package controllers;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Date;
 
-import play.*;
-import play.mvc.*;
-import play.Logger;
-
-import org.json.*;
-import com.mysql.jdbc.Driver;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
 
@@ -28,13 +22,24 @@ import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
  */
 
 public class FrontEndDBInterface {    
-    private String jdbcDriver = "com.mysql.jdbc.Driver";
-    private String mysqlURL = "jdbc:mysql://gargamel.cs.illinois.edu/openeval_db"; //Change this according to URL of MySQL server.
-    private String username = "oeroot"; //Username to access database.
-    private String password = "Fow,10#"; //Password for the above username. 
+    private String jdbcDriver;
+    private String mysqlURL;
+    private String username;
+    private String password;
+    private Integer timeout;
    
-    /**----------------------CONFIGURATION DB FUNCTIONS----------------------------------*/
+    Config conf;
     
+    public FrontEndDBInterface() {
+    	
+    	conf = ConfigFactory.load();
+    	jdbcDriver = conf.getString("db.default.driver");
+    	mysqlURL = conf.getString("db.default.url");
+    	username = conf.getString("db.default.username");
+    	password = conf.getString("db.default.password");
+    	timeout = conf.getInt("db.default.timeout");
+    }
+    /**----------------------CONFIGURATION DB FUNCTIONS----------------------------------*/    
     
     
     /** Stores the received configuration in the MySQL configurations table and taskvariants table. */
@@ -219,13 +224,13 @@ public class FrontEndDBInterface {
             
             models.Metrics metrics = getMetricsFromRecordID(record_id);
            
-            String sql = "SELECT date, comment, repo, author, configuration_id FROM records WHERE record_id = " + record_id + ";";
+            String sql = "SELECT date, comment, repo, author, configuration_id, isRunning FROM records WHERE record_id = " + record_id + ";";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet recordsRS = stmt.executeQuery();
             recordsRS.first();
             
             models.Record record = new models.Record(Integer.toString(record_id), recordsRS.getTimestamp(1).toString(), recordsRS.getString(2), 
-                recordsRS.getString(3), recordsRS.getString(4), metrics, recordsRS.getString(5));
+                recordsRS.getString(3), recordsRS.getString(4), metrics, recordsRS.getString(5), recordsRS.getBoolean(6));
                 
             conn.close();
             return record;
@@ -399,7 +404,7 @@ public class FrontEndDBInterface {
         }
         
         try { 
-            DriverManager.setLoginTimeout(5);
+            DriverManager.setLoginTimeout(timeout);
             Connection conn = DriverManager.getConnection(mysqlURL, username, password);
             return conn;
         } catch (SQLException e) {
