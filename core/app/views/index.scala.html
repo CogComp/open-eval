@@ -74,17 +74,11 @@
                             </a>
                           </td>
                           @if( configuration.records != null && configuration.records.length > 0 ) {
-                            @if( configuration.records(0).isRunning ) {
-                              <td class="running">
+                            <td @if( configuration.records(0).isRunning ) { class="running" } >
+                              <a href="record?record_id=@configuration.records(0).record_id">
                                 @configuration.records(0).date [ @configuration.records(0).metrics.f1 ]
-                              </td>
-                            } else {
-                              <td>
-                                <a href="record?record_id=@configuration.records(0).record_id">
-                                  @configuration.records(0).date [ @configuration.records(0).metrics.f1 ]
-                                </a>
-                              </td>
-                            }
+                              </a>
+                            </td>
                           } else {
                             <td> [no most recent record] </td>
                           }
