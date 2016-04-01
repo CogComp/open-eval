@@ -162,8 +162,9 @@ public class Application extends Controller {
     public Result submitRun() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
 
-        String configuration_id = bindedForm.get("configuration_id");
-        if (!Secured.canAccess(request().username(), configuration_id)) {
+        String conf_id = bindedForm.get("configuration_id");
+
+        if (!Secured.canAccess(request().username(), conf_id)) {
             return this.authError();
         }
 
@@ -176,7 +177,7 @@ public class Application extends Controller {
 
         if (Core.testConnection(url) == null) {
             AddRunViewModel viewModel = new AddRunViewModel();
-            viewModel.configuration_id = configuration_id;
+            viewModel.configuration_id = conf_id;
             viewModel.default_url = url;
             viewModel.default_author = author;
             viewModel.default_repo = repo;
@@ -186,22 +187,24 @@ public class Application extends Controller {
             return ok(addRun.render(viewModel));
         }
 
-        String record_id = f.storeRunInfo(Integer.parseInt(configuration_id), url, author, repo, comment);
+        String record_id = f.storeRunInfo(Integer.parseInt(conf_id), url, author, repo, comment);
 
-        masterActor.tell(new SetUpJobMessage(configuration_id, url, record_id), masterActor);
+        masterActor.tell(new SetUpJobMessage(conf_id, url, record_id), masterActor);
 
         return redirect("/record?record_id="+record_id);
+
     }
 
-    public Result progressBar(String configuration_id) {
+    public Result progressBar(String record_id, String conf_id) {
         WorkingViewModel viewModel = new WorkingViewModel();
-        viewModel.conf_id = configuration_id;
+        viewModel.conf_id = conf_id;
+        viewModel.record_id = record_id;
         viewModel.percent_complete = 0;
         return ok(working.render(viewModel));
     }
 
-    public Promise<Result> getCurrentProgress() {
-        return Promise.wrap(ask(masterActor, new StatusRequest("requesting status"), 60000))
+    public Promise<Result> getCurrentProgress(String record_id) {
+        return Promise.wrap(ask(masterActor, new StatusRequest(record_id), 60000))
             .map(new Function<Object, Result>() {
                 public Result apply(Object response) {
                     ObjectNode result = Json.newObject();
@@ -209,12 +212,11 @@ public class Application extends Controller {
                         StatusUpdate update = ((StatusUpdate) response);
                         int percentComplete;
                         if (update.getTotal() > 0) {
-                            double comp = ((double) update.getCompleted()) / ((double) update.getTotal());
+                            double comp = ((double) (update.getCompleted() + update.getSkipped())) / ((double) update.getTotal());
                             percentComplete = (int) (comp * 100.0);
                         } else {
                             percentComplete = 0;
                         }
-                        System.out.println("Percent Complete: " + Integer.toString(percentComplete));
                         result.put("percent_complete", Integer.toString(percentComplete));
                         result.put("completed", Integer.toString(update.getCompleted()));
                         result.put("skipped", Integer.toString(update.getSkipped()));
@@ -227,6 +229,7 @@ public class Application extends Controller {
                     result.put("total", "0");
                     return ok(result);
                 }
+                
             });
     }
 
