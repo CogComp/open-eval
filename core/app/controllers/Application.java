@@ -134,10 +134,6 @@ public class Application extends Controller {
         }
 
         List<Record> records = f.getRecordsFromConfID(Integer.parseInt(configuration_id));
-        for (Record record : records) {
-            
-        }
-        
         conf.records = records;
         viewModel.configuration = conf;
 
@@ -197,7 +193,6 @@ public class Application extends Controller {
         RecordViewModel viewModel = new RecordViewModel();
         viewModel.record = rec;
         return ok(record.render(viewModel));
-
     }
 
     public Result progressBar(String record_id, String conf_id) {
@@ -228,7 +223,7 @@ public class Application extends Controller {
                         result.put("total", Integer.toString(update.getTotal()));
                         return ok(result);
                     }
-                    result.put("percent_complete", "10");
+                    result.put("percent_complete", "0");
                     result.put("completed", "0");
                     result.put("skipped", "0");
                     result.put("total", "0");

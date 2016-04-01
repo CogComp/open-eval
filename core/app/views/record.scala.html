@@ -70,10 +70,10 @@
 
               <script src="http://code.jquery.com/jquery.js"></script>
               <script type="text/javascript">
+                  function stopRun() {
+                    running = false;
+                  }
                   $(document).ready(function(){
-                    function stopRun() {
-                      running = false;
-                    }
                     var progresspump = setInterval(function(){
                     // Query the completion percentage from the server.
                     $.get("/working/prog?record=" + @viewModel.record.record_id, function(data){
