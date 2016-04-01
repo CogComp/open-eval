@@ -1,5 +1,6 @@
 package actors;
 
+import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
 import models.Job;
 
 public class Messages {
@@ -47,13 +48,15 @@ public class Messages {
         private int total;
         private String record_id;
         private String error;
+        private ClassificationTester eval;
 
-        public StatusUpdate(int completed, int skipped, int total, String record_id, String error) {
+        public StatusUpdate(int completed, int skipped, int total, String record_id, String error, ClassificationTester eval) {
             this.completed = completed;
             this.skipped = skipped;
             this.total = total;
             this.record_id = record_id;
             this.error = error;
+            this.eval = eval;
         }
 
         public int getTotal() {
@@ -75,6 +78,8 @@ public class Messages {
         public String getError() {
             return error;
         }
+
+        public ClassificationTester getEvaluation() { return eval; }
     }
 
     public static class StatusRequest {
