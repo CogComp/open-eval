@@ -63,31 +63,23 @@ public class JobProcessingActor extends UntypedActor {
                     List<TextAnnotation> batch = makeBatch(unprocessedInstances, startIndex, batchSize);
                     Promise<LearnerInstancesResponse> response = job.sendAndReceiveRequestsFromSolver(batch);
 
-                    int batchStartIndex = startIndex;
-
-                    response.onRedeem(new F.Callback<LearnerInstancesResponse>() {
-                        @Override
-                        public void invoke(LearnerInstancesResponse learnerInstancesResponse) throws Throwable {
-                            for(int batchIndex = 0;batchIndex<batchSize;batchIndex++){
-                                if (learnerInstancesResponse.textAnnotations[batchIndex] != null){
-                                    TextAnnotation goldInstance = goldInstances.get(batchStartIndex + batchIndex);
-                                    Core.evaluate(evaluator, eval, goldInstance, learnerInstancesResponse.textAnnotations[batchIndex]);
-                                    completed++;
-                                } else {
-                                    skipped++;
-                                }
-                                if(completed+skipped < total)
-                                    Core.storeResultsOfRunInDatabase(eval, record_id, true);
-                                else
-                                    Core.storeResultsOfRunInDatabase(eval, record_id, false);
-                            }
-                            master.tell(new StatusUpdate(completed, skipped, total), getSelf());
-                            System.out.println(String.format("Completed batch of size %s", batchSize));
-
+                    LearnerInstancesResponse learnerInstancesResponse = response.get(30000);
+                    for(int batchIndex = 0;batchIndex<batchSize;batchIndex++){
+                        if (learnerInstancesResponse.textAnnotations[batchIndex] != null){
+                            TextAnnotation goldInstance = goldInstances.get(startIndex + batchIndex);
+                            Core.evaluate(evaluator, eval, goldInstance, learnerInstancesResponse.textAnnotations[batchIndex]);
+                            completed++;
+                        } else {
+                            skipped++;
                         }
-                    });
+                        if(completed+skipped < total)
+                            Core.storeResultsOfRunInDatabase(eval, record_id, true);
+                        else
+                            Core.storeResultsOfRunInDatabase(eval, record_id, false);
+                    }
+                    master.tell(new StatusUpdate(completed, skipped, total, record_id), getSelf());
+                    System.out.println(String.format("Completed batch of size %s", batchSize));
 
-                    response.get(30000);
                 }
             } catch (Exception ex) {
                 System.out.println("Error sending and receiving text annotations");

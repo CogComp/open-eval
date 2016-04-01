@@ -51,11 +51,13 @@ public class Messages {
 		private int completed;
 		private int skipped;
 		private int total;
+		private String record_id;
 
-		public StatusUpdate(int completed, int skipped, int total) {
+		public StatusUpdate(int completed, int skipped, int total, String record_id) {
 			this.completed = completed;
 			this.skipped = skipped;
 			this.total = total;
+			this.record_id = record_id;
 		}
 
 		public int getTotal() {
@@ -69,17 +71,21 @@ public class Messages {
 		public int getSkipped() {
 			return skipped;
 		}
+
+		public String getRecord_id() {
+			return record_id;
+		}
 	}
 
 	public static class StatusRequest {
-		private String message;
+		private String record_id;
 
-		public StatusRequest(String message) {
-			this.message = message;
+		public StatusRequest(String record_id) {
+			this.record_id = record_id;
 		}
 
-		public String getMessage() {
-			return message;
+		public String getRecord_id() {
+			return record_id;
 		}
 	}
 }

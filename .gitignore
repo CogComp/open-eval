@@ -10,3 +10,4 @@ RUNNING_PID
 project/project/target/*
 target/.history
 target/
+/models
