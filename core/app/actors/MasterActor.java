@@ -19,7 +19,6 @@ public class MasterActor extends UntypedActor {
      * Maps record_id to the current run status.
      */
     private Map<String, RunStatus> runStatuses = new HashMap<>();
-    private Map<String, ActorRef> jobProcessingActors = new HashMap<>();
     private Map<String, Boolean> stopMessages = new HashMap<>();
     String conf_id;
     String record_id;
