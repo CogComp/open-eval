@@ -16,7 +16,7 @@ public class Secured extends Security.Authenticator {
     @Override
     public Result onUnauthorized(Context ctx) {
         // make this go to a welcome page
-        return redirect("/login");
+        return redirect("/welcome");
     }
 
     public static boolean canAccess(String username, String conf_id) {
