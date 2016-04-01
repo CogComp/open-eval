@@ -1,5 +1,6 @@
 package actors;
 
+import java.net.ConnectException;
 import java.util.List;
 
 import actors.Messages.*;
@@ -12,6 +13,7 @@ import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 import models.Job;
 import controllers.Core;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import play.libs.F;
 import play.libs.F.Promise;
 import play.libs.ws.WSResponse;
@@ -56,16 +58,23 @@ public class JobProcessingActor extends UntypedActor {
                 Promise<WSResponse> response;
                 try {
                     response = job.sendAndReceiveRequestFromSolver(unprocessedInstances.get(i));
-                } catch(Exception e){
-                    System.out.println(e);
-                    skipped++;
+                } catch(ConnectException e){
+                    System.out.println("ERROR:"+e);
+                    Core.storeResultsOfRunInDatabase(eval, record_id, false);
+                    skipped+=total-i;
                     master.tell(new StatusUpdate(completed, skipped, total), getSelf());
-                    continue;
+                    break;
+                }
+                if(response == null){
+                    skipped+=total-i;
+                    master.tell(new StatusUpdate(completed, skipped, total), getSelf());
+                    break;
                 }
                 TextAnnotation goldInstance = goldInstances.get(i);
                 response.onFailure(new F.Callback<Throwable>(){
                     @Override
                     public void invoke(Throwable error) {
+                        System.out.println("ERROR ERROR ERROR");
                         skipped++;
                         master.tell(new StatusUpdate(completed, skipped, total), getSelf());
                         if (completed + skipped >= total)
@@ -84,6 +93,10 @@ public class JobProcessingActor extends UntypedActor {
                             System.out.println(e);
                             skipped++;
                             master.tell(new StatusUpdate(completed, skipped, total), getSelf());
+                            if (completed + skipped < total)
+                                Core.storeResultsOfRunInDatabase(eval, record_id, true);
+                            else
+                                Core.storeResultsOfRunInDatabase(eval, record_id, false);
                             return;
                         }
                         Core.evaluate(evaluator, eval, goldInstance, predictedInstance);
@@ -97,8 +110,13 @@ public class JobProcessingActor extends UntypedActor {
                             Core.storeResultsOfRunInDatabase(eval, record_id, false);
                     }
                 });
-
-                response.get(5000);
+                try{
+                    response.get(5000);
+                }
+                catch(Exception e){
+                    master.tell(new ErrorMessage("Lost Connection to Learner"), getSelf());
+                    break;
+                }
             }
             System.out.println("Done");
         } else

@@ -2,6 +2,7 @@ package models;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.net.ConnectException;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -44,7 +45,7 @@ public class LearnerInterface {
 	 * @param textAnnotation - The unsolved instance to send to the solver
 	 * @return The solved TextAnnotation instance retrieved from the solver
 	 */
-	public Promise<WSResponse> processRequest(TextAnnotation textAnnotation) throws Exception{
+	public Promise<WSResponse> processRequest(TextAnnotation textAnnotation) throws ConnectException {
 		System.out.println("Sending:"+textAnnotation.getText());
 		String taJson = SerializationHelper.serializeToJson(textAnnotation);
 		Promise<WSResponse> jsonPromise = instancePoster.post(taJson);
@@ -59,7 +60,7 @@ public class LearnerInterface {
 			Promise<WSResponse> responsePromise = infoPoster.get();
 			WSResponse response = responsePromise.get(timeout);
 			jsonInfo = response.getBody();
-		}	
+		}
 		catch(Exception e){
 			jsonInfo = "err";
 		}

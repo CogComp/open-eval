@@ -6,6 +6,7 @@ import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 import play.libs.F.Promise;
 import play.libs.ws.WSResponse;
 
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class Job {
 		skip = new ArrayList<>();
 	}
 
-	public Promise<WSResponse> sendAndReceiveRequestFromSolver(TextAnnotation ta) throws Exception {
+	public Promise<WSResponse> sendAndReceiveRequestFromSolver(TextAnnotation ta) throws ConnectException {
 		Promise<WSResponse> response = learnerInterface.processRequest(ta);
 		return response;
 	}
