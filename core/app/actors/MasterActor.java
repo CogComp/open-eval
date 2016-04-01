@@ -1,19 +1,24 @@
 package actors;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import actors.Messages.*;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import controllers.Core;
 import models.Job;
+import models.RunStatus;
 
 public class MasterActor extends UntypedActor {
 
     public static Props props = Props.create(MasterActor.class);
-
-    int completed = 0;
-    int skipped = 0;
-    int total = 0;
+    
+    /**
+     * Maps record_id to the current run status.
+     */
+    private Map<String, RunStatus> runStatuses = new HashMap();
     String conf_id;
     String record_id;
 
@@ -22,12 +27,11 @@ public class MasterActor extends UntypedActor {
         // When told to start a job, MasterActor spawns a JobProcessingActor to
         // carry out the job.
         if (message instanceof SetUpJobMessage) {
-            completed = 0;
-            skipped = 0;
-            total = 0;
+            RunStatus runStatus = new RunStatus(0, 0, 0);
             SetUpJobMessage jobInfo = (SetUpJobMessage) message;
             this.conf_id = jobInfo.getConf_id();
             this.record_id = jobInfo.getRecord_id();
+            runStatuses.put(jobInfo.getRecord_id(), runStatus);
             ActorRef jobProcessor = this.getContext().actorOf(JobProcessingActor.props);
             jobProcessor.tell(message, getSelf());
         }
@@ -35,21 +39,19 @@ public class MasterActor extends UntypedActor {
         // TextAnnotation, it
         // updates the master.
         else if (message instanceof StatusUpdate) {
-            System.out.println("Got Status Update");
             StatusUpdate update = (StatusUpdate) message;
-            completed = update.getCompleted();
-            skipped = update.getSkipped();
-            total = update.getTotal();
-            System.out.println("Completed: " + completed);
-            System.out.println("Skipped: " + skipped);
-            System.out.println("Total: " + total);
+            int completed = update.getCompleted();
+            int skipped = update.getSkipped();
+            int total = update.getTotal();
+            runStatuses.put(update.getRecord_id(), new RunStatus(completed, skipped, total));
         }
         // When the progress bar page polls for an updated status, Master
         // returns the
         // number of completed, skipped, and total TextAnnotations.
         else if (message instanceof StatusRequest) {
-            System.out.println("Got Status Message");
-            getSender().tell(new StatusUpdate(completed, skipped, total), getSelf());
+            String id = ((StatusRequest) message).getRecord_id();
+            RunStatus status = runStatuses.get(id);
+            getSender().tell(new StatusUpdate(status.getCompleted(), status.getSkipped(), status.getTotal(), id), getSelf());
         } else {
             System.out.println("unhandled message" + message.toString());
             unhandled(message);
