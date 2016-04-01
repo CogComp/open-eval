@@ -83,6 +83,7 @@ public class JobProcessingActor extends UntypedActor {
                             }
                             master.tell(new StatusUpdate(completed, skipped, total), getSelf());
                             System.out.println(String.format("Completed batch of size %s", batchSize));
+
                         }
                     });
 
