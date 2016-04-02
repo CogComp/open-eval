@@ -56,25 +56,38 @@
                 $(document).ready(function(){
                   var progresspump = setInterval(function(){
                   // Query the completion percentage from the server.
-                  $.get("/working/prog", function(data){
+                  $.get("/working/prog?record=@viewModel.record.record_id", function(data){
                     // Extract JSON data.
                     var progress_info = data;
                     var percent = progress_info.percent_complete;
                     var completed = progress_info.completed;
                     var skipped = progress_info.skipped;
                     var total = progress_info.total;
+                    var error = progress_info.error;
                     $("#progress").css('width',percent+'%');
                     $("#progress").html(percent+'%');
                     // If no Text Annotations have been completed, notify the user that the instances are
                     // being pulled from the database.
-                    if (completed == 0) {
+                    if (completed == 0 && error === "") {
                       $("#database").html("Retrieving instances from database...");
-                    } else {
+                    } else if(error === ""){
                       $("#database").html("Your datasets are being processed. This may take a moment.");
+                    } else {
+                      $("#database").html(error).css('color', 'red');
                     }
                     $("#completed").html(completed);
                     $("#total").html(total);
                     $("#skipped").html(skipped);
+                    $('#precision').html(progress_info.precision);
+                    $('#recall').html(progress_info.recall);
+                    $('#f1').html(progress_info.f1);
+                    $('#Average').html("averageSolveTime");
+                    $('#gold_count').html(progress_info.goldCount);
+                    $('#correct_count').html(progress_info.correctCount);
+                    $('#predicted_count').html(progress_info.predictedCount);
+                    $('#missed_count').html(progress_info.missedCount);
+                    $('#extra_count').html(progress_info.extraCount);
+
           /* go to evaluation page. */
                     
                   })
@@ -93,7 +106,7 @@
                     <td>
                       precision
                     </td>
-                    <td>
+                    <td id="precision">
                       @viewModel.record.metrics.precision
                     </td>
                   </tr>
@@ -101,7 +114,7 @@
                     <td>
                       recall
                     </td>
-                    <td>
+                    <td id="recall">
                       @viewModel.record.metrics.recall
                     </td>
                   </tr>
@@ -109,7 +122,7 @@
                     <td>
                       f1
                     </td>
-                    <td>
+                    <td id="f1">
                       @viewModel.record.metrics.f1
                     </td>
                   </tr>
@@ -117,7 +130,7 @@
                     <td>
                       Average Solve Time
                     </td>
-                    <td>
+                    <td id="Average Solve Time">
                       @viewModel.record.metrics.averageSolveTime
                     </td>
                   </tr>
@@ -133,7 +146,7 @@
                     <td>
                       gold count
                     </td>
-                    <td>
+                    <td id="gold_count">
                       @viewModel.record.metrics.gold_count
                     </td>
                   </tr>
@@ -141,7 +154,7 @@
                     <td>
                       correct count
                     </td>
-                    <td>
+                    <td id="correct_count">
                       @viewModel.record.metrics.correct_count
                     </td>
                   </tr>
@@ -149,7 +162,7 @@
                     <td>
                       predicted count
                     </td>
-                    <td>
+                    <td id="predicted_count">
                       @viewModel.record.metrics.predicted_count
                     </td>
                   </tr>
@@ -157,7 +170,7 @@
                     <td>
                       missed count
                     </td>
-                    <td>
+                    <td id="missed_count">
                       @viewModel.record.metrics.missed_count
                     </td>
                   </tr>
@@ -165,7 +178,7 @@
                     <td>
                       extra count
                     </td>
-                    <td>
+                    <td id="extra_count">
                       @viewModel.record.metrics.extra_count
                     </td>
                   </tr>

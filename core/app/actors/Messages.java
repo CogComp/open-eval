@@ -1,9 +1,9 @@
 package actors;
 
+import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
 import models.Job;
 
 public class Messages {
-
     public static class SetUpJobMessage {
         private String conf_id;
         private String url;
@@ -47,12 +47,16 @@ public class Messages {
         private int skipped;
         private int total;
         private String record_id;
+        private String error;
+        private ClassificationTester eval;
 
-        public StatusUpdate(int completed, int skipped, int total, String record_id) {
+        public StatusUpdate(int completed, int skipped, int total, String record_id, String error, ClassificationTester eval) {
             this.completed = completed;
             this.skipped = skipped;
             this.total = total;
             this.record_id = record_id;
+            this.error = error;
+            this.eval = eval;
         }
 
         public int getTotal() {
@@ -70,6 +74,12 @@ public class Messages {
         public String getRecord_id() {
             return record_id;
         }
+
+        public String getError() {
+            return error;
+        }
+
+        public ClassificationTester getEvaluation() { return eval; }
     }
 
     public static class StatusRequest {

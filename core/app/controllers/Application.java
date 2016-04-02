@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
 import play.libs.ws.WSResponse;
 import play.mvc.*;
 import play.data.DynamicForm;
@@ -180,14 +182,15 @@ public class Application extends Controller {
 
         FrontEndDBInterface f = new FrontEndDBInterface();
 
-        if (Core.testConnection(url) == null) {
+        String info = Core.testConnection(url);
+        if (info.equals("Server at given address was not found") || info.equals("Invalid Url")) {
             AddRunViewModel viewModel = new AddRunViewModel();
             viewModel.configuration_id = conf_id;
             viewModel.default_url = url;
             viewModel.default_author = author;
             viewModel.default_repo = repo;
             viewModel.default_comment = comment;
-            viewModel.error_message = "Server at given address was not found";
+            viewModel.error_message = info;
 
             return ok(addRun.render(viewModel));
         }
@@ -226,6 +229,17 @@ public class Application extends Controller {
                         result.put("completed", Integer.toString(update.getCompleted()));
                         result.put("skipped", Integer.toString(update.getSkipped()));
                         result.put("total", Integer.toString(update.getTotal()));
+                        result.put("error", update.getError());
+                        EvaluationRecord eval = update.getEvaluation().getEvaluationRecord();
+                        result.put("precision", eval.getPrecision());
+                        result.put("recall", eval.getRecall());
+                        result.put("f1", eval.getF1());
+                        result.put("goldCount", eval.getGoldCount());
+                        result.put("correctCount", eval.getCorrectCount());
+                        result.put("predictedCount", eval.getPredictedCount());
+                        result.put("missedCount", eval.getMissedCount());
+                        result.put("extraCount", eval.getExtraCount());
+
                         return ok(result);
                     }
                     result.put("percent_complete", "0");

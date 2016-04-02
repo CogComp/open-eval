@@ -2,6 +2,7 @@ package models;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.net.ConnectException;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -22,7 +23,6 @@ import play.libs.ws.WSResponse;
  */
 
 public class LearnerInterface {
-    
     WSRequest infoPoster;
     WSRequest instancePoster;
     int timeout;
@@ -31,9 +31,16 @@ public class LearnerInterface {
      * Constructor. Initiates WSRequest object to send Http requests
      * @param url - Url of the server to send instances to
      */
-    public LearnerInterface(String url) {
-        this.infoPoster = WS.url(url+"info");
-        this.instancePoster = WS.url(url+"instance");
+    public LearnerInterface(String url) throws IllegalArgumentException{
+		System.out.println(url);
+		if(!url.endsWith("/")) {
+			url+='/';
+		}
+		if(!url.startsWith("http")){
+			url = "http://"+url;
+		}
+		this.infoPoster = WS.url(url + "info");
+		this.instancePoster = WS.url(url + "instance");
         System.out.println(this.infoPoster);
         Config conf = ConfigFactory.load();
         timeout = conf.getInt("learner.default.timeout");
