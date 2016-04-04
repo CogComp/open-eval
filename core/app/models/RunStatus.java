@@ -14,13 +14,13 @@ public class RunStatus {
         this.skipped = skipped;
         this.total = total;
     }
-	public int getCompleted() {
-		return completed;
-	}
-	public int getSkipped() {
-		return skipped;
-	}
-	public int getTotal() {
-		return total;
-	}
+    public int getCompleted() {
+        return completed;
+    }
+    public int getSkipped() {
+        return skipped;
+    }
+    public int getTotal() {
+        return total;
+    }
 }

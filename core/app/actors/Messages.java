@@ -83,4 +83,34 @@ public class Messages {
             return record_id;
         }
     }
+    
+    public static class StopRunMessage {
+        private String record_id;
+
+        public StopRunMessage(String record_id) {
+            this.record_id = record_id;
+        }
+
+        public String getRecord_id() {
+            return record_id;
+        }    
+    }
+    
+    public static class KillStatus {
+        private Boolean kill;
+        private String record_id;
+        
+        public KillStatus(Boolean kill, String record_id) {
+            this.kill = kill;
+            this.record_id = record_id;
+        }
+        
+        public String getRecord_id() {
+            return record_id;
+        }
+
+        public Boolean getKill() {
+            return kill;
+        }
+    }
 }

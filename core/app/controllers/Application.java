@@ -193,11 +193,11 @@ public class Application extends Controller {
         }
 
         String record_id = f.storeRunInfo(Integer.parseInt(conf_id), url, author, repo, comment);
-
+        Record rec = f.getRecordFromRecordID(Integer.parseInt(record_id));
         masterActor.tell(new SetUpJobMessage(conf_id, url, record_id), masterActor);
-
-        return redirect("/record?record_id="+record_id);
-
+        RecordViewModel viewModel = new RecordViewModel();
+        viewModel.record = rec;
+        return ok(record.render(viewModel));
     }
 
     public Result progressBar(String record_id, String conf_id) {
@@ -263,7 +263,21 @@ public class Application extends Controller {
         f.deleteRecordFromRecordID(Integer.parseInt(bindedForm.get("record_id")));
         return redirect("/configuration?conf=" + conf_id);
     }
-
+    
+    @Security.Authenticated(Secured.class)
+    public Result stopRun() {
+        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+        String record_id = bindedForm.get("record_id");
+        String conf_id = bindedForm.get("configuration_id");
+        masterActor.tell(new StopRunMessage(record_id), masterActor);
+        if (!Secured.canAccess(request().username(), conf_id)) {
+            return this.authError();
+        }
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        f.deleteRecordFromRecordID(Integer.parseInt(record_id));
+        return redirect("/configuration?conf=" + conf_id);
+    }
+    
     public Result about() {
         return ok(about.render());
     }
