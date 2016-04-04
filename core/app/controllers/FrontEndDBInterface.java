@@ -64,10 +64,32 @@ public class FrontEndDBInterface {
         }
     }
     
+    public String authenticateUser(String userName, String password) {
+        try {
+            Connection conn = getConnection();
+            
+            String passHashUser = hash(password);
+            
+            String sql = "SELECT password FROM users WHERE username = ?;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, userName);
+            ResultSet passRS = stmt.executeQuery()
+            passRS.first();
+            String passHashDB = passRS.getString(1);
+            
+            boolean passVerify = passHashUser.equals(passHashDB);
+            conn.close();
+            if (passVerify) 
+                return "Verified";
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
     public boolean checkTeamPassword(String teamName, String teamPassword) {
         try {
             Connection conn = getConnection();
-           
+            
             String sql = "SELECT password FROM teams WHERE name = ?;";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, teamName);
@@ -83,9 +105,40 @@ public class FrontEndDBInterface {
             String teamPassHashUser = bytesToHex(passByteArr);
             
             /*Comparing the user's password with the one in the database.*/
+            boolean samePass = teamPassHashUser.equals(teamPassHashDB);
             
+            conn.close();
+            return samePass;
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+    
+    public boolean userCanAccessConfig(String userName, int configID) {
+        try {
+            if (userName.equals("SupahUser"))
+                return true;
+            Connection conn = getConnection();
+            
+            String sql = "SELECT teamName FROM users WHERE userName = ?;";
+            PreparedStatment stmt = conn.prepareStatement(sql);
+            stmt.setString(userName);
+            ResultSet teamNameRS = stmt.executeQuery();
+            teamNameRS.first();
+            String teamNameUser = teamNameRS.getString(1);
+            
+            sql = "SELECT team_name FROM configurations WHERE configID = ?";
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, configID);
+            teamNameRS = stmt.executeQuery();
+            teamNameRS.first();
+            String teamNameConfig = teamNameRS.getString(1);
+            
+            boolean isSame = teamNameUser.equals(teamNameConfig);
+            
+            conn.close();
+            return isSame;
+        } catch (Exception e) {
         }
     }
     /**----------------------CONFIGURATION DB FUNCTIONS----------------------------------*/    
@@ -273,13 +326,13 @@ public class FrontEndDBInterface {
             
             models.Metrics metrics = getMetricsFromRecordID(record_id);
            
-            String sql = "SELECT date, comment, repo, author, configuration_id FROM records WHERE record_id = " + record_id + ";";
+            String sql = "SELECT date, comment, repo, author, configuration_id, isRunning FROM records WHERE record_id = " + record_id + ";";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet recordsRS = stmt.executeQuery();
             recordsRS.first();
             
             models.Record record = new models.Record(Integer.toString(record_id), recordsRS.getTimestamp(1).toString(), recordsRS.getString(2), 
-                recordsRS.getString(3), recordsRS.getString(4), metrics, recordsRS.getString(5));
+                recordsRS.getString(3), recordsRS.getString(4), metrics, recordsRS.getString(5), recordsRS.getBoolean(6));
                 
             conn.close();
             return record;
@@ -453,6 +506,14 @@ public class FrontEndDBInterface {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+    
+    private String hash(String strToHash) {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update(strToHash.getBytes("UTF-8"));
+        byte[] hashByteArr = md.digest();
+        String hashHex = bytesToHex(hashByteArr);    
+        return hashHex;
     }
     
     

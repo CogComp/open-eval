@@ -56,14 +56,15 @@ public class Application extends Controller {
         return configList;
     }
 
-    public Result index() {
-        //POSReader p = new POSReader();
-        //p.insertDatasetIntoDB("test-500.br", "C:\\Users\\Deepak\\Desktop\\Current School\\Open Eval\\Datasets\\posdata\\22-24-500.br");
+    // eventually things should all be seperated into a class, and this should be at the class level
+    @Security.Authenticated(Secured.class)
+    public Result index() {        
         IndexViewModel viewModel = new IndexViewModel();
         viewModel.configurations = getConfigurations();
         return ok(index.render(viewModel));
     }
 
+    @Security.Authenticated(Secured.class)
     public Result addConfiguration() {
         AddConfigurationViewModel viewModel = new AddConfigurationViewModel();
 
@@ -88,13 +89,19 @@ public class Application extends Controller {
         return ok(addConfiguration.render(viewModel));
     }
 
+    @Security.Authenticated(Secured.class)
     public Result deleteConfiguration() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
         FrontEndDBInterface f = new FrontEndDBInterface();
-        f.deleteConfigAndRecords(Integer.parseInt(bindedForm.get("conf")));
+        String conf_id = bindedForm.get("conf");
+        if (!Secured.canAccess(request().username(), conf_id)) {
+            return this.authError();
+        }
+        f.deleteConfigAndRecords(Integer.parseInt(conf_id));
         return redirect("/");
     }
 
+    @Security.Authenticated(Secured.class)
     public Result submitConfiguration() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
         FrontEndDBInterface f = new FrontEndDBInterface();
@@ -113,7 +120,11 @@ public class Application extends Controller {
         return redirect("/");
     }
 
+    @Security.Authenticated(Secured.class)
     public Result configuration(String configuration_id) {
+        if (!Secured.canAccess(request().username(), configuration_id)) {
+            return this.authError();
+        }
         RecipeViewModel viewModel = new RecipeViewModel();
         FrontEndDBInterface f = new FrontEndDBInterface();
         models.Configuration conf;
@@ -131,13 +142,17 @@ public class Application extends Controller {
         return ok(recipe.render(viewModel));
     }
 
+    @Security.Authenticated(Secured.class)
     public Result addRun(String configuration_id) {
+        if (!Secured.canAccess(request().username(), configuration_id)) {
+            return this.authError();
+        }
         AddRunViewModel viewModel = new AddRunViewModel();
 
         // should also get name passed through here
         viewModel.configuration_id = configuration_id;
         viewModel.default_url = "";
-        viewModel.default_author = "";
+        viewModel.default_author = request().username();
         viewModel.default_repo = "";
         viewModel.default_comment = "";
         viewModel.error_message = "";
@@ -145,10 +160,15 @@ public class Application extends Controller {
         return ok(addRun.render(viewModel));
     }
 
+    @Security.Authenticated(Secured.class)
     public Result submitRun() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
 
-        String configuration_id = bindedForm.get("configuration_id");
+        String conf_id = bindedForm.get("configuration_id");
+
+        if (!Secured.canAccess(request().username(), conf_id)) {
+            return this.authError();
+        }
 
         String url = bindedForm.get("url");
         String author = bindedForm.get("author");
@@ -159,7 +179,7 @@ public class Application extends Controller {
 
         if (Core.testConnection(url) == null) {
             AddRunViewModel viewModel = new AddRunViewModel();
-            viewModel.configuration_id = configuration_id;
+            viewModel.configuration_id = conf_id;
             viewModel.default_url = url;
             viewModel.default_author = author;
             viewModel.default_repo = repo;
@@ -169,64 +189,73 @@ public class Application extends Controller {
             return ok(addRun.render(viewModel));
         }
 
-        String record_id = f.storeRunInfo(Integer.parseInt(configuration_id), url, author, repo, comment);
+        String record_id = f.storeRunInfo(Integer.parseInt(conf_id), url, author, repo, comment);
 
-        masterActor.tell(new SetUpJobMessage(configuration_id, url, record_id), masterActor);
+        masterActor.tell(new SetUpJobMessage(conf_id, url, record_id), masterActor);
+
+        return redirect("/record?record_id="+record_id);
+
+    }
+
+    public Result progressBar(String record_id, String conf_id) {
         WorkingViewModel viewModel = new WorkingViewModel();
-        viewModel.conf_id = configuration_id;
+        viewModel.conf_id = conf_id;
+        viewModel.record_id = record_id;
         viewModel.percent_complete = 0;
         return ok(working.render(viewModel));
     }
 
-    public Result progressBar(String configuration_id) {
-        WorkingViewModel viewModel = new WorkingViewModel();
-        viewModel.conf_id = configuration_id;
-        viewModel.percent_complete = 0;
-        return ok(working.render(viewModel));
-    }
-
-    public Promise<Result> getCurrentProgress() {
-        return Promise.wrap(ask(masterActor, new StatusRequest("requesting status"), 60000))
-                .map(new Function<Object, Result>() {
-                    public Result apply(Object response) {
-                        ObjectNode result = Json.newObject();
-                        if (response instanceof StatusUpdate) {
-                            StatusUpdate update = ((StatusUpdate) response);
-                            int percentComplete;
-                            if (update.getTotal() > 0) {
-                                double comp = ((double) update.getCompleted()) / ((double) update.getTotal());
-                                percentComplete = (int) (comp * 100.0);
-                            } else {
-                                percentComplete = 0;
-                            }
-                            System.out.println("Percent Complete: " + Integer.toString(percentComplete));
-                            result.put("percent_complete", Integer.toString(percentComplete));
-                            result.put("completed", Integer.toString(update.getCompleted()));
-                            result.put("skipped", Integer.toString(update.getSkipped()));
-                            result.put("total", Integer.toString(update.getTotal()));
-                            return ok(result);
+    public Promise<Result> getCurrentProgress(String record_id) {
+        return Promise.wrap(ask(masterActor, new StatusRequest(record_id), 60000))
+            .map(new Function<Object, Result>() {
+                public Result apply(Object response) {
+                    ObjectNode result = Json.newObject();
+                    if (response instanceof StatusUpdate) {
+                        StatusUpdate update = ((StatusUpdate) response);
+                        int percentComplete;
+                        if (update.getTotal() > 0) {
+                            double comp = ((double) (update.getCompleted() + update.getSkipped())) / ((double) update.getTotal());
+                            percentComplete = (int) (comp * 100.0);
+                        } else {
+                            percentComplete = 0;
                         }
-                        result.put("percent_complete", "0");
-                        result.put("completed", "0");
-                        result.put("skipped", "0");
-                        result.put("total", "0");
+                        result.put("percent_complete", Integer.toString(percentComplete));
+                        result.put("completed", Integer.toString(update.getCompleted()));
+                        result.put("skipped", Integer.toString(update.getSkipped()));
+                        result.put("total", Integer.toString(update.getTotal()));
                         return ok(result);
                     }
-                });
+                    result.put("percent_complete", "0");
+                    result.put("completed", "0");
+                    result.put("skipped", "0");
+                    result.put("total", "0");
+                    return ok(result);
+                }
+                
+            });
     }
 
+    @Security.Authenticated(Secured.class)
     public Result record(String record_id) {
         RecordViewModel viewModel = new RecordViewModel();
         FrontEndDBInterface f = new FrontEndDBInterface();
         Record associated_record = f.getRecordFromRecordID(Integer.parseInt(record_id));
 
+        if (!Secured.canAccess(request().username(), associated_record.configuration_id)) {
+            return this.authError();
+        }
+
         viewModel.record = associated_record;
         return ok(record.render(viewModel));
     }
 
+    @Security.Authenticated(Secured.class)
     public Result deleteRecord() {
         DynamicForm bindedForm = new DynamicForm().bindFromRequest();
         String conf_id = bindedForm.get("configuration_id");
+        if (!Secured.canAccess(request().username(), conf_id)) {
+            return this.authError();
+        }
         FrontEndDBInterface f = new FrontEndDBInterface();
         f.deleteRecordFromRecordID(Integer.parseInt(bindedForm.get("record_id")));
         return redirect("/configuration?conf=" + conf_id);
@@ -234,5 +263,105 @@ public class Application extends Controller {
 
     public Result about() {
         return ok(about.render());
+    }
+
+    private List<String> getTeamNames() {
+        List<String> teamNames = new ArrayList<>();
+
+        teamNames.add("team NN1");
+        teamNames.add("team NN2");
+        teamNames.add("team CRF1");
+        teamNames.add("team CRF2");
+        teamNames.add("team Perc1");
+        teamNames.add("team Perc2");
+        teamNames.add("team SVM1");
+        teamNames.add("team SVM2");
+        teamNames.add("team Exp1");
+        teamNames.add("team Exp2");
+
+        return teamNames;
+    }
+
+    public Result login() {
+        LoginViewModel viewModel = new LoginViewModel();
+
+        viewModel.teamNames = getTeamNames();
+
+        return ok(login.render(viewModel));
+    }
+
+    public Result addUser() {
+        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+
+        String username = bindedForm.get("username");
+        String verify = bindedForm.get("verify");
+        String password = bindedForm.get("password");
+        String teamName = bindedForm.get("teamName");
+
+        LoginViewModel viewModel = new LoginViewModel();
+        viewModel.username = username;
+        viewModel.teamNames = getTeamNames();
+        viewModel.teamName = teamName;
+        if(! password.equals(verify)) {
+            String error = "Password and password verification do not match"; 
+            viewModel.errorMessage = error;
+            return ok(login.render(viewModel));
+        } else if (password.length() == 0) {
+            String error = "Password cannot be of length 0";
+            viewModel.errorMessage = error;
+            return ok(login.render(viewModel));
+        }
+
+        String teamPass = bindedForm.get("teamPassword")
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        boolean teamPassCorrect = f.checkTeamPassword(teamName, teamPassword);
+        //@Deepak add check that the team password is correctF
+        if (!teamPassCorrect) {
+            String error = "Team password is incorrect";
+            viewModel.errorMessage = error;
+            return ok(login.render(viewModel));
+        }
+
+
+        //@Deepak insert a record into the user db with this username and pw
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        f.insertNewUserToDB(username, password, team);
+        
+        session().clear();
+        session("username", username);
+        return redirect("/");
+    }
+
+    public Result loginUser() {
+        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+
+        String username = bindedForm.get("loginUsername");
+        String password = bindedForm.get("loginPassword");
+
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        String passCheck = f.AuthenticateUser(username, password);
+        //@Deepak get password for username from db
+        if (passCheck.equals("errorCheck")) {
+            String error = "Some error"; 
+            LoginViewModel viewModel = new LoginViewModel();
+            viewModel.errorMessage = error;
+            viewModel.loginUsername = username;
+            viewModel.teamNames = getTeamNames();
+            return ok(login.render(viewModel));
+        }
+        
+        session().clear();
+        session("username", username);
+        return redirect("/");
+    }
+
+    @Security.Authenticated(Secured.class)
+    public Result logout() {
+        session().clear();
+        return redirect("/");
+    }
+
+    private Result authError() {
+        return forbidden("403 Forbidden: User does not have access to this configuration");
     }
 }

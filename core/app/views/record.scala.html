@@ -17,6 +17,69 @@
                 Record @viewModel.record.record_id
               </a></li>
             </ol>
+
+            @if(viewModel.record.isRunning) {
+            <h5><center><i><div id="database"></div></i></center></h5>
+
+            <div class="progress" id="progressouter">
+                <div class="progress-bar" id="progress"></div>
+            </div>
+            <div>
+               <table style='display:inline-block'>
+                    <tr>
+                       <td>
+                        <div id="completed">0</div>
+                        <td> <div> &nbsp; of &nbsp; </div> </td>
+                       </td>
+                       <td>
+                        <div id="total">0</div> 
+                        <td> <div>  &nbsp; Text Annotations complete. </div>
+                       </td>
+                    </tr>
+               </table>
+            </div>
+            <div>
+                <table style='display:inline-block'>
+                    <tr>
+                        <td>
+                        <div id="skipped">0</div>
+                        </td>
+                        <td>
+                        <div> &nbsp; errors. </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <script src="http://code.jquery.com/jquery.js"></script>
+            <script type="text/javascript">
+                $(document).ready(function(){
+                  var progresspump = setInterval(function(){
+                  // Query the completion percentage from the server.
+                  $.get("/working/prog", function(data){
+                    // Extract JSON data.
+                    var progress_info = data;
+                    var percent = progress_info.percent_complete;
+                    var completed = progress_info.completed;
+                    var skipped = progress_info.skipped;
+                    var total = progress_info.total;
+                    $("#progress").css('width',percent+'%');
+                    $("#progress").html(percent+'%');
+                    // If no Text Annotations have been completed, notify the user that the instances are
+                    // being pulled from the database.
+                    if (completed == 0) {
+                      $("#database").html("Retrieving instances from database...");
+                    } else {
+                      $("#database").html("Your datasets are being processed. This may take a moment.");
+                    }
+                    $("#completed").html(completed);
+                    $("#total").html(total);
+                    $("#skipped").html(skipped);
+          /* go to evaluation page. */
+                    
+                  })
+                }, 1000);});
+         </script>}
             <div class="table-responsive">
               <table class="table">
                 <thead>
@@ -130,6 +193,14 @@
                       <a href="/configuration?conf=@viewModel.record.configuration_id">
                         @viewModel.record.configuration_id
                       </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      finished
+                    </td>
+                    <td>
+                      @(!viewModel.record.isRunning)
                     </td>
                   </tr>
                 </tbody>
