@@ -289,7 +289,7 @@ public class FrontEndDBInterface {
                 int record_id = recordsRS.getInt(1);
                 models.Metrics metrics = getMetricsFromRecordID(record_id);
                 models.Record record = new models.Record(Integer.toString(record_id), recordsRS.getTimestamp(2).toString(), recordsRS.getString(3), 
-                    recordsRS.getString(4), recordsRS.getString(5), metrics); 
+                    recordsRS.getString(4), recordsRS.getString(5), metrics, Integer.toString(configuration_id)); 
                 record.isRunning = recordsRS.getBoolean(6);
                 records.add(record);
             }

@@ -18,7 +18,8 @@ public class MasterActor extends UntypedActor {
     /**
      * Maps record_id to the current run status.
      */
-    private Map<String, RunStatus> runStatuses = new HashMap();
+    private Map<String, RunStatus> runStatuses = new HashMap<>();
+    private Map<String, Boolean> stopMessages = new HashMap<>();
     String conf_id;
     String record_id;
 
@@ -33,6 +34,7 @@ public class MasterActor extends UntypedActor {
             this.record_id = jobInfo.getRecord_id();
             runStatuses.put(jobInfo.getRecord_id(), runStatus);
             ActorRef jobProcessor = this.getContext().actorOf(JobProcessingActor.props);
+            stopMessages.put(record_id, false);
             jobProcessor.tell(message, getSelf());
         }
         // When the JobProcessingActor has finished processing another
@@ -51,7 +53,22 @@ public class MasterActor extends UntypedActor {
         else if (message instanceof StatusRequest) {
             String id = ((StatusRequest) message).getRecord_id();
             RunStatus status = runStatuses.get(id);
-            getSender().tell(new StatusUpdate(status.getCompleted(), status.getSkipped(), status.getTotal(), id), getSelf());
+            if (status != null) {
+                getSender().tell(new StatusUpdate(status.getCompleted(), status.getSkipped(), status.getTotal(), id), getSelf());
+            } else {
+                getSender().tell(null, getSelf());
+            }
+        } else if (message instanceof StopRunMessage) {
+            String id = ((StopRunMessage) message).getRecord_id();
+            stopMessages.put(id, true);
+        } else if (message instanceof KillStatus) {
+            String id = ((KillStatus) message).getRecord_id();
+            System.out.println("Kill Status requested by: " + id);
+            if (stopMessages.get(id) != null && stopMessages.get(id)) {
+                getSender().tell(new KillStatus(true, id), getSelf());
+            } else {
+                getSender().tell(new Object(), getSelf());
+            }
         } else {
             System.out.println("unhandled message" + message.toString());
             unhandled(message);

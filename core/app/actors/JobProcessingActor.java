@@ -6,6 +6,7 @@ import actors.Messages.*;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import akka.util.Timeout;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
@@ -15,6 +16,11 @@ import controllers.Core;
 import play.libs.F;
 import play.libs.F.Promise;
 import play.libs.ws.WSResponse;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
+
+import static akka.pattern.Patterns.ask;
 
 public class JobProcessingActor extends UntypedActor {
 
@@ -81,6 +87,14 @@ public class JobProcessingActor extends UntypedActor {
                         }
                     });
                     response.get(5000);
+                    if (i % 5 == 0) {
+	                    Timeout timeout = new Timeout(Duration.create(5, "seconds"));
+	                    Future<Object> masterResponse = ask(getSender(), new KillStatus(false, record_id), 5000);
+	                    Object result = (Object) Await.result(masterResponse, timeout.duration());
+	                    if (result instanceof KillStatus) {
+	                        break;
+	                    }
+                    }
                 }
             } catch (Exception ex) {
                 System.out.println("Error sending and receiving text annotations");
