@@ -73,7 +73,7 @@ public class FrontEndDBInterface {
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, userName);
             ResultSet passRS = stmt.executeQuery();
-            if (!passRS.isBeforeFirst()) {
+            if (!passRS.isBeforeFirst()) { //If there is not user with the specified username. 
                 conn.close();
                 return "errorCheck";
             }
