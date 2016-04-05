@@ -21,7 +21,6 @@ public class Secured extends Security.Authenticator {
 
     public static boolean canAccess(String username, String conf_id) {
         FrontEndDBInterface f = new FrontEndDBInterface();
-        return f.userCanAccessConfig(usename, Integer.parseInt(conf_id));
-        return true;
+        return f.userCanAccessConfig(username, Integer.parseInt(conf_id));
     }
 }

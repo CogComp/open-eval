@@ -331,10 +331,10 @@ public class Application extends Controller {
             return ok(login.render(viewModel));
         }
 
-        String teamPass = bindedForm.get("teamPassword")
+        String teamPassword = bindedForm.get("teamPassword");
         FrontEndDBInterface f = new FrontEndDBInterface();
         boolean teamPassCorrect = f.checkTeamPassword(teamName, teamPassword);
-        //@Deepak add check that the team password is correctF
+        //@Deepak add check that the team password is correct.
         if (!teamPassCorrect) {
             String error = "Team password is incorrect";
             viewModel.errorMessage = error;
@@ -343,8 +343,7 @@ public class Application extends Controller {
 
 
         //@Deepak insert a record into the user db with this username and pw
-        FrontEndDBInterface f = new FrontEndDBInterface();
-        f.insertNewUserToDB(username, password, team);
+        f.insertNewUserToDB(username, password, teamName);
         
         session().clear();
         session("username", username);
@@ -358,7 +357,7 @@ public class Application extends Controller {
         String password = bindedForm.get("loginPassword");
 
         FrontEndDBInterface f = new FrontEndDBInterface();
-        String passCheck = f.AuthenticateUser(username, password);
+        String passCheck = f.authenticateUser(username, password);
         //@Deepak get password for username from db
         if (passCheck.equals("errorCheck")) {
             String error = "Some error"; 
