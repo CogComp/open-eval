@@ -10,5 +10,5 @@ RUNNING_PID
 project/project/target/*
 target/.history
 target/
-+*.lc
-+*.lex
+*.lc
+*.lex
