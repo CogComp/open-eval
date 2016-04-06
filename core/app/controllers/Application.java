@@ -227,6 +227,17 @@ public class Application extends Controller {
                         result.put("completed", Integer.toString(update.getCompleted()));
                         result.put("skipped", Integer.toString(update.getSkipped()));
                         result.put("total", Integer.toString(update.getTotal()));
+                        EvaluationRecord eval = update.getEvaluation().getEvaluationRecord();
+                        if(eval != null) {
+                            result.put("precision", eval.getPrecision());
+                            result.put("recall", eval.getRecall());
+                            result.put("f1", eval.getF1());
+                            result.put("goldCount", eval.getGoldCount());
+                            result.put("correctCount", eval.getCorrectCount());
+                            result.put("predictedCount", eval.getPredictedCount());
+                            result.put("missedCount", eval.getMissedCount());
+                            result.put("extraCount", eval.getExtraCount());
+                        }
                         return ok(result);
                     }
                     result.put("percent_complete", "0");

@@ -90,11 +90,11 @@ public class JobProcessingActor extends UntypedActor {
                             else
                                 Core.storeResultsOfRunInDatabase(eval, record_id, false);
 
-                            master.tell(new StatusUpdate(completed, skipped, total, record_id), getSelf());
+                            master.tell(new StatusUpdate(completed, skipped, total, record_id, eval), getSelf());
                             System.out.println(String.format("Completed batch of size %s", batchSize));
                         }
                     });
-                    response.get(5000);
+                    response.get(25000);
                     if (killCheckCounter == 5) {
 	                    if (killCommandHasBeenSent()) {
                             break;
