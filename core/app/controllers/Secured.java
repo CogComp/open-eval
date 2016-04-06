@@ -20,8 +20,7 @@ public class Secured extends Security.Authenticator {
     }
 
     public static boolean canAccess(String username, String conf_id) {
-        //@Deepak
-        // either user is super, or get team name from username/db, check if team name has access to conf
-        return true;
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        return f.userCanAccessConfig(username, Integer.parseInt(conf_id));
     }
 }
