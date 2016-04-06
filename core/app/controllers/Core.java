@@ -2,6 +2,8 @@ package controllers;
 
 import java.util.List;
 
+import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
+import models.LearnerSettings;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -12,10 +14,10 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
 import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
 import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.ConstituentLabelingEvaluator;
-import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
 import models.Configuration;
 import models.Job;
 import models.LearnerInterface;
+import models.LearnerSettings;
 import play.libs.ws.WSResponse;
 
 /**
@@ -27,14 +29,14 @@ public class Core {
      * Returns null if there was an error trying to connect to the server.
      * Otherwise, it returns the info string returned by the learner server.
      */
-    public static String testConnection(String url) {
+    public static LearnerSettings testConnection(String url) {
         LearnerInterface learner = new LearnerInterface(url);
-        String jsonInfo = learner.getInfo();
-        if (jsonInfo.equals("err")) {
+        LearnerSettings settings = learner.getInfo();
+        if (settings == null) {
             System.out.println("Could not connect to server");
             return null;
         }
-        return jsonInfo;
+        return settings;
     }
 
     /**
@@ -47,12 +49,12 @@ public class Core {
         List<TextAnnotation> correctInstances = getInstancesFromDb(runConfig);
         System.out.println(url);
         LearnerInterface learner = new LearnerInterface(url);
-        String jsonInfo = learner.getInfo();
-        if (jsonInfo.equals("err")) {
+        LearnerSettings settings = learner.getInfo();
+        if (settings == null) {
             System.out.println("Could not connect to server");
             return null;
         }
-        List<TextAnnotation> cleansedInstances =  cleanseInstances(correctInstances, jsonInfo);
+        List<TextAnnotation> cleansedInstances =  cleanseInstances(correctInstances, settings.requiredViews);
         if (cleansedInstances == null) {
             System.out.println("Error in cleanser");
             return null;
@@ -81,17 +83,7 @@ public class Core {
      *            - The information given by the learner
      * @return - The cleansed instance
      */
-    public static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, String jsonInfo) {
-        System.out.println("Cleansing");
-        JSONParser parser = new JSONParser();
-        List<String> requiredViews = null;
-        try {
-            JSONObject obj = (JSONObject) parser.parse(jsonInfo);
-            requiredViews = (List<String>) obj.get("requiredViews");
-        } catch (Exception pe) {
-            pe.printStackTrace();
-            return null;
-        }
+    public static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, List<String> requiredViews) {
         if (requiredViews == null)
             return null;
         return Redactor.removeAnnotations(correctInstances, requiredViews);

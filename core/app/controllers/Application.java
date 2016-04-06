@@ -56,10 +56,15 @@ public class Application extends Controller {
 
     // eventually things should all be seperated into a class, and this should be at the class level
     @Security.Authenticated(Secured.class)
-    public Result index() {        
+    public Result index() {
         IndexViewModel viewModel = new IndexViewModel();
         viewModel.configurations = getConfigurations();
         return ok(index.render(viewModel));
+    }
+
+    public Result welcome() {
+        WelcomeViewModel viewModel = new WelcomeViewModel();
+        return ok(welcome.render(viewModel));
     }
 
     @Security.Authenticated(Secured.class)
@@ -168,31 +173,32 @@ public class Application extends Controller {
             return this.authError();
         }
 
-        String url = bindedForm.get("url");
-        String author = bindedForm.get("author");
-        String repo = bindedForm.get("repo");
-        String comment = bindedForm.get("comment");
+		String url = bindedForm.get("url");
+		String author = bindedForm.get("author");
+		String repo = bindedForm.get("repo");
+		String comment = bindedForm.get("comment");
 
-        FrontEndDBInterface f = new FrontEndDBInterface();
+		FrontEndDBInterface f = new FrontEndDBInterface();
 
-        if (Core.testConnection(url) == null) {
-            AddRunViewModel viewModel = new AddRunViewModel();
-            viewModel.configuration_id = conf_id;
-            viewModel.default_url = url;
-            viewModel.default_author = author;
-            viewModel.default_repo = repo;
-            viewModel.default_comment = comment;
-            viewModel.error_message = "Server at given address was not found";
+		LearnerSettings settings = Core.testConnection(url);
+		if (settings == null) {
+			AddRunViewModel viewModel = new AddRunViewModel();
+			viewModel.configuration_id = conf_id;
+			viewModel.default_url = url;
+			viewModel.default_author = author;
+			viewModel.default_repo = repo;
+			viewModel.default_comment = comment;
+			viewModel.error_message = "Server at given address was not found";
 
-            return ok(addRun.render(viewModel));
-        }
+			return ok(addRun.render(viewModel));
+		}
 
         String record_id = f.storeRunInfo(Integer.parseInt(conf_id), url, author, repo, comment);
-
-        masterActor.tell(new SetUpJobMessage(conf_id, url, record_id), masterActor);
-
-        return redirect("/record?record_id="+record_id);
-
+        Record rec = f.getRecordFromRecordID(Integer.parseInt(record_id));
+        masterActor.tell(new SetUpJobMessage(conf_id, url, record_id, settings), masterActor);
+        RecordViewModel viewModel = new RecordViewModel();
+        viewModel.record = rec;
+        return ok(record.render(viewModel));
     }
 
     public Result progressBar(String record_id, String conf_id) {
@@ -229,7 +235,7 @@ public class Application extends Controller {
                     result.put("total", "0");
                     return ok(result);
                 }
-                
+
             });
     }
 
@@ -256,6 +262,20 @@ public class Application extends Controller {
         }
         FrontEndDBInterface f = new FrontEndDBInterface();
         f.deleteRecordFromRecordID(Integer.parseInt(bindedForm.get("record_id")));
+        return redirect("/configuration?conf=" + conf_id);
+    }
+
+    @Security.Authenticated(Secured.class)
+    public Result stopRun() {
+        DynamicForm bindedForm = new DynamicForm().bindFromRequest();
+        String record_id = bindedForm.get("record_id");
+        String conf_id = bindedForm.get("configuration_id");
+        masterActor.tell(new StopRunMessage(record_id), masterActor);
+        if (!Secured.canAccess(request().username(), conf_id)) {
+            return this.authError();
+        }
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        f.deleteRecordFromRecordID(Integer.parseInt(record_id));
         return redirect("/configuration?conf=" + conf_id);
     }
 
@@ -301,7 +321,7 @@ public class Application extends Controller {
         viewModel.teamNames = getTeamNames();
         viewModel.teamName = teamName;
         if(! password.equals(verify)) {
-            String error = "Password and password verification do not match"; 
+            String error = "Password and password verification do not match";
             viewModel.errorMessage = error;
             return ok(login.render(viewModel));
         } else if (password.length() == 0) {
@@ -320,7 +340,7 @@ public class Application extends Controller {
 
 
         //@Deepak insert a record into the user db with this username and pw
-        
+
         session().clear();
         session("username", username);
         return redirect("/");
@@ -334,14 +354,14 @@ public class Application extends Controller {
 
         //@Deepak get password for username from db
         if(/*some error occues*/ password.equals("errorCheck")) {
-            String error = "Some error"; 
+            String error = "Some error";
             LoginViewModel viewModel = new LoginViewModel();
             viewModel.errorMessage = error;
             viewModel.loginUsername = username;
             viewModel.teamNames = getTeamNames();
             return ok(login.render(viewModel));
         }
-        
+
         session().clear();
         session("username", username);
         return redirect("/");

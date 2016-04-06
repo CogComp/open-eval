@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -15,19 +16,19 @@ import java.util.List;
 public class CoreCleanserTest {
 
     String[] viewsToAdd;
-    String requiredJson;
+    List<String> requiredViews;
 
     @Before
     public void setup(){
         viewsToAdd = new String[]{ViewNames.POS, ViewNames.SENTENCE};
-        requiredJson = "{\"requiredViews\":[\"SENTENCE\"]}";
+        requiredViews = Arrays.asList(new String[]{"SENTENCE"});
     }
     @Test
     public void basicTest(){
         List<TextAnnotation> correct = new ArrayList<>();
         correct.add(DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false));
         Assert.assertTrue(correct.get(0).hasView(ViewNames.POS));
-        List<TextAnnotation> cleansed = Core.cleanseInstances(correct, requiredJson);
+        List<TextAnnotation> cleansed = Core.cleanseInstances(correct, requiredViews);
         assert(cleansed.size()==1);
         TextAnnotation cleanTA = cleansed.get(0);
         Assert.assertTrue(cleanTA.hasView(ViewNames.SENTENCE));
@@ -41,23 +42,11 @@ public class CoreCleanserTest {
         for(int i=0; i<100; i++){
             correct.add(DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false));
         }
-        List<TextAnnotation> cleansed = Core.cleanseInstances(correct, requiredJson);
+        List<TextAnnotation> cleansed = Core.cleanseInstances(correct, requiredViews);
         assert(cleansed.size()==correct.size());
         for(TextAnnotation cleanTA: cleansed){
             Assert.assertTrue(cleanTA.hasView(ViewNames.SENTENCE));
             Assert.assertFalse(cleanTA.hasView(ViewNames.POS));
         }
-    }
-
-    @Test
-    public void badJson(){
-        String json = "josn?!";
-        String json2 = "{\"requiredVeiws\":[\"SENTENCE\"]}";
-        List<TextAnnotation> correct = new ArrayList<>();
-        correct.add(DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false));
-        List<TextAnnotation> cleansed = Core.cleanseInstances(correct, json);
-        Assert.assertNull(cleansed);
-        cleansed = Core.cleanseInstances(correct, json2);
-        Assert.assertNull(cleansed);
     }
 }

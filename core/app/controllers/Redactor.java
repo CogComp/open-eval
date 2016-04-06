@@ -34,6 +34,7 @@ public class Redactor {
         if (viewsToKeep == null) {
             viewsToKeep = new ArrayList<String>();
         }
+        viewsToKeep = new ArrayList<>(viewsToKeep);
         viewsToKeep.add(ViewNames.SENTENCE);
         List<String> viewsToRemove = new ArrayList<>();
         List<TextAnnotation> cleansed = new ArrayList<>();
