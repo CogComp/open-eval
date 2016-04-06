@@ -75,11 +75,13 @@ public class JobProcessingActor extends UntypedActor {
                                 } else {
                                     skipped++;
                                 }
-                                if(completed+skipped < total)
-                                    Core.storeResultsOfRunInDatabase(eval, record_id, true);
-                                else
-                                    Core.storeResultsOfRunInDatabase(eval, record_id, false);
                             }
+
+                            if(completed+skipped < total)
+                                Core.storeResultsOfRunInDatabase(eval, record_id, true);
+                            else
+                                Core.storeResultsOfRunInDatabase(eval, record_id, false);
+
                             master.tell(new StatusUpdate(completed, skipped, total, record_id), getSelf());
                             System.out.println(String.format("Completed batch of size %s", batchSize));
                         }
