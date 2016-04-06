@@ -94,9 +94,10 @@ public class JobProcessingActor extends UntypedActor {
                             System.out.println(String.format("Completed batch of size %s", batchSize));
                         }
                     });
-                    response.get(5000);
+                    response.get(25000);
                     if (killCheckCounter == 5) {
 	                    if (killCommandHasBeenSent()) {
+                            System.out.println("Exiting");
                             break;
                         }
                         killCheckCounter = 1;
@@ -105,7 +106,7 @@ public class JobProcessingActor extends UntypedActor {
                     }
                 }
             } catch (Exception ex) {
-                System.out.println("Error sending and receiving text annotations");
+                System.out.println("Error sending and receiving text annotations" + ex.getMessage());
                 Core.storeResultsOfRunInDatabase(eval, record_id, false);
             }
             System.out.println("Done");
@@ -114,7 +115,7 @@ public class JobProcessingActor extends UntypedActor {
     }
 
     private boolean killCommandHasBeenSent() throws Exception {
-        Timeout timeout = new Timeout(Duration.create(5, "seconds"));
+        Timeout timeout = new Timeout(Duration.create(25, "seconds"));
         Future<Object> masterResponse = ask(getSender(), new KillStatus(false, record_id), 5000);
         Object result = (Object) Await.result(masterResponse, timeout.duration());
         return (result instanceof KillStatus);
