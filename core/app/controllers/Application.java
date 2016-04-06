@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
 import play.libs.ws.WSResponse;
 import play.mvc.*;
 import play.data.DynamicForm;
@@ -227,8 +229,9 @@ public class Application extends Controller {
                         result.put("completed", Integer.toString(update.getCompleted()));
                         result.put("skipped", Integer.toString(update.getSkipped()));
                         result.put("total", Integer.toString(update.getTotal()));
-                        EvaluationRecord eval = update.getEvaluation().getEvaluationRecord();
-                        if(eval != null) {
+                        ClassificationTester ct = update.getEvaluation();
+                        if(ct != null) {
+                            EvaluationRecord eval = ct.getEvaluationRecord();
                             result.put("precision", eval.getPrecision());
                             result.put("recall", eval.getRecall());
                             result.put("f1", eval.getF1());
