@@ -113,11 +113,14 @@ public class Application extends Controller {
 
         String taskName = bindedForm.get("task");
         String taskVariant = bindedForm.get("taskvariant");
+        String username = request().username();
+        String teamName = f.getTeamnameFromUsername(username);
+        
         String evaluator = f.getEvaluatorForTask(taskName);
 
         try {
             f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),
-                    bindedForm.get("description"), evaluator, taskName, taskVariant);
+                    bindedForm.get("description"), evaluator, taskName, taskVariant, teamName);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
