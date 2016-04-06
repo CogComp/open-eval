@@ -195,7 +195,7 @@ public class Application extends Controller {
 
         String record_id = f.storeRunInfo(Integer.parseInt(conf_id), url, author, repo, comment);
         Record rec = f.getRecordFromRecordID(Integer.parseInt(record_id));
-        masterActor.tell(new SetUpJobMessage(conf_id, url, record_id), masterActor);
+        masterActor.tell(new SetUpJobMessage(conf_id, url, record_id, settings), masterActor);
         RecordViewModel viewModel = new RecordViewModel();
         viewModel.record = rec;
         return ok(record.render(viewModel));
