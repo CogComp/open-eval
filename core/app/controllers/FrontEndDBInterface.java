@@ -63,7 +63,7 @@ public class FrontEndDBInterface {
         }
     }
     
-    public String authenticateUser(String userName, String password) {
+    public boolean authenticateUser(String userName, String password) {
         try {
             Connection conn = getConnection();
             
@@ -75,7 +75,7 @@ public class FrontEndDBInterface {
             ResultSet passRS = stmt.executeQuery();
             if (!passRS.isBeforeFirst()) { //If there is not user with the specified username. 
                 conn.close();
-                return "errorCheck";
+                return false;
             }
             passRS.first();
             String passHashDB = passRS.getString(1);
@@ -83,9 +83,9 @@ public class FrontEndDBInterface {
             boolean passVerify = passHashUser.equals(passHashDB);
             conn.close();
             if (passVerify) 
-                return "Verified";
+                return true;
             else
-                return "errorCheck";
+                return false;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -291,7 +291,7 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection();
             
-            String sql = "SELECT record_id, date, comment, repo, author, isRunning FROM records WHERE configuration_id = ? ORDER BY date DESC;";
+            String sql = "SELECT record_id, date, comment, repo, author, isRunning FROM records WHERE configuration_id = ? ORDER BY date DESC LIMIT 1;";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, configuration_id);
             ResultSet recordsRS = stmt.executeQuery();

@@ -357,9 +357,9 @@ public class Application extends Controller {
         String password = bindedForm.get("loginPassword");
 
         FrontEndDBInterface f = new FrontEndDBInterface();
-        String passCheck = f.authenticateUser(username, password);
+        boolean passCheck = f.authenticateUser(username, password);
         //@Deepak get password for username from db
-        if (passCheck.equals("errorCheck")) {
+        if (!passCheck) {
             String error = "Some error"; 
             LoginViewModel viewModel = new LoginViewModel();
             viewModel.errorMessage = error;
