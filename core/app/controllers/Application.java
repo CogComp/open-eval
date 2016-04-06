@@ -24,6 +24,8 @@ import akka.*;
 import play.mvc.Controller;
 import javax.inject.*;
 
+import controllers.readers.POSReader;
+
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import static akka.pattern.Patterns.ask;
@@ -330,8 +332,10 @@ public class Application extends Controller {
             return ok(login.render(viewModel));
         }
 
-        boolean teamPassCorrect = true;
-        //@Deepak add check that the team password is correct
+        String teamPassword = bindedForm.get("teamPassword");
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        boolean teamPassCorrect = f.checkTeamPassword(teamName, teamPassword);
+        //@Deepak add check that the team password is correct.
         if (!teamPassCorrect) {
             String error = "Team password is incorrect";
             viewModel.errorMessage = error;
@@ -340,7 +344,8 @@ public class Application extends Controller {
 
 
         //@Deepak insert a record into the user db with this username and pw
-
+        f.insertNewUserToDB(username, password, teamName);
+        
         session().clear();
         session("username", username);
         return redirect("/");
@@ -352,9 +357,12 @@ public class Application extends Controller {
         String username = bindedForm.get("loginUsername");
         String password = bindedForm.get("loginPassword");
 
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        boolean passCheck = f.authenticateUser(username, password);
         //@Deepak get password for username from db
-        if(/*some error occues*/ password.equals("errorCheck")) {
-            String error = "Some error";
+        
+        if (!passCheck) {
+            String error = "Some error"; 
             LoginViewModel viewModel = new LoginViewModel();
             viewModel.errorMessage = error;
             viewModel.loginUsername = username;
