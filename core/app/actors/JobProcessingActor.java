@@ -8,6 +8,8 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.util.Timeout;
 import akka.actor.UntypedActor;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
@@ -33,9 +35,17 @@ public class JobProcessingActor extends UntypedActor {
     private int completed;
     private int total;
     private int skipped;
+    private int learnerTimeout;
     private String conf_id;
     private String record_id;
     private String url;
+
+    Config conf;
+
+    public JobProcessingActor() {
+        conf = ConfigFactory.load();
+        learnerTimeout = conf.getInt("learner.default.timeout");
+    }
 
     /**
      * When a StartJobMessage is received, the corresponding Job is extracted
@@ -94,9 +104,10 @@ public class JobProcessingActor extends UntypedActor {
                             System.out.println(String.format("Completed batch of size %s", batchSize));
                         }
                     });
-                    response.get(25000);
+                    response.get(learnerTimeout);
                     if (killCheckCounter == 5) {
 	                    if (killCommandHasBeenSent()) {
+                            System.out.println("Exiting");
                             break;
                         }
                         killCheckCounter = 1;
@@ -105,7 +116,7 @@ public class JobProcessingActor extends UntypedActor {
                     }
                 }
             } catch (Exception ex) {
-                System.out.println("Error sending and receiving text annotations");
+                System.out.println("Error sending and receiving text annotations" + ex.getMessage());
                 Core.storeResultsOfRunInDatabase(eval, record_id, false);
             }
             System.out.println("Done");
@@ -114,7 +125,7 @@ public class JobProcessingActor extends UntypedActor {
     }
 
     private boolean killCommandHasBeenSent() throws Exception {
-        Timeout timeout = new Timeout(Duration.create(5, "seconds"));
+        Timeout timeout = new Timeout(learnerTimeout);
         Future<Object> masterResponse = ask(getSender(), new KillStatus(false, record_id), 5000);
         Object result = (Object) Await.result(masterResponse, timeout.duration());
         return (result instanceof KillStatus);
