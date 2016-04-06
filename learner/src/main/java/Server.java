@@ -2,8 +2,8 @@ import edu.illinois.cs.cogcomp.annotation.Annotator;
 import fi.iki.elonen.router.RouterNanoHTTPD;
 
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.UnknownHostException;
+import java.net.*;
+import java.util.Enumeration;
 
 /**
  * This class is responsible for communicating with the Open Eval site. Run the start method to listen for request from
@@ -55,9 +55,23 @@ public class Server extends RouterNanoHTTPD
     }
 
     private void printListeningAddress() throws UnknownHostException {
-        String ipAddress = Inet4Address.getLocalHost().getHostAddress();
+        InetAddress address = getLocalAddress();
         int port  = this.getListeningPort();
-        System.out.println(String.format("Your learner endpoint is listening at address is http://%s:%d/", ipAddress, port));
+        System.out.println(String.format("Your learner endpoint is listening at address is http://%s:%d/", address.toString(), port));
+    }
+
+    private static InetAddress getLocalAddress(){
+        try {
+            Enumeration<NetworkInterface> b = NetworkInterface.getNetworkInterfaces();
+            while( b.hasMoreElements()){
+                for ( InterfaceAddress f : b.nextElement().getInterfaceAddresses())
+                    if ( f.getAddress().isSiteLocalAddress())
+                        return f.getAddress();
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public Annotator getAnnotator() {
