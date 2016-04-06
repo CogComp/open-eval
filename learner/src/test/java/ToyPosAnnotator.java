@@ -46,7 +46,8 @@ public class ToyPosAnnotator extends Annotator
         Annotator annotator = new ToyPosAnnotator();
 
         // We will have our server listen on port 5757 and pass it our trained annotator
-        Server server = new Server(5757, annotator);
+        ServerPreferences serverPreferences = new ServerPreferences(1000000, 25);
+        Server server = new Server(5757, serverPreferences, annotator);
 
         // We have no more work to do, so we will use the executeInstance method to start and keep our Server alive
         fi.iki.elonen.util.ServerRunner.executeInstance(server);

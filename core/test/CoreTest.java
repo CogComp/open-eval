@@ -9,6 +9,7 @@ import controllers.Core;
 import java.util.ArrayList;
 
 import com.google.common.collect.ImmutableMap;
+import models.LearnerSettings;
 import org.junit.Test;
 
 import play.libs.ws.WSResponse;
@@ -33,7 +34,7 @@ public class CoreTest {
         String url = "fakeurl:9000";
         String conf_id = "1";
         String record_id = "1";
-        String status = null;
+        LearnerSettings status = null;
         try {
             status = Core.testConnection(url);
         } catch (Exception e) {
