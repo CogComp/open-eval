@@ -6,6 +6,7 @@ import java.util.List;
 import actors.Messages.*;
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import akka.util.Timeout;
 import akka.actor.UntypedActor;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
@@ -18,6 +19,12 @@ import models.LearnerSettings;
 import play.libs.F;
 import play.libs.F.Promise;
 import play.libs.ws.WSResponse;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
+
+import static akka.pattern.Patterns.ask;
+
 
 public class JobProcessingActor extends UntypedActor {
 
@@ -58,6 +65,7 @@ public class JobProcessingActor extends UntypedActor {
             System.out.println("Sending and recieving annotations:");
             try {
                 int maxBatchSize = learnerSettings.maxNumInstancesAccepted;
+                int killCheckCounter = 1;
                 for (int startIndex = 0; startIndex < unprocessedInstances.size(); startIndex+=maxBatchSize) {
                     int batchSize = Math.min(maxBatchSize, unprocessedInstances.size() - startIndex);
                     List<TextAnnotation> batch = makeBatch(unprocessedInstances, startIndex, batchSize);
@@ -86,9 +94,15 @@ public class JobProcessingActor extends UntypedActor {
                             System.out.println(String.format("Completed batch of size %s", batchSize));
                         }
                     });
-                    // Wait until the promise is redeemed or 30 seconds
-                    response.get(30000);
-
+                    response.get(5000);
+                    if (killCheckCounter == 5) {
+	                    if (killCommandHasBeenSent()) {
+                            break;
+                        }
+                        killCheckCounter = 1;
+                    } else {
+                        killCheckCounter++;
+                    }
                 }
             } catch (Exception ex) {
                 System.out.println("Error sending and receiving text annotations");
@@ -97,6 +111,13 @@ public class JobProcessingActor extends UntypedActor {
             System.out.println("Done");
         } else
             unhandled(message);
+    }
+
+    private boolean killCommandHasBeenSent() throws Exception {
+        Timeout timeout = new Timeout(Duration.create(5, "seconds"));
+        Future<Object> masterResponse = ask(getSender(), new KillStatus(false, record_id), 5000);
+        Object result = (Object) Await.result(masterResponse, timeout.duration());
+        return (result instanceof KillStatus);
     }
 
     private List<TextAnnotation> makeBatch(List<TextAnnotation> unprocessedInstances, int startIndex, int batchSize){

@@ -48,3 +48,5 @@ GET        /logout               controllers.Application.logout()
 POST       /addUser              controllers.Application.addUser()
 
 POST       /loginUser            controllers.Application.loginUser()
+
+POST       /stopRun              controllers.Application.stopRun()
