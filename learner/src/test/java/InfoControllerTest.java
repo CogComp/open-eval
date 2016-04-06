@@ -1,3 +1,4 @@
+import com.google.gson.*;
 import edu.illinois.cs.cogcomp.annotation.Annotator;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.router.RouterNanoHTTPD;
@@ -16,16 +17,37 @@ public class InfoControllerTest
     {
         InfoController infoController = new InfoController();
         Annotator annotator = mock(Annotator.class);
-        when(annotator.getRequiredViews()).thenReturn(new String[]{"a", "b", "c"});
+        String[] requiredViews = new String[]{"a", "b", "c"};
+        when(annotator.getRequiredViews()).thenReturn(requiredViews);
+        when(annotator.getViewName()).thenReturn("view");
+
         RouterNanoHTTPD.UriResource uriResource = mock(RouterNanoHTTPD.UriResource.class);
         when(uriResource.initParameter(Annotator.class)).thenReturn(annotator);
 
+        ServerPreferences serverPreferences = new ServerPreferences(100, 10);
+        when(uriResource.initParameter(1, ServerPreferences.class)).thenReturn(serverPreferences);
+
         NanoHTTPD.Response response = infoController.get(uriResource, null, null);
         String body = IOUtils.toString(response.getData());
-        String expected = "{\"requiredViews\":[\"a\",\"b\",\"c\"]}";
-        assertEquals(expected, body);
+
+        JsonObject object = new JsonParser().parse(body).getAsJsonObject();
+
+        assertInfoEqual(object, requiredViews, "view", serverPreferences);
         assertEquals(NanoHTTPD.Response.Status.OK, response.getStatus());
     }
+
+    public static void assertInfoEqual(JsonObject object, String[] requiredViews, String addedView, ServerPreferences serverPreferences) {
+        JsonArray expectedArray = new JsonArray();
+        for(String viewName : requiredViews){
+            expectedArray.add(new JsonPrimitive(viewName));
+        }
+
+        assertEquals(object.get("requiredViews").getAsJsonArray(),expectedArray);
+        assertEquals(object.get("addedView").getAsString(), addedView);
+        assertEquals(object.get("maxAmountBytesAccepted").getAsInt(), serverPreferences.getMaxAmountBytesAccepted());
+        assertEquals(object.get("maxNumInstancesAccepted").getAsInt(), serverPreferences.getMaxNumInstancesAccepted());
+    }
+
 
     @Test
     public void testPost() throws Exception

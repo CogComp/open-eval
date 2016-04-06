@@ -1,3 +1,6 @@
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import edu.illinois.cs.cogcomp.annotation.Annotator;
 import edu.illinois.cs.cogcomp.annotation.AnnotatorException;
 import edu.illinois.cs.cogcomp.annotation.BasicTextAnnotationBuilder;
@@ -6,6 +9,7 @@ import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.router.RouterNanoHTTPD;
 import org.apache.commons.io.IOUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -15,48 +19,46 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class InstanceControllerTest
 {
-
     @Test
     public void testPost() throws Exception
     {
-        Annotator annotator = mock(Annotator.class);
-        RouterNanoHTTPD.UriResource uriResource = mock(RouterNanoHTTPD.UriResource.class);
-        when(uriResource.initParameter(Annotator.class)).thenReturn(annotator);
+        TestCase testCase = new TestCase();
+        NanoHTTPD.Response response = testCase.execute(RequestResponseBuilder.getMultipleAnnotationRequestBody());
+        JsonArray instances = RequestResponseBuilder.getInstancesFromJson(response);
 
-        TextAnnotation textAnnotation = getBasicTextAnnotation();
-        String requestBody = SerializationHelper.serializeToJson(textAnnotation);
-        NanoHTTPD.IHTTPSession session = mockPostData(requestBody);
+        assertEquals(2, instances.size());
 
-        InstanceController controller = new InstanceController();
-        NanoHTTPD.Response response = controller.post(uriResource,null,session);
+        JsonObject instance = instances.get(0).getAsJsonObject();
+        assertTrue(instance.has("textAnnotation"));
+        assertFalse(instance.has("error"));
 
-        String responseBody = IOUtils.toString(response.getData());
-        assertEquals(requestBody,responseBody);
         assertEquals(NanoHTTPD.Response.Status.OK, response.getStatus());
     }
 
     @Test
     public void testLearnerError() throws Exception
     {
-        Annotator annotator = mock(Annotator.class);
-        doThrow(new AnnotatorException("")).when(annotator).addView(any());
-        RouterNanoHTTPD.UriResource uriResource = mock(RouterNanoHTTPD.UriResource.class);
-        when(uriResource.initParameter(Annotator.class)).thenReturn(annotator);
+        TestCase testCase = new TestCase();
+        doThrow(new AnnotatorException("")).when(testCase.annotator).addView(any());
+        NanoHTTPD.Response response = testCase.execute(RequestResponseBuilder.getMultipleAnnotationRequestBody());
+        JsonArray instances = RequestResponseBuilder.getInstancesFromJson(response);
 
-        TextAnnotation textAnnotation = getBasicTextAnnotation();
-        String requestBody = SerializationHelper.serializeToJson(textAnnotation);
-        NanoHTTPD.IHTTPSession session = mockPostData(requestBody);
+        assertEquals(2, instances.size());
 
-        InstanceController controller = new InstanceController();
-        NanoHTTPD.Response response = controller.post(uriResource,null,session);
+        JsonObject instance = instances.get(0).getAsJsonObject();
 
-        String responseBody = IOUtils.toString(response.getData());
-        assertEquals("There was an error adding the view to the instance",responseBody);
-        assertEquals(NanoHTTPD.Response.Status.INTERNAL_ERROR, response.getStatus());
+        assertTrue(instance.has("error"));
+        assertFalse(instance.has("textAnnotation"));
+        String error = instance.get("error").getAsString();
+
+        assertTrue(error.startsWith("There was an error adding the view to the instance:"));
+        assertEquals(NanoHTTPD.Response.Status.OK, response.getStatus());
     }
 
     @Test
@@ -74,18 +76,12 @@ public class InstanceControllerTest
     @Test
     public void testBadJson() throws IOException, NanoHTTPD.ResponseException
     {
-        NanoHTTPD.IHTTPSession session = mockPostData("Bad json");
+        TestCase testCase = new TestCase();
+        NanoHTTPD.Response response = testCase.execute("Bad Json");
 
-        Annotator annotator = mock(Annotator.class);
-        RouterNanoHTTPD.UriResource uriResource = mock(RouterNanoHTTPD.UriResource.class);
-        when(uriResource.initParameter(Annotator.class)).thenReturn(annotator);
-
-        InstanceController controller = new InstanceController();
-        NanoHTTPD.Response response = controller.post(uriResource,null,session);
-
-        assertEquals(NanoHTTPD.Response.Status.INTERNAL_ERROR.getRequestStatus(), response.getStatus().getRequestStatus());
+        assertEquals(NanoHTTPD.Response.Status.BAD_REQUEST.getRequestStatus(), response.getStatus().getRequestStatus());
         String body = IOUtils.toString(response.getData());
-        assertEquals("There was an error parsing the body",body);
+        assertTrue(body.startsWith("Error reading request"));
     }
 
     @Test
@@ -100,20 +96,14 @@ public class InstanceControllerTest
         InstanceController controller = new InstanceController();
         NanoHTTPD.Response response = controller.post(uriResource,null,session);
 
-        assertEquals(NanoHTTPD.Response.Status.INTERNAL_ERROR, response.getStatus());
+        assertEquals(NanoHTTPD.Response.Status.BAD_REQUEST, response.getStatus());
         String body = IOUtils.toString(response.getData());
-        assertEquals("Error reading request",body);
+        assertTrue(body.startsWith("Error reading request"));
     }
 
-    private TextAnnotation getBasicTextAnnotation()
-    {
-        String[] sentences = {"The dog runs"};
-        ArrayList<String[]> list = new ArrayList<String[]>();
-        list.add(sentences);
-        return BasicTextAnnotationBuilder.createTextAnnotationFromTokens(list);
-    }
 
-    private NanoHTTPD.IHTTPSession mockPostData(String body) throws IOException, NanoHTTPD.ResponseException
+
+    private static NanoHTTPD.IHTTPSession mockPostData(String body) throws IOException, NanoHTTPD.ResponseException
     {
         NanoHTTPD.IHTTPSession session = mock(NanoHTTPD.IHTTPSession.class);
         doAnswer(new Answer()
@@ -128,5 +118,25 @@ public class InstanceControllerTest
             }
         }).when(session).parseBody(anyMap());
         return session;
+    }
+
+    private class TestCase {
+        public Annotator annotator;
+        public RouterNanoHTTPD.UriResource uriResource;
+
+        public TestCase(){
+            annotator = mock(Annotator.class);
+            uriResource = mock(RouterNanoHTTPD.UriResource.class);
+            when(uriResource.initParameter(Annotator.class)).thenReturn(annotator);
+        }
+
+        public NanoHTTPD.Response execute(String requestBody) throws IOException, NanoHTTPD.ResponseException {
+            NanoHTTPD.IHTTPSession session = InstanceControllerTest.mockPostData(requestBody);
+
+            InstanceController controller = new InstanceController();
+            NanoHTTPD.Response response = controller.post(uriResource,null,session);
+
+            return response;
+        }
     }
 }

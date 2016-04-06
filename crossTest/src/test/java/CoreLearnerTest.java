@@ -1,12 +1,15 @@
 /**
  * Created by Dhruv on 1/6/2016.
  */
+import controllers.Core;
 import models.Job;
+import models.LearnerInstancesResponse;
 import models.LearnerInterface;
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
 import edu.illinois.cs.cogcomp.core.utilities.DummyTextAnnotationGenerator;
+import models.LearnerSettings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,9 +17,11 @@ import play.libs.ws.WSResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static play.test.Helpers.fakeApplication;
 import static play.test.Helpers.running;
 
@@ -29,7 +34,7 @@ public class CoreLearnerTest
 
         try
         {
-            server = new Server(5757, new SaulPosAnnotator());
+            server = new Server(5757, new ServerPreferences(1000, 10), new SaulPosAnnotator());
             server.start();
 
         } catch (IOException e)
@@ -51,26 +56,25 @@ public class CoreLearnerTest
                 LearnerInterface learner = new LearnerInterface("http://localhost:5757/");
 
                 String[] viewsToAdd = {ViewNames.POS, ViewNames.SENTENCE};
-                ArrayList<TextAnnotation> instances = new ArrayList<>();
+                ArrayList<TextAnnotation> goldInstances = new ArrayList<>();
 
                 TextAnnotation goldTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false);
                 View goldPosView = goldTextAnnotation.getView(ViewNames.POS);
                 goldTextAnnotation.removeView(ViewNames.POS);
 
-                instances.add(goldTextAnnotation);
+                goldInstances.add(goldTextAnnotation);
 
-                Job newJob = new Job(learner, instances);
+                List<TextAnnotation> redactedInstances = Core.cleanseInstances(goldInstances, Arrays.asList(viewsToAdd));
+
+                Job newJob = new Job(learner, redactedInstances, goldInstances);
 
                 System.out.println("Request");
 
-                WSResponse response = newJob.sendAndReceiveRequestsFromSolver();
-
-                System.out.println("Response: " + response.getBody());
+                LearnerInstancesResponse response = newJob.sendAndReceiveRequestsFromSolver(redactedInstances);
 
                 goldTextAnnotation.addView(ViewNames.POS,goldPosView);
 
-                assertEquals(goldTextAnnotation,newJob.getSolverInstances().get(0));
-                assertEquals(200,response.getStatus());
+                assertTrue(response.textAnnotations[0].hasView(ViewNames.POS));
             }
         });
     }
@@ -83,7 +87,7 @@ public class CoreLearnerTest
                 LearnerInterface learner = new LearnerInterface("http://localhost:5757/");
 
                 String[] viewsToAdd = {ViewNames.POS};
-                ArrayList<TextAnnotation> instances = new ArrayList<>();
+                ArrayList<TextAnnotation> goldInstances = new ArrayList<>();
                 ArrayList<View> removedViews = new ArrayList<>();
 
                 for(int i=0; i<2; i++) {
@@ -92,25 +96,24 @@ public class CoreLearnerTest
 
                     goldTextAnnotation.removeView(ViewNames.POS);
 
-                    instances.add(goldTextAnnotation);
+                    goldInstances.add(goldTextAnnotation);
                 }
 
-                Job newJob = new Job(learner, instances);
+                List<TextAnnotation> redactedInstances = Core.cleanseInstances(goldInstances, Arrays.asList(viewsToAdd));
+
+                Job newJob = new Job(learner, redactedInstances, goldInstances);
 
                 System.out.println("Request");
 
-                WSResponse response = newJob.sendAndReceiveRequestsFromSolver();
-
-                System.out.println("Response: " + response.getBody());
+                LearnerInstancesResponse response = newJob.sendAndReceiveRequestsFromSolver(redactedInstances);
 
                 List<TextAnnotation> solverInstances = newJob.getSolverInstances();
 
                 for(int i=0; i<2; i++) {
-                    TextAnnotation goldTextAnnotation = instances.get(i);
+                    TextAnnotation goldTextAnnotation = goldInstances.get(i);
                     goldTextAnnotation.addView(ViewNames.POS, removedViews.get(i));
-                    assertEquals(goldTextAnnotation, solverInstances.get(i));
+                    assertTrue(response.textAnnotations[i].hasView(ViewNames.POS));
                 }
-                assertEquals(200,response.getStatus());
             }
         });
     }
@@ -123,7 +126,7 @@ public class CoreLearnerTest
                 LearnerInterface learner = new LearnerInterface("http://localhost:5757/");
 
                 String[] viewsToAdd = {ViewNames.POS};
-                ArrayList<TextAnnotation> instances = new ArrayList<>();
+                ArrayList<TextAnnotation> goldInstances = new ArrayList<>();
                 ArrayList<View> removedViews = new ArrayList<>();
 
                 for(int i=0; i<10; i++) {
@@ -132,25 +135,24 @@ public class CoreLearnerTest
 
                     goldTextAnnotation.removeView(ViewNames.POS);
 
-                    instances.add(goldTextAnnotation);
+                    goldInstances.add(goldTextAnnotation);
                 }
 
-                Job newJob = new Job(learner, instances);
+                List<TextAnnotation> redactedInstances = Core.cleanseInstances(goldInstances, Arrays.asList(viewsToAdd));
+
+                Job newJob = new Job(learner, redactedInstances, goldInstances);
 
                 System.out.println("Request");
 
-                WSResponse response = newJob.sendAndReceiveRequestsFromSolver();
-
-                System.out.println("Response: " + response.getBody());
+                LearnerInstancesResponse response = newJob.sendAndReceiveRequestsFromSolver(redactedInstances);
 
                 List<TextAnnotation> solverInstances = newJob.getSolverInstances();
 
                 for(int i=0; i<10; i++) {
-                    TextAnnotation goldTextAnnotation = instances.get(i);
+                    TextAnnotation goldTextAnnotation = goldInstances.get(i);
                     goldTextAnnotation.addView(ViewNames.POS, removedViews.get(i));
-                    assertEquals(goldTextAnnotation, solverInstances.get(i));
+                    assertTrue(response.textAnnotations[i].hasView(ViewNames.POS));
                 }
-                assertEquals(200,response.getStatus());
             }
         });
     }
@@ -162,10 +164,11 @@ public class CoreLearnerTest
             public void run() {
                 LearnerInterface learner = new LearnerInterface("http://localhost:5757/");
 
-                String json = learner.getInfo();
-                String expected = "{\"requiredViews\":[\"TOKENS\"]}";
-                System.out.println(json);
-                assertEquals(json, expected);
+                LearnerSettings settings = learner.getInfo();
+                List<String> requiredViews = Arrays.asList(new String[]{"TOKENS"});
+
+                System.out.println(settings);
+                assertEquals(requiredViews, settings.requiredViews);
             }
         });
     }

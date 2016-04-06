@@ -1,3 +1,7 @@
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import edu.illinois.cs.cogcomp.annotation.Annotator;
 import edu.illinois.cs.cogcomp.annotation.AnnotatorException;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
@@ -15,33 +19,67 @@ public class InstanceController implements RouterNanoHTTPD.UriResponder
     public Response post(RouterNanoHTTPD.UriResource uriResource, Map<String, String> map, NanoHTTPD.IHTTPSession session)
     {
         Annotator annotator = uriResource.initParameter(Annotator.class);
-        String body = null;
+        JsonArray jInstances;
+        JsonParser parser = new JsonParser();
+
         try{
-            body = readBody(session);
+            String body = readBody(session);
+            jInstances = parser.parse(body).getAsJsonArray();
         } catch (Exception ex){
-            Response errorResponse = ResponseGenerator.generateErrorResponse(ex, "Error reading request");
-            return errorResponse;
+            return ResponseGenerator.generateResponse(String.format("Error reading request: %s", ex.toString()), Response.Status.BAD_REQUEST);
         }
 
-        TextAnnotation textAnnotation;
-        try
-        {
-            textAnnotation = SerializationHelper.deserializeFromJson(body);
-        } catch (Exception e)
-        {
-            return ResponseGenerator.generateErrorResponse(e, "There was an error parsing the body");
-        }
+        TextAnnotation[] textAnnotations = new TextAnnotation[jInstances.size()];
+        String[] errors = new String[textAnnotations.length];
 
-        try
-        {
-            annotator.addView(textAnnotation);
-        } catch (AnnotatorException e)
-        {
-            return  ResponseGenerator.generateErrorResponse(e, "There was an error adding the view to the instance");
-        }
+        parseTextAnnotations(jInstances, textAnnotations, errors);
+        annotateInstances(annotator, textAnnotations, errors);
 
-        String jsonAnnotation = SerializationHelper.serializeToJson(textAnnotation);
-        return NanoHTTPD.newFixedLengthResponse(jsonAnnotation);
+        JsonArray newJInstances = serializeInstances(parser, textAnnotations, errors);
+
+        return NanoHTTPD.newFixedLengthResponse(newJInstances.toString());
+    }
+
+    private JsonArray serializeInstances(JsonParser parser, TextAnnotation[] textAnnotations, String[] errors) {
+        JsonArray newJInstances = new JsonArray();
+        for(int i=0;i<textAnnotations.length;i++){
+            JsonObject instanceObject = new JsonObject();
+
+            if(textAnnotations[i] != null) {
+                String jsonTextAnnotation = SerializationHelper.serializeToJson(textAnnotations[i]);
+                JsonObject jTextAnnotation = parser.parse(jsonTextAnnotation).getAsJsonObject();
+                instanceObject.add("textAnnotation", jTextAnnotation);
+            }
+            if(errors[i] != null){
+                instanceObject.add("error", new JsonPrimitive(errors[i]));
+            }
+            newJInstances.add(instanceObject);
+        }
+        return newJInstances;
+    }
+
+    private void annotateInstances(Annotator annotator, TextAnnotation[] textAnnotations, String[] errors) {
+        for(int i=0;i<textAnnotations.length;i++) {
+            if (textAnnotations[i] != null){
+                try{
+                    annotator.addView(textAnnotations[i]);
+                } catch (AnnotatorException e) {
+                    textAnnotations[i] = null;
+                    errors[i] = String.format("There was an error adding the view to the instance: %s", e.toString());
+                }
+            }
+        }
+    }
+
+    private void parseTextAnnotations(JsonArray jInstances, TextAnnotation[] textAnnotations, String[] errors) {
+        for(int i=0;i<textAnnotations.length;i++){
+            try {
+                textAnnotations[i] = SerializationHelper.deserializeFromJson(jInstances.get(i).toString());
+            } catch (Exception e){
+                textAnnotations[i] = null;
+                errors[i] = String.format("There was an error parsing the TextAnnotation: %s", e.toString());
+            }
+        }
     }
 
     private String readBody(NanoHTTPD.IHTTPSession session) throws Exception{
