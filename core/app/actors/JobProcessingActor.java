@@ -100,7 +100,7 @@ public class JobProcessingActor extends UntypedActor {
                             else
                                 Core.storeResultsOfRunInDatabase(eval, record_id, false);
 
-                            master.tell(new StatusUpdate(completed, skipped, total, record_id), getSelf());
+                            master.tell(new StatusUpdate(completed, skipped, total, record_id, eval), getSelf());
                             System.out.println(String.format("Completed batch of size %s", batchSize));
                         }
                     });
@@ -116,7 +116,7 @@ public class JobProcessingActor extends UntypedActor {
                     }
                 }
             } catch (Exception ex) {
-                System.out.println("Error sending and receiving text annotations" + ex.getMessage());
+                System.out.println("Err sending and receiving text annotations" + ex.getMessage());
                 Core.storeResultsOfRunInDatabase(eval, record_id, false);
             }
             System.out.println("Done");
