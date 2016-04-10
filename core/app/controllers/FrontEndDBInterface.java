@@ -155,24 +155,44 @@ public class FrontEndDBInterface {
         }
     }
     
+    public String getTeamnameFromUsername(String username) {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "SELECT teamName FROM users WHERE username = ?;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, username);
+            
+            ResultSet teamnameRS = stmt.executeQuery();
+            teamnameRS.first();
+            String teamname = teamnameRS.getString(1);
+            
+            conn.close();
+            return teamname;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
     /**----------------------CONFIGURATION DB FUNCTIONS----------------------------------*/    
     
     
     /** Stores the received configuration in the MySQL configurations table and taskvariants table. */
-    public void insertConfigToDB(String datasetName, String teamName, String description, String evaluator, String taskType, String taskVariant) {
+    public void insertConfigToDB(String datasetName, String configName, String description, String evaluator, String taskType, String taskVariant, String teamName) {
         try {            
             Connection conn = getConnection();
             
             /*Storing basic configuration info.*/
-            String sql = "INSERT INTO configurations(id, datasetName, teamName, description, evaluator, taskType, taskVariant) VALUES (?, ?, ?, ?, ?, ?, ?);";
+            String sql = "INSERT INTO configurations(id, datasetName, teamName, description, evaluator, taskType, taskVariant, team_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setNull(1, Types.INTEGER); //Set null so MySQL can auto-increment the primary key (id).
             stmt.setString(2, datasetName);
-            stmt.setString(3, teamName);
+            stmt.setString(3, configName);
             stmt.setString(4, description);
             stmt.setString(5, evaluator);
             stmt.setString(6, taskType);
             stmt.setString(7, taskVariant);
+            stmt.setString(8, teamName);
             stmt.executeUpdate();
             
             conn.close();
