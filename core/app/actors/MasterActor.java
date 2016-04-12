@@ -15,7 +15,7 @@ import models.RunStatus;
 public class MasterActor extends UntypedActor {
 
     public static Props props = Props.create(MasterActor.class);
-    
+
     /**
      * Maps record_id to the current run status.
      */
@@ -29,7 +29,7 @@ public class MasterActor extends UntypedActor {
         // When told to start a job, MasterActor spawns a JobProcessingActor to
         // carry out the job.
         if (message instanceof SetUpJobMessage) {
-            RunStatus runStatus = new RunStatus(0, 0, 0, null);
+            RunStatus runStatus = new RunStatus(0, 0, 0, null, "");
             SetUpJobMessage jobInfo = (SetUpJobMessage) message;
             this.conf_id = jobInfo.getConf_id();
             this.record_id = jobInfo.getRecord_id();
@@ -43,11 +43,7 @@ public class MasterActor extends UntypedActor {
         // updates the master.
         else if (message instanceof StatusUpdate) {
             StatusUpdate update = (StatusUpdate) message;
-            int completed = update.getCompleted();
-            int skipped = update.getSkipped();
-            int total = update.getTotal();
-            ClassificationTester eval = update.getEvaluation();
-            runStatuses.put(update.getRecord_id(), new RunStatus(completed, skipped, total, eval));
+            runStatuses.put(update.getRecord_id(), new RunStatus(update.getCompleted(), update.getSkipped(), update.getTotal(), update.getEvaluation(), update.getError()));
         }
         // When the progress bar page polls for an updated status, Master
         // returns the
@@ -56,7 +52,7 @@ public class MasterActor extends UntypedActor {
             String id = ((StatusRequest) message).getRecord_id();
             RunStatus status = runStatuses.get(id);
             if (status != null) {
-                getSender().tell(new StatusUpdate(status.getCompleted(), status.getSkipped(), status.getTotal(), id, status.getEvaluation()), getSelf());
+                getSender().tell(new StatusUpdate(status.getCompleted(), status.getSkipped(), status.getTotal(), id, status.getEvaluation(), status.getError()), getSelf());
             } else {
                 getSender().tell(null, getSelf());
             }
