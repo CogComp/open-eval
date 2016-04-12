@@ -39,7 +39,7 @@ public class Application extends Controller {
 
     /**
      * The master actor is created when the application starts.
-     * 
+     *
      * @param system
      */
     @Inject
@@ -117,7 +117,7 @@ public class Application extends Controller {
         String taskVariant = bindedForm.get("taskvariant");
         String username = request().username();
         String teamName = f.getTeamnameFromUsername(username);
-        
+
         String evaluator = f.getEvaluatorForTask(taskName);
 
         try {
@@ -234,8 +234,15 @@ public class Application extends Controller {
                         result.put("completed", Integer.toString(update.getCompleted()));
                         result.put("skipped", Integer.toString(update.getSkipped()));
                         result.put("total", Integer.toString(update.getTotal()));
-                        result.put("error", update.getError());
                         ClassificationTester ct = update.getEvaluation();
+                        String error = update.getError();
+                        if(error!=null)
+                            result.put("status", error);
+                        else
+                        if(update.getTotal()==0)
+                            result.put("status", "Receiving instances from database");
+                        else
+                            result.put("status", "Send and receiving Text Annotations");
                         if(ct != null) {
                             EvaluationRecord eval = ct.getEvaluationRecord();
                             result.put("precision", eval.getPrecision());
@@ -363,7 +370,7 @@ public class Application extends Controller {
 
         //@Deepak insert a record into the user db with this username and pw
         f.insertNewUserToDB(username, password, teamName);
-        
+
         session().clear();
         session("username", username);
         return redirect("/");
@@ -378,9 +385,9 @@ public class Application extends Controller {
         FrontEndDBInterface f = new FrontEndDBInterface();
         boolean passCheck = f.authenticateUser(username, password);
         //@Deepak get password for username from db
-        
+
         if (!passCheck) {
-            String error = "Some error"; 
+            String error = "Some error";
             LoginViewModel viewModel = new LoginViewModel();
             viewModel.errorMessage = error;
             viewModel.loginUsername = username;

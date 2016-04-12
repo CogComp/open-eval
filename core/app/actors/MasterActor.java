@@ -15,7 +15,7 @@ import models.RunStatus;
 public class MasterActor extends UntypedActor {
 
     public static Props props = Props.create(MasterActor.class);
-    
+
     /**
      * Maps record_id to the current run status.
      */
@@ -43,12 +43,7 @@ public class MasterActor extends UntypedActor {
         // updates the master.
         else if (message instanceof StatusUpdate) {
             StatusUpdate update = (StatusUpdate) message;
-            int completed = update.getCompleted();
-            int skipped = update.getSkipped();
-            int total = update.getTotal();
-            ClassificationTester eval = update.getEvaluation();
-            String error = update.getError();
-            runStatuses.put(update.getRecord_id(), new RunStatus(completed, skipped, total, eval, error));
+            runStatuses.put(update.getRecord_id(), new RunStatus(update.getCompleted(), update.getSkipped(), update.getTotal(), update.getEvaluation(), update.getError()));
         }
         // When the progress bar page polls for an updated status, Master
         // returns the

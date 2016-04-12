@@ -95,15 +95,8 @@
                       $("#progress").html(percent+'%');
                       // If no Text Annotations have been completed, notify the user that the instances are
                       // being pulled from the database.
-                      if (completed == 0) {
-                        $("#database").html("Retrieving instances from database...");
-                      } else {
-                        $("#database").html("Your datasets are being processed. This may take a moment.");
-                      }
-                      var error = progress_info.error;
-                      if(error != null){
-                        $("#database").html(error).css("color", "red");
-                      }
+                      $("#database").html(progress_info.status);
+
                       $("#completed").html(completed);
                       $("#total").html(total);
                       $("#skipped").html(skipped);
