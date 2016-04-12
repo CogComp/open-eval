@@ -188,17 +188,17 @@ public class Application extends Controller {
 		FrontEndDBInterface f = new FrontEndDBInterface();
 
 		LearnerSettings settings = Core.testConnection(url);
-		if (settings == null) {
-			AddRunViewModel viewModel = new AddRunViewModel();
-			viewModel.configuration_id = conf_id;
-			viewModel.default_url = url;
-			viewModel.default_author = author;
-			viewModel.default_repo = repo;
-			viewModel.default_comment = comment;
-			viewModel.error_message = "Server at given address was not found";
+        if (settings.error != null) {
+            AddRunViewModel viewModel = new AddRunViewModel();
+            viewModel.configuration_id = conf_id;
+            viewModel.default_url = url;
+            viewModel.default_author = author;
+            viewModel.default_repo = repo;
+            viewModel.default_comment = comment;
+            viewModel.error_message = settings.error;
 
-			return ok(addRun.render(viewModel));
-		}
+            return ok(addRun.render(viewModel));
+        }
 
         String record_id = f.storeRunInfo(Integer.parseInt(conf_id), url, author, repo, comment);
         Record rec = f.getRecordFromRecordID(Integer.parseInt(record_id));
@@ -234,6 +234,7 @@ public class Application extends Controller {
                         result.put("completed", Integer.toString(update.getCompleted()));
                         result.put("skipped", Integer.toString(update.getSkipped()));
                         result.put("total", Integer.toString(update.getTotal()));
+                        result.put("error", update.getError());
                         ClassificationTester ct = update.getEvaluation();
                         if(ct != null) {
                             EvaluationRecord eval = ct.getEvaluationRecord();

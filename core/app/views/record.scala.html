@@ -100,6 +100,10 @@
                       } else {
                         $("#database").html("Your datasets are being processed. This may take a moment.");
                       }
+                      var error = progress_info.error;
+                      if(error != null){
+                        $("#database").html(error).css("color", "red");
+                      }
                       $("#completed").html(completed);
                       $("#total").html(total);
                       $("#skipped").html(skipped);

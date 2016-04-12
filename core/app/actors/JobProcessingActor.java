@@ -65,6 +65,11 @@ public class JobProcessingActor extends UntypedActor {
             Job job = Core.setUpJob(conf_id, url, record_id);
             Evaluator evaluator = Core.getEvaluator(conf_id);
             ClassificationTester eval = new ClassificationTester();
+            if(job.getError() != null){
+                master.tell(new StatusUpdate(0, 0, 0, record_id, null, job.getError()), getSelf());
+                Core.storeResultsOfRunInDatabase(eval, record_id, false);
+                return;
+            }
             List<TextAnnotation> unprocessedInstances = job.getUnprocessedInstances();
             List<TextAnnotation> goldInstances = job.getGoldInstances();
             completed = 0;
@@ -100,7 +105,7 @@ public class JobProcessingActor extends UntypedActor {
                             else
                                 Core.storeResultsOfRunInDatabase(eval, record_id, false);
 
-                            master.tell(new StatusUpdate(completed, skipped, total, record_id, eval), getSelf());
+                            master.tell(new StatusUpdate(completed, skipped, total, record_id, eval, ""), getSelf());
                             System.out.println(String.format("Completed batch of size %s", batchSize));
                         }
                     });
@@ -108,6 +113,7 @@ public class JobProcessingActor extends UntypedActor {
                     if (killCheckCounter == 5) {
 	                    if (killCommandHasBeenSent()) {
                             System.out.println("Exiting");
+                            Core.storeResultsOfRunInDatabase(eval, record_id, false);
                             break;
                         }
                         killCheckCounter = 1;
@@ -117,6 +123,7 @@ public class JobProcessingActor extends UntypedActor {
                 }
             } catch (Exception ex) {
                 System.out.println("Err sending and receiving text annotations" + ex.getMessage());
+                master.tell(new StatusUpdate(completed, skipped, total, record_id, eval, "Err sending and receiving text annotations"), getSelf());
                 Core.storeResultsOfRunInDatabase(eval, record_id, false);
             }
             System.out.println("Done");
