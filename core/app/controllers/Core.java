@@ -30,12 +30,14 @@ public class Core {
      * Otherwise, it returns the info string returned by the learner server.
      */
     public static LearnerSettings testConnection(String url) {
-        LearnerInterface learner = new LearnerInterface(url);
-        LearnerSettings settings = learner.getInfo();
-        if (settings == null) {
-            System.out.println("Could not connect to server");
-            return null;
+        LearnerInterface learner;
+        try {
+            learner = new LearnerInterface(url);
         }
+        catch(Exception e){
+            return new LearnerSettings("You have entered an invalid url");
+        }
+        LearnerSettings settings = learner.getInfo();
         return settings;
     }
 
@@ -48,16 +50,21 @@ public class Core {
 
         List<TextAnnotation> correctInstances = getInstancesFromDb(runConfig);
         System.out.println(url);
-        LearnerInterface learner = new LearnerInterface(url);
+        LearnerInterface learner;
+        try {
+            learner = new LearnerInterface(url);
+        }
+        catch(Exception e){
+            return new Job("Invalid url");
+        }
         LearnerSettings settings = learner.getInfo();
-        if (settings == null) {
+        if (settings.error != null) {
             System.out.println("Could not connect to server");
-            return null;
+            return new Job(settings.error);
         }
         List<TextAnnotation> cleansedInstances =  cleanseInstances(correctInstances, settings.requiredViews);
         if (cleansedInstances == null) {
-            System.out.println("Error in cleanser");
-            return null;
+            return new Job("Error in cleanser. Please check your requiredViews");
         }
         return new Job(learner, cleansedInstances, correctInstances);
     }
@@ -79,8 +86,6 @@ public class Core {
      *
      * @param correctInstances
      *            - The correct instances from the databse
-     * @param jsonInfo
-     *            - The information given by the learner
      * @return - The cleansed instance
      */
     public static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, List<String> requiredViews) {

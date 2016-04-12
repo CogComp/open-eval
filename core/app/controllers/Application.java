@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
 import play.libs.ws.WSResponse;
 import play.mvc.*;
 import play.data.DynamicForm;
@@ -24,6 +26,8 @@ import akka.*;
 import play.mvc.Controller;
 import javax.inject.*;
 
+import controllers.readers.POSReader;
+
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import static akka.pattern.Patterns.ask;
@@ -35,7 +39,7 @@ public class Application extends Controller {
 
     /**
      * The master actor is created when the application starts.
-     * 
+     *
      * @param system
      */
     @Inject
@@ -111,11 +115,14 @@ public class Application extends Controller {
 
         String taskName = bindedForm.get("task");
         String taskVariant = bindedForm.get("taskvariant");
+        String username = request().username();
+        String teamName = f.getTeamnameFromUsername(username);
+
         String evaluator = f.getEvaluatorForTask(taskName);
 
         try {
             f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),
-                    bindedForm.get("description"), evaluator, taskName, taskVariant);
+                    bindedForm.get("description"), evaluator, taskName, taskVariant, teamName);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -181,17 +188,17 @@ public class Application extends Controller {
 		FrontEndDBInterface f = new FrontEndDBInterface();
 
 		LearnerSettings settings = Core.testConnection(url);
-		if (settings == null) {
-			AddRunViewModel viewModel = new AddRunViewModel();
-			viewModel.configuration_id = conf_id;
-			viewModel.default_url = url;
-			viewModel.default_author = author;
-			viewModel.default_repo = repo;
-			viewModel.default_comment = comment;
-			viewModel.error_message = "Server at given address was not found";
+        if (settings.error != null) {
+            AddRunViewModel viewModel = new AddRunViewModel();
+            viewModel.configuration_id = conf_id;
+            viewModel.default_url = url;
+            viewModel.default_author = author;
+            viewModel.default_repo = repo;
+            viewModel.default_comment = comment;
+            viewModel.error_message = settings.error;
 
-			return ok(addRun.render(viewModel));
-		}
+            return ok(addRun.render(viewModel));
+        }
 
         String record_id = f.storeRunInfo(Integer.parseInt(conf_id), url, author, repo, comment);
         Record rec = f.getRecordFromRecordID(Integer.parseInt(record_id));
@@ -227,6 +234,26 @@ public class Application extends Controller {
                         result.put("completed", Integer.toString(update.getCompleted()));
                         result.put("skipped", Integer.toString(update.getSkipped()));
                         result.put("total", Integer.toString(update.getTotal()));
+                        ClassificationTester ct = update.getEvaluation();
+                        String error = update.getError();
+                        if(error!=null)
+                            result.put("status", error);
+                        else
+                        if(update.getTotal()==0)
+                            result.put("status", "Receiving instances from database");
+                        else
+                            result.put("status", "Send and receiving Text Annotations");
+                        if(ct != null) {
+                            EvaluationRecord eval = ct.getEvaluationRecord();
+                            result.put("precision", eval.getPrecision());
+                            result.put("recall", eval.getRecall());
+                            result.put("f1", eval.getF1());
+                            result.put("goldCount", eval.getGoldCount());
+                            result.put("correctCount", eval.getCorrectCount());
+                            result.put("predictedCount", eval.getPredictedCount());
+                            result.put("missedCount", eval.getMissedCount());
+                            result.put("extraCount", eval.getExtraCount());
+                        }
                         return ok(result);
                     }
                     result.put("percent_complete", "0");
@@ -330,8 +357,10 @@ public class Application extends Controller {
             return ok(login.render(viewModel));
         }
 
-        boolean teamPassCorrect = true;
-        //@Deepak add check that the team password is correct
+        String teamPassword = bindedForm.get("teamPassword");
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        boolean teamPassCorrect = f.checkTeamPassword(teamName, teamPassword);
+        //@Deepak add check that the team password is correct.
         if (!teamPassCorrect) {
             String error = "Team password is incorrect";
             viewModel.errorMessage = error;
@@ -340,6 +369,7 @@ public class Application extends Controller {
 
 
         //@Deepak insert a record into the user db with this username and pw
+        f.insertNewUserToDB(username, password, teamName);
 
         session().clear();
         session("username", username);
@@ -352,8 +382,11 @@ public class Application extends Controller {
         String username = bindedForm.get("loginUsername");
         String password = bindedForm.get("loginPassword");
 
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        boolean passCheck = f.authenticateUser(username, password);
         //@Deepak get password for username from db
-        if(/*some error occues*/ password.equals("errorCheck")) {
+
+        if (!passCheck) {
             String error = "Some error";
             LoginViewModel viewModel = new LoginViewModel();
             viewModel.errorMessage = error;
