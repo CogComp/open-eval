@@ -26,8 +26,6 @@ import akka.*;
 import play.mvc.Controller;
 import javax.inject.*;
 
-import controllers.readers.POSReader;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import static akka.pattern.Patterns.ask;
@@ -117,8 +115,8 @@ public class Application extends Controller {
         String taskVariant = bindedForm.get("taskvariant");
         String username = request().username();
         String teamName = f.getTeamnameFromUsername(username);
-
-        String evaluator = f.getEvaluatorForTask(taskName);
+        
+        String evaluator = f.getEvaluator(taskName, taskVariant);
 
         try {
             f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),
