@@ -80,7 +80,9 @@
                           @if( configuration.records != null && configuration.records.length > 0 ) {
                             <td @if( configuration.records(0).isRunning ) { class="running" } >
                               <a href="record?record_id=@configuration.records(0).record_id">
-                                @configuration.records(0).date [ @configuration.records(0).metrics.f1 ]
+                                @configuration.records(0).date [ 
+                                <span class="f1s">@configuration.records(0).metrics.f1 </span>
+                                ]
                               </a>
                             </td>
                           } else {
@@ -223,5 +225,15 @@
         </div>
         <br>
     </div>
+    <script type="text/javascript">
+      $('.f1s').each(function(i, obj) {
+        try{
+          num = +(obj.innerHTML);
+          obj.innerHTML = Math.round(num*10000)/10000;
+        } catch (err) {
+
+        }
+      });
+    </script>
   </body>
 </html>
