@@ -55,13 +55,15 @@ public class Messages {
 		private int total;
 		private String record_id;
 		private ClassificationTester eval;
+		private String error;
 
-		public StatusUpdate(int completed, int skipped, int total, String record_id, ClassificationTester eval) {
+		public StatusUpdate(int completed, int skipped, int total, String record_id, ClassificationTester eval, String error) {
 			this.completed = completed;
 			this.skipped = skipped;
 			this.total = total;
 			this.record_id = record_id;
 			this.eval = eval;
+			this.error = error;
 		}
 
 		public int getTotal() {
@@ -81,6 +83,8 @@ public class Messages {
 		}
 
 		public ClassificationTester getEvaluation() { return eval; }
+
+		public String getError() { return error; }
 	}
 
 	public static class StatusRequest {

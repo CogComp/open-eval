@@ -44,7 +44,11 @@ public class LearnerInterface {
 	 * Constructor. Initiates WSRequest object to send Http requests
 	 * @param url - Url of the server to send instances to
 	 */
-	public LearnerInterface(String url) {
+	public LearnerInterface(String url) throws Exception{
+		if(!url.startsWith("http"))
+			url = "http://"+url;
+		if(!url.endsWith("/"))
+			url+="/";
 		this.infoPoster = WS.url(url+"info");
 		this.instancePoster = WS.url(url+"instance");
 		System.out.println(this.infoPoster);
@@ -111,9 +115,15 @@ public class LearnerInterface {
 	public LearnerSettings getInfo(){
 		System.out.println("Pinging server");
 		LearnerSettings settings;
-		try{
+		JsonNode response;
+		try {
 			Promise<WSResponse> responsePromise = infoPoster.get();
-			JsonNode response = responsePromise.get(timeout).asJson();
+			response = responsePromise.get(timeout).asJson();
+		}
+		catch(Exception e){
+			return new LearnerSettings("Server at url not found");
+		}
+		try {
 			String addedView = response.get("addedView").asText();
 			int maxInstancesToSend = response.get("maxNumInstancesAccepted").asInt();
 			JsonNode requiredViewsJson = response.get("requiredViews");
@@ -122,8 +132,9 @@ public class LearnerInterface {
 			settings = new LearnerSettings(addedView, Arrays.asList(viewArray), maxInstancesToSend);
 		}
 		catch(Exception e){
-			settings = null;
+			return new LearnerSettings("Received invalid response from url");
 		}
+
 		return settings;
 	}
 }

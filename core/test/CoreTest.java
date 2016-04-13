@@ -41,6 +41,6 @@ public class CoreTest {
             if (e.getMessage().contains("The driver has not received any packets from the server.")) //In the case where we cannot connect to the DB. 
                 return;
         }
-        assertEquals(null, status);
+        assertEquals("You have entered an invalid url", status.error);
     }
 }

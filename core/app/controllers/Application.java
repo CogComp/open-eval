@@ -39,7 +39,7 @@ public class Application extends Controller {
 
     /**
      * The master actor is created when the application starts.
-     * 
+     *
      * @param system
      */
     @Inject
@@ -188,17 +188,17 @@ public class Application extends Controller {
 		FrontEndDBInterface f = new FrontEndDBInterface();
 
 		LearnerSettings settings = Core.testConnection(url);
-		if (settings == null) {
-			AddRunViewModel viewModel = new AddRunViewModel();
-			viewModel.configuration_id = conf_id;
-			viewModel.default_url = url;
-			viewModel.default_author = author;
-			viewModel.default_repo = repo;
-			viewModel.default_comment = comment;
-			viewModel.error_message = "Server at given address was not found";
+        if (settings.error != null) {
+            AddRunViewModel viewModel = new AddRunViewModel();
+            viewModel.configuration_id = conf_id;
+            viewModel.default_url = url;
+            viewModel.default_author = author;
+            viewModel.default_repo = repo;
+            viewModel.default_comment = comment;
+            viewModel.error_message = settings.error;
 
-			return ok(addRun.render(viewModel));
-		}
+            return ok(addRun.render(viewModel));
+        }
 
         String record_id = f.storeRunInfo(Integer.parseInt(conf_id), url, author, repo, comment);
         Record rec = f.getRecordFromRecordID(Integer.parseInt(record_id));
@@ -235,6 +235,14 @@ public class Application extends Controller {
                         result.put("skipped", Integer.toString(update.getSkipped()));
                         result.put("total", Integer.toString(update.getTotal()));
                         ClassificationTester ct = update.getEvaluation();
+                        String error = update.getError();
+                        if(error!=null)
+                            result.put("status", error);
+                        else
+                        if(update.getTotal()==0)
+                            result.put("status", "Receiving instances from database");
+                        else
+                            result.put("status", "Send and receiving Text Annotations");
                         if(ct != null) {
                             EvaluationRecord eval = ct.getEvaluationRecord();
                             result.put("precision", eval.getPrecision());
@@ -362,7 +370,7 @@ public class Application extends Controller {
 
         //@Deepak insert a record into the user db with this username and pw
         f.insertNewUserToDB(username, password, teamName);
-        
+
         session().clear();
         session("username", username);
         return redirect("/");
@@ -377,9 +385,9 @@ public class Application extends Controller {
         FrontEndDBInterface f = new FrontEndDBInterface();
         boolean passCheck = f.authenticateUser(username, password);
         //@Deepak get password for username from db
-        
+
         if (!passCheck) {
-            String error = "Some error"; 
+            String error = "Some error";
             LoginViewModel viewModel = new LoginViewModel();
             viewModel.errorMessage = error;
             viewModel.loginUsername = username;
