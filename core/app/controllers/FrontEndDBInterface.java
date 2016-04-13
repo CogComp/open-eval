@@ -584,12 +584,12 @@ public class FrontEndDBInterface {
             
             String sql = "SELECT evaluatorView FROM tasks WHERE name = ?;";
             PreparedStatement stmt = conn.prepareStatement(sql);
-            ResultSet evaluatorTaskRS = stmt.executeQuery();
+            ResultSet evaluatorViewRS = stmt.executeQuery();
             evaluatorTaskRS.first();
-            String evaluatorTask = evaluatorTaskRS.getString(1);
+            String evaluatorView = evaluatorTaskRS.getString(1);
             
             conn.close();
-            return evaluatorTask;
+            return evaluatorView;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
