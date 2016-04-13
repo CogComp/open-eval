@@ -13,9 +13,6 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 import edu.illinois.cs.cogcomp.nlp.corpusreaders.PennTreebankPOSReader; 
 import edu.illinois.cs.cogcomp.nlp.corpusreaders.ACEReader;
-import edu.illinois.cs.cogcomp.nlp.corpusreaders.ACEReader;
-
-import play.Logger;
 
 public class POSReader {
     private int queryOffset = 0;
@@ -94,7 +91,6 @@ public class POSReader {
     */
     public List<TextAnnotation> insertDatasetIntoDB(String corpusName, String datasetPath, String dType) {
         List<TextAnnotation> textAnnotations = getTextAnnotations(corpusName, datasetPath, dType); 
-        Logger.info("Size of textAnnotations: " + textAnnotations.size());
         insertIntoDatasets(corpusName); 
         storeTextAnnotations(corpusName, textAnnotations);   
         return textAnnotations; 
