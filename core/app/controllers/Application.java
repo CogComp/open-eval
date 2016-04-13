@@ -26,8 +26,6 @@ import akka.*;
 import play.mvc.Controller;
 import javax.inject.*;
 
-import controllers.readers.POSReader;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import static akka.pattern.Patterns.ask;
