@@ -7,12 +7,12 @@ body {
   overflow: hidden;
 }
 .hoja {
-  color: #6c6c62;
+  color: #d8d9ff;
   position: absolute;
-  top: 50%;
+  top: 8%;
   left: 50%;
   margin-left: -140px;
-  margin-top: -140px;
+  margin-top: -30px;
   width: 280px;
   height: 280px;
   text-align: center;
@@ -20,6 +20,8 @@ body {
   font-size: 35px;
   line-height: 280px;
   -webkit-font-smoothing: antialiased;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
 }
 .hoja:after,
 .hoja:before {
@@ -101,7 +103,7 @@ body {
 }
 
 body {
-    background: url(../images/bg.jpg) no-repeat center center fixed;
+    background: url(../images/uiuccampus.jpg) no-repeat center center fixed;
 
     -webkit-background-size: 100% 100%;
 
@@ -121,24 +123,23 @@ body {
     width: 50%;
     margin-left: 25%;
     margin-right: 25%;
-    margin-top: 1%;
+    margin-top: 40%;
     border: 8px;
     border-radius: 8px;
     padding: 2px;
-    background-color: rgba(255,255,255,.4);
-    font-family: "Comic Sans MS";
+    bottom:10%;
+    background-color: rgba(255,255,255,.6);
 }
 
 #loginButton {
     position: absolute;
-    margin-left: 40%;
-    margin-right: 40%;
-    width: 20%;
-    height: 10%;
-    bottom:7%;
-    opacity: 0.9;
+    margin-left: 42.5%;
+    margin-right: 42.5%;
+    width: 15%;
+    bottom:20%;
+    opacity: 1;
 }
 
 #getStarted {
-    font-size: 36px;
+    font-size: 30px;
 }
