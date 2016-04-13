@@ -6,7 +6,7 @@ lazy val commonSettings = Seq(
   organization := "edu.illinois.cs.cogcomp",
   name := "open-eval",
   scalaVersion := "2.11.7",
-  version := "0.1",
+  version := "0.1.1",
   resolvers ++= Seq(
     Resolver.mavenLocal,
     "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
