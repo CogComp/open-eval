@@ -1,18 +1,20 @@
 package controllers;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent;
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.CoreferenceView;
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.PredicateArgumentView;
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Relation;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TokenLabelView;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
 
 public class Redactor {
-
-    /**
+	/**
      * Calls removeAnnotations without the need for the user to create a singleton list.
      * @param textAnnotations
      * @param viewToKeep
@@ -65,21 +67,94 @@ public class Redactor {
      */
     public static List<TextAnnotation> removeTokenLabels(List<TextAnnotation> textAnnotations) {
         for (TextAnnotation textAnnotation : textAnnotations) {
-            View view = textAnnotation.getView(ViewNames.TOKENS);
-            if (view instanceof TokenLabelView) {
-                TokenLabelView tokenLabelView = (TokenLabelView) view;
-                int start = tokenLabelView.getStartSpan();
-                int end = tokenLabelView.getEndSpan();
-                List<Constituent> constituents = tokenLabelView.getConstituents();
-                for (Constituent c : constituents) {
-                    tokenLabelView.removeConstituent(c);
-                }
-                for (int i = start; i < end; i++) {
-                    tokenLabelView.addTokenLabel(i, "", 1.0);
-                }
-                textAnnotation.addView(view.getViewName(), view);
+            Set<String> viewNames = textAnnotation.getAvailableViews();
+            for (String viewName : viewNames) {
+            	View view = textAnnotation.getView(viewName);
+            	if (view instanceof TokenLabelView) {
+	                TokenLabelView tokenLabelView = (TokenLabelView) view;
+	                int start = tokenLabelView.getStartSpan();
+	                int end = tokenLabelView.getEndSpan();
+	                List<Constituent> constituents = tokenLabelView.getConstituents();
+	                for (Constituent c : constituents) {
+	                    tokenLabelView.removeConstituent(c);
+	                }
+	                for (int i = start; i < end; i++) {
+	                    tokenLabelView.addTokenLabel(i, "", 1.0);
+	                }
+	                textAnnotation.addView(view.getViewName(), view);
+	            }
             }
         }
         return textAnnotations;
     }
+    
+    /**
+     * Removes every {@code Relation} from every {@code PredicateArgumentView} in the list of text annotations.
+     */
+    public static List<TextAnnotation> removeRelationsFromPredicateArgumentView(List<TextAnnotation> textAnnotations) {
+    	for (TextAnnotation textAnnotation : textAnnotations) {
+    		Set<String> viewNames = textAnnotation.getAvailableViews();
+    		for (String viewName : viewNames) {
+    			View view = textAnnotation.getView(viewName);
+    			if (view instanceof PredicateArgumentView) {
+    				PredicateArgumentView predicateArgumentView = (PredicateArgumentView) view;
+    				predicateArgumentView.removeAllRelations();
+    			}
+    		}
+    	}
+    	return textAnnotations;
+    }
+    
+    /**
+     * Removes every {@code Relation} from every {@code PredicateArgumentView} in the list of text annotations,
+     * as well as all {@code Constituents} corresponding to predicates or arguments.
+     */
+    public static List<TextAnnotation> removePredicatesArgumentsAndRelations(List<TextAnnotation> textAnnotations) {
+    	for (TextAnnotation textAnnotation : textAnnotations) {
+    		Set<String> viewNames = textAnnotation.getAvailableViews();
+    		for (String viewName : viewNames) {
+    			View view = textAnnotation.getView(viewName);
+    			if (view instanceof PredicateArgumentView) {
+    				PredicateArgumentView predicateArgumentView = (PredicateArgumentView) view;
+    				predicateArgumentView.removeAllConstituents();
+    				textAnnotation.addView(viewName, predicateArgumentView);
+    			}
+    		}
+    	}
+    	return textAnnotations;
+    }
+    
+    public static List<TextAnnotation> removeCoreferenceRelations(List<TextAnnotation> textAnnotations) {
+    	for (TextAnnotation textAnnotation : textAnnotations) {
+    		Set<String> viewNames = textAnnotation.getAvailableViews();
+    		for (String viewName : viewNames) {
+    			View view = textAnnotation.getView(viewName);
+    			if (view instanceof CoreferenceView) {
+    				CoreferenceView coreferenceView = (CoreferenceView) view;
+    				coreferenceView.removeAllRelations();
+    				textAnnotation.addView(viewName, coreferenceView);
+    				
+    			}
+    		}
+    	}
+    	return textAnnotations;
+    }
+    
+    public static List<TextAnnotation> removeCoreferenceRelationsAndConstituents(List<TextAnnotation> textAnnotations) {
+    	for (TextAnnotation textAnnotation : textAnnotations) {
+    		Set<String> viewNames = textAnnotation.getAvailableViews();
+    		for (String viewName : viewNames) {
+    			View view = textAnnotation.getView(viewName);
+    			if (view instanceof CoreferenceView) {
+    				CoreferenceView coreferenceView = (CoreferenceView) view;
+    				coreferenceView.removeAllConstituents();
+    				textAnnotation.addView(viewName, coreferenceView);
+    			}
+    		}
+    	}
+    	return textAnnotations;
+    }
 }
+
+
+
