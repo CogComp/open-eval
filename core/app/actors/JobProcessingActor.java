@@ -64,6 +64,7 @@ public class JobProcessingActor extends UntypedActor {
             LearnerSettings learnerSettings = jobInfo.getLearnerSettings();
             Job job = Core.setUpJob(conf_id, url, record_id);
             Evaluator evaluator = Core.getEvaluator(conf_id);
+            String viewName = Core.getEvaluatorView(conf_id);
             ClassificationTester eval = new ClassificationTester();
             if(job.getError() != null){
                 master.tell(new StatusUpdate(0, 0, 0, record_id, eval, job.getError()), getSelf());
@@ -94,7 +95,7 @@ public class JobProcessingActor extends UntypedActor {
                             for(int batchIndex = 0;batchIndex<batchSize;batchIndex++){
                                 if (learnerInstancesResponse.textAnnotations[batchIndex] != null){
                                     TextAnnotation goldInstance = goldInstances.get(batchStartIndex + batchIndex);
-                                    Core.evaluate(evaluator, eval, goldInstance, learnerInstancesResponse.textAnnotations[batchIndex]);
+                                    Core.evaluate(evaluator, eval, goldInstance, learnerInstancesResponse.textAnnotations[batchIndex], viewName);
                                     completed++;
                                 } else {
                                     skipped++;

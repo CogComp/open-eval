@@ -76,9 +76,9 @@ public class Core {
     }
 
 	public static void evaluate(Evaluator evaluator, ClassificationTester eval,  TextAnnotation gold,
-			TextAnnotation predicted) {
-		View goldView = gold.getView(ViewNames.POS);
-		View predictedView = predicted.getView(ViewNames.POS);
+			TextAnnotation predicted, String viewName) {
+		View goldView = gold.getView(viewName);
+		View predictedView = predicted.getView(viewName);
 		evaluator.setViews(goldView, predictedView);
 		evaluator.evaluate(eval);
 	}
@@ -113,10 +113,20 @@ public class Core {
         Config conf = ConfigFactory.load();
         Configuration runConfig = getConfigurationFromDb(conf_id);
         FrontEndDBInterface f = new FrontEndDBInterface();
-        String evaluator = conf.getString("evaluator.root")+"ConstituentLabelingEvaluator";
+        String evaluator = conf.getString("evaluator.root")+f.getEvaluator(runConfig.task, runConfig.task_variant);
+        System.out.println("Evaluator: "+evaluator);
         Class<?> cls = Class.forName(evaluator);
         return (Evaluator)cls.newInstance();
     }
+
+    public static String getEvaluatorView(String conf_id) {
+        Configuration runConfig = getConfigurationFromDb(conf_id);
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        String viewName = f.getEvaluatorView(runConfig.task);
+        System.out.println("View: "+viewName);
+        return viewName;
+    }
+
 
     /**
      * Retrieve a stored dataset from the database
