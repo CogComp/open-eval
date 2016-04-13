@@ -63,9 +63,18 @@ public class JobProcessingActor extends UntypedActor {
             this.url = jobInfo.getUrl();
             LearnerSettings learnerSettings = jobInfo.getLearnerSettings();
             Job job = Core.setUpJob(conf_id, url, record_id);
-            Evaluator evaluator = Core.getEvaluator(conf_id);
-            String viewName = Core.getEvaluatorView(conf_id);
             ClassificationTester eval = new ClassificationTester();
+            Evaluator evaluator;
+            String viewName;
+            try {
+                evaluator = Core.getEvaluator(conf_id);
+                viewName = Core.getEvaluatorView(conf_id);
+            }
+            catch(Exception e){
+                master.tell(new StatusUpdate(0, 0, 0, record_id, eval, "Error receiving evaluator from database"), getSelf());
+                Core.storeResultsOfRunInDatabase(eval, record_id, false);
+                return;
+            }
             if(job.getError() != null){
                 master.tell(new StatusUpdate(0, 0, 0, record_id, eval, job.getError()), getSelf());
                 Core.storeResultsOfRunInDatabase(eval, record_id, false);
