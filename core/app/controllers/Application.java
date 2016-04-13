@@ -118,7 +118,7 @@ public class Application extends Controller {
         String username = request().username();
         String teamName = f.getTeamnameFromUsername(username);
         
-        String evaluator = f.getEvaluatorForTask(taskName);
+        String evaluator = f.getEvaluator(taskName, taskVariant);
 
         try {
             f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),

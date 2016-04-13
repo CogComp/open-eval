@@ -514,8 +514,28 @@ public class FrontEndDBInterface {
             throw new RuntimeException(e);
         }
     }
+    
+    /**Gets the evaluator, which is determined by a task and a task-variant.*/
+    public String getEvaluator(String taskName, String taskVariant) {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "SELECT name FROM taskMapping WHERE task_name = ? AND task_variant = ?;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, taskName);
+            stmt.setString(2, taskVariant);
+            ResultSet evaluatorRS = stmt.executeQuery();
+            evaluatorRS.first();
+            String evaluator = evaluatorRS.getString(1);
+            
+            conn.close();
+            return evaluator;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
    
-    /**Gets the evaluator for a task.*/
+    /**Gets the evaluator for a task. - DON'T USE THIS ONE.*/
     public String getEvaluatorForTask (String taskName) {
         try {
             Connection conn = getConnection();
@@ -556,6 +576,23 @@ public class FrontEndDBInterface {
         }
         
         
+    }
+    
+    public String getEvaluatorView(String task) {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "SELECT evaluatorTask FROM tasks WHERE name = ?;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet evaluatorTaskRS = stmt.executeQuery();
+            evaluatorTaskRS.first();
+            String evaluatorTask = evaluatorTaskRS.getString(1);
+            
+            conn.close();
+            return evaluatorTask;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
     
     /**---------------------HELPER FUNCTIONS-----------------------------------*/

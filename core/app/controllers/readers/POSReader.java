@@ -6,11 +6,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Iterator;
 
 import controllers.FrontEndDBInterface;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 import edu.illinois.cs.cogcomp.nlp.corpusreaders.PennTreebankPOSReader; 
+import edu.illinois.cs.cogcomp.nlp.corpusreaders.ACEReader;
+import edu.illinois.cs.cogcomp.nlp.corpusreaders.ACEReader;
+
+import play.Logger;
 
 public class POSReader {
     private int queryOffset = 0;
@@ -87,8 +92,9 @@ public class POSReader {
     
     /** Inserts a dataset into the MySQL database as a series of JSON TextAnnotations.
     */
-    public List<TextAnnotation> insertDatasetIntoDB(String corpusName, String datasetPath) {
-        List<TextAnnotation> textAnnotations = getTextAnnotations(corpusName, datasetPath); 
+    public List<TextAnnotation> insertDatasetIntoDB(String corpusName, String datasetPath, String dType) {
+        List<TextAnnotation> textAnnotations = getTextAnnotations(corpusName, datasetPath, dType); 
+        Logger.info("Size of textAnnotations: " + textAnnotations.size());
         insertIntoDatasets(corpusName); 
         storeTextAnnotations(corpusName, textAnnotations);   
         return textAnnotations; 
@@ -96,10 +102,28 @@ public class POSReader {
     
     /** Gets a List of TextAnnotations given the name of the corpus and the path to the dataset. 
     */
-    private List<TextAnnotation> getTextAnnotations(String corpusName, String datasetPath) {
-        PennTreebankPOSReader posReader = new PennTreebankPOSReader(corpusName); 
-        posReader.readFile(datasetPath);
-        List<TextAnnotation> textAnnotations = posReader.getTextAnnotations(); 
+    private List<TextAnnotation> getTextAnnotations(String corpusName, String datasetPath, String dType) {
+        List<TextAnnotation> textAnnotations = null;
+        if (dType.equals("POS")) {
+            PennTreebankPOSReader posReader = new PennTreebankPOSReader(corpusName); 
+            posReader.readFile(datasetPath);
+            textAnnotations = posReader.getTextAnnotations(); 
+        }
+        else if (dType.equals("ACE")) {
+            ACEReader aceReader;
+            try {
+                aceReader = new ACEReader(datasetPath, false);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            Iterator taIterator = aceReader.iterator();
+           
+            textAnnotations = new ArrayList<>();
+            while (taIterator.hasNext()) {
+                TextAnnotation ta = (TextAnnotation) taIterator.next();
+                textAnnotations.add(ta);
+            }
+        }
         return textAnnotations; 
     }
     
