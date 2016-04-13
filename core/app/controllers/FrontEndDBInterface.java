@@ -520,7 +520,7 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection();
             
-            String sql = "SELECT name FROM taskMapping WHERE task_name = ? AND task_variant = ?;";
+            String sql = "SELECT name FROM taskMappings WHERE task_name = ? AND task_variant = ?;";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, taskName);
             stmt.setString(2, taskVariant);
@@ -585,8 +585,8 @@ public class FrontEndDBInterface {
             String sql = "SELECT evaluatorView FROM tasks WHERE name = ?;";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet evaluatorViewRS = stmt.executeQuery();
-            evaluatorTaskRS.first();
-            String evaluatorView = evaluatorTaskRS.getString(1);
+            evaluatorViewRS.first();
+            String evaluatorView = evaluatorViewRS.getString(1);
             
             conn.close();
             return evaluatorView;
