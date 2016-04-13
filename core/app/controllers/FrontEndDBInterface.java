@@ -582,7 +582,7 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection();
             
-            String sql = "SELECT evaluatorTask FROM tasks WHERE name = ?;";
+            String sql = "SELECT evaluatorView FROM tasks WHERE name = ?;";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet evaluatorTaskRS = stmt.executeQuery();
             evaluatorTaskRS.first();
