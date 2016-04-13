@@ -9,7 +9,7 @@ import models.LearnerSettings;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import controllers.readers.POSReader;
+import controllers.readers.Reader;
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
@@ -32,12 +32,14 @@ public class Core {
      * Otherwise, it returns the info string returned by the learner server.
      */
     public static LearnerSettings testConnection(String url) {
-        LearnerInterface learner = new LearnerInterface(url);
-        LearnerSettings settings = learner.getInfo();
-        if (settings == null) {
-            System.out.println("Could not connect to server");
-            return null;
+        LearnerInterface learner;
+        try {
+            learner = new LearnerInterface(url);
         }
+        catch(Exception e){
+            return new LearnerSettings("You have entered an invalid url");
+        }
+        LearnerSettings settings = learner.getInfo();
         return settings;
     }
 
@@ -50,16 +52,21 @@ public class Core {
 
         List<TextAnnotation> correctInstances = getInstancesFromDb(runConfig);
         System.out.println(url);
-        LearnerInterface learner = new LearnerInterface(url);
+        LearnerInterface learner;
+        try {
+            learner = new LearnerInterface(url);
+        }
+        catch(Exception e){
+            return new Job("Invalid url");
+        }
         LearnerSettings settings = learner.getInfo();
-        if (settings == null) {
+        if (settings.error != null) {
             System.out.println("Could not connect to server");
-            return null;
+            return new Job(settings.error);
         }
         List<TextAnnotation> cleansedInstances =  cleanseInstances(correctInstances, settings.requiredViews);
         if (cleansedInstances == null) {
-            System.out.println("Error in cleanser");
-            return null;
+            return new Job("Error in cleanser. Please check your requiredViews");
         }
         return new Job(learner, cleansedInstances, correctInstances);
     }
@@ -81,8 +88,6 @@ public class Core {
      *
      * @param correctInstances
      *            - The correct instances from the databse
-     * @param jsonInfo
-     *            - The information given by the learner
      * @return - The cleansed instance
      */
     public static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, List<String> requiredViews) {
@@ -121,9 +126,9 @@ public class Core {
      * @return - list of TextAnnotation instances from the database
      */
     private static List<TextAnnotation> getInstancesFromDb(Configuration runConfig) {
-        POSReader posReader = new POSReader();
+        Reader reader = new Reader();
         System.out.println("Retrieving instances from db");
-        List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB(runConfig.dataset);
+        List<TextAnnotation> TextAnnotations = reader.getTextAnnotationsFromDB(runConfig.dataset);
         return TextAnnotations;
     }
 

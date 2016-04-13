@@ -34,6 +34,8 @@ public class Job {
 
 	private List<Boolean> skip;
 
+	private String error;
+
 	public Job(LearnerInterface learner, List<TextAnnotation> cleansedInstances, List<TextAnnotation> goldInstances) {
 		this.learnerInterface = learner;
 		this.unprocessedInstances = cleansedInstances;
@@ -41,6 +43,11 @@ public class Job {
 		this.solverInstances = new ArrayList<>();
 		this.domain = Domain.TOY;
 		skip = new ArrayList<>();
+		this.error = null;
+	}
+
+	public Job(String error){
+		this.error = error;
 	}
 
 	public Promise<LearnerInstancesResponse> sendAndReceiveRequestsFromSolver(List<TextAnnotation> tas) {
@@ -65,4 +72,5 @@ public class Job {
 	public TextAnnotation getSolverInstance(int i) {
 		return getSolverInstances().get(i);
 	}
+	public String getError() { return error; }
 }
