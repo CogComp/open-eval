@@ -33,195 +33,192 @@
   </head>
   <body>
     <div class="body">
-        @header()
-        <ol class="breadcrumb">
-          <li><a href="/">Open Eval</a></li>
-        </ol>
-        
-        <div><a href = "/addConfiguration" class="btn btn-default">Add configuration</a></div>
+      @header()
+      <ol class="breadcrumb">
+        <li><a href="/">Open Eval</a></li>
+      </ol>
+      
+      <div><a href = "/addConfiguration" class="btn btn-default">Add configuration</a></div>
 
-        @if(viewModel.configurations.length == 0) {
-            <div class="jumbotron">
-                <h1>Welcome to OpenEval!</h1>
-                <p>This site is made for AI teams to track the results of their runs. Get started by adding a new configuration and downloading our client-server interaction software</p>
-                <p><a class="btn btn-primary btn-lg" href="https://github.com/IllinoisCogComp/open-eval" role="button">Learn more</a></p>
-            </div>
-        }
-        <div class="table-responsive">
-          <table class="table" id="confTable">
-            <thead>
-              <tr>
-                <th class="col-md-9">Configurations</th>
-                <th class="col-md-3">Faqs</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <em>click table header to sort</em>
-                  <table class="table table-bordered sortable">
-                    <thead>
+      @if(viewModel.configurations.length == 0) {
+        <div class="jumbotron">
+          <h1>Welcome to OpenEval!</h1>
+          <p>This site is made for AI teams to track the results of their runs. Get started by adding a new configuration and downloading our client-server interaction software</p>
+          <p><a class="btn btn-primary btn-lg" href="https://github.com/IllinoisCogComp/open-eval" role="button">Learn more</a></p>
+        </div>
+      }
+      <div class="table-responsive">
+        <table class="table" id="confTable">
+          <thead>
+            <tr>
+              <th class="col-md-9">Configurations</th>
+              <th class="col-md-3">Faqs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <em>click table header to sort</em>
+                <table class="table table-bordered sortable">
+                  <thead>
+                    <tr>
+                      <th>Configuration Name</th>
+                      <th class="default_sort">Latest Run Date [f1]</th>
+                      <th>dataset</th>
+                      <th>task variant</th>
+                      <th>description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for(configuration <- viewModel.configurations) {
                       <tr>
-                        <th>Configuration Name</th>
-                        <th class="default_sort">Latest Run Date [f1]</th>
-                        <th>dataset</th>
-                        <th>task variant</th>
-                        <th>description</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @for(configuration <- viewModel.configurations) {
-                        <tr>
-                          <td>
-                            <a href="configuration?conf=@configuration.configuration_id">
-                              @configuration.configuration_name
+                        <td>
+                          <a href="configuration?conf=@configuration.configuration_id">
+                            @configuration.configuration_name
+                          </a>
+                        </td>
+                        @if( configuration.records != null && configuration.records.length > 0 ) {
+                          <td @if( configuration.records(0).isRunning ) { class="running" } >
+                            <a href="record?record_id=@configuration.records(0).record_id">
+                              @configuration.records(0).date [ @configuration.records(0).metrics.f1 ]
                             </a>
                           </td>
-                          @if( configuration.records != null && configuration.records.length > 0 ) {
-                            <td @if( configuration.records(0).isRunning ) { class="running" } >
-                              <a href="record?record_id=@configuration.records(0).record_id">
-                                @configuration.records(0).date [ @configuration.records(0).metrics.f1 ]
-                              </a>
-                            </td>
-                          } else {
-                            <td> [no most recent record] </td>
-                          }
-                          <td>@configuration.dataset</td>
-                          <td>@configuration.task_variant</td>
-                          <td>@configuration.description</td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </td>
-                <td>
-                    <ul>
-                      <li>
-                        <a type="button" data-toggle="modal" data-target="#myModal" id="abouts">
-                          Getting started
-                        </a>
-
-                        <div class="modal fade" id="myModal" role="dialog">
-                          <div class="modal-dialog">
-                          
-                            <!-- Modal content-->
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                <h4 class="modal-title">Getting started</h4>
-                              </div>
-                              <div class="modal-body">
-                                <ol>
-                                  <li>Make a <a href="https://github.com/IllinoisCogComp/open-eval/tree/master/learner#example">solver</a></li>
-                                  <li>
-                                    <p>Add the following repository to your pom.xml</p>
-                                    <div class="highlight highlight-text-xml">
+                        } else {
+                          <td> [no most recent record] </td>
+                        }
+                        <td>@configuration.dataset</td>
+                        <td>@configuration.task_variant</td>
+                        <td>@configuration.description</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </td>
+              <td>
+                <ul>
+                  <li>
+                    <a type="button" data-toggle="modal" data-target="#myModal" id="abouts">
+                      Getting started
+                    </a>
+                    <div class="modal fade" id="myModal" role="dialog">
+                      <div class="modal-dialog">
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Getting started</h4>
+                          </div>
+                          <div class="modal-body">
+                            <ol>
+                              <li>Make a <a href="https://github.com/IllinoisCogComp/open-eval/tree/master/learner#example">solver</a></li>
+                              <li>
+                                <p>Add the following repository to your pom.xml</p>
+                                <div class="highlight highlight-text-xml">
 <pre>&lt;<span class="pl-ent">repository</span>&gt;
-  &lt;<span class="pl-ent">id</span>&gt;CogcompSoftware&lt;/<span class="pl-ent">id</span>&gt;
-  &lt;<span class="pl-ent">name</span>&gt;CogcompSoftware&lt;/<span class="pl-ent">name</span>&gt;
-  &lt;<span class="pl-ent">url</span>&gt;http://cogcomp.cs.illinois.edu/m2repo/&lt;/<span class="pl-ent">url</span>&gt;
+&lt;<span class="pl-ent">id</span>&gt;CogcompSoftware&lt;/<span class="pl-ent">id</span>&gt;
+&lt;<span class="pl-ent">name</span>&gt;CogcompSoftware&lt;/<span class="pl-ent">name</span>&gt;
+&lt;<span class="pl-ent">url</span>&gt;http://cogcomp.cs.illinois.edu/m2repo/&lt;/<span class="pl-ent">url</span>&gt;
 &lt;/<span class="pl-ent">repository</span>&gt;</pre></div>
-                                    <p>Add the following dependency to your pom.xml</p>
-                                    <div class="highlight highlight-text-xml">
+                                <p>Add the following dependency to your pom.xml</p>
+                                <div class="highlight highlight-text-xml">
 <pre>&lt;<span class="pl-ent">dependency</span>&gt;
-    &lt;<span class="pl-ent">groupId</span>&gt;edu.illinois.cs.cogcomp&lt;/<span class="pl-ent">groupId</span>&gt;
-    &lt;<span class="pl-ent">artifactId</span>&gt;openeval-client_2.11&lt;/<span class="pl-ent">artifactId</span>&gt;
-    &lt;<span class="pl-ent">version</span>&gt;"version"&lt;/<span class="pl-ent">version</span>&gt;
+&lt;<span class="pl-ent">groupId</span>&gt;edu.illinois.cs.cogcomp&lt;/<span class="pl-ent">groupId</span>&gt;
+&lt;<span class="pl-ent">artifactId</span>&gt;openeval-client_2.11&lt;/<span class="pl-ent">artifactId</span>&gt;
+&lt;<span class="pl-ent">version</span>&gt;"version"&lt;/<span class="pl-ent">version</span>&gt;
 &lt;/<span class="pl-ent">dependency</span>&gt;</pre></div> 
-                                    <p>Or run through sbt by</p>
-                                    <ul>
-                                      <li>Add the following resolver: <div class="highlight highlight-text-xml">"CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"</div></li>
-                                      <li>Add the following dependency: <div class="highlight highlight-text-xml">"edu.illinois.cs.cogcomp" % "openeval-client_2.11" % "version"</div></li>
-                                    </ul>
-                                  </li>
-                                  <li>Run <a href="/serve.sh">serve.sh</a> or <a href="/serve.bet">serve.bat</a></li>
-                                  <li>Start a new run from configuration page to start the job</li>
-                                </ol>
-                              </div>
-                              <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                              </div>
-                            </div>
-                            
+                                <p>Or run through sbt by</p>
+                                <ul>
+                                  <li>Add the following resolver: <div class="highlight highlight-text-xml">"CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"</div></li>
+                                  <li>Add the following dependency: <div class="highlight highlight-text-xml">"edu.illinois.cs.cogcomp" % "openeval-client_2.11" % "version"</div></li>
+                                </ul>
+                              </li>
+                              <li>Run <a href="/serve.sh">serve.sh</a> or <a href="/serve.bet">serve.bat</a></li>
+                              <li>Start a new run from configuration page to start the job</li>
+                            </ol>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                           </div>
                         </div>
-                      </li>
-                      <li>
-                        <a href="https://github.com/IllinoisCogComp/open-eval/tree/master/learner/">
-                          Instructions on how to use the system
-                        </a>
-                      </li>
-                      <li>
-                          <a type="button" data-toggle="modal" data-target="#about" id="quickInstructions">
-                              About Team
-                          </a>
-                          <div class="modal fade" id="about" role="dialog">
-                              <div class="modal-dialog">
-
-                                  <!-- Modal content-->
-                                  <div class="modal-content">
-                                      <div class="modal-header">
-                                          <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                          <h4 class="modal-title">About team</h4>
-                                      </div>
-                                      <div class="modal-body">
-                                          <p>
-                                              We are a combination between UIUC machine learning department and senior students.
-                                          </p>
-                                          <h3>About team</h3>
-                                          <ul>
-                                              <li>
-                                                  <b>Deepak Shine</b>
-                                                  <p>Models and evaluation metrics storage</p>
-                                              </li>
-                                              <li>
-                                                  <b>Dhruv Vajpeyi</b>
-                                                  <p>Core back end infrastructure</p>
-                                              </li>
-                                              <li>
-                                                  <b>Josh Camp</b>
-                                                  <p>Dataset processing and storage; point of contact</p>
-                                              </li>
-                                              <li>
-                                                  <b>Ryan Kelch</b>
-                                                  <p>Client-side server interface layer</p>
-                                              </li>
-                                              <li>
-                                                  <b>Paul Gibbons</b>
-                                                  <p>Front end</p>
-                                              </li>
-                                              <li>
-                                                  <b>Daniel Khashabi</b>
-                                                  <p>Liason, project lead, technical advisor and all around contributor</p>
-                                              </li>
-                                              <li>
-                                                  <b>Christos Christodoulopoulos</b>
-                                                  <p>Post-Doc, Advisor, user perspective</p>
-                                              </li>
-                                              <li>
-                                                  <b>Mark Sammons</b>
-                                                  <p>Assistant professor - advises on team meetings</p>
-                                              </li>
-                                              <li>
-                                                  <b>Dan Roth</b>
-                                                  <p>Machine learning professor - client, holds guiding vision</p>
-                                              </li>
-                                          </ul>
-                                      </div>
-                                      <div class="modal-footer">
-                                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                      </div>
-                                  </div>
-                              </div>
+                        
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <a href="https://github.com/IllinoisCogComp/open-eval/tree/master/learner/">
+                      Instructions on how to use the system
+                    </a>
+                  </li>
+                  <li>
+                    <a type="button" data-toggle="modal" data-target="#about" id="quickInstructions">
+                        About Team
+                    </a>
+                    <div class="modal fade" id="about" role="dialog">
+                      <div class="modal-dialog">
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                          <div class="modal-header">
+                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                              <h4 class="modal-title">About team</h4>
                           </div>
-                      </li>
-                    </ul>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <br>
+                          <div class="modal-body">
+                            <p>
+                              We are a combination between UIUC machine learning department and senior students.
+                            </p>
+                            <h3>About team</h3>
+                            <ul>
+                              <li>
+                                <b>Deepak Shine</b>
+                                <p>Models and evaluation metrics storage</p>
+                              </li>
+                              <li>
+                                <b>Dhruv Vajpeyi</b>
+                                <p>Core back end infrastructure</p>
+                              </li>
+                              <li>
+                                <b>Josh Camp</b>
+                                <p>Dataset processing and storage; point of contact</p>
+                              </li>
+                              <li>
+                                <b>Ryan Kelch</b>
+                                <p>Client-side server interface layer</p>
+                              </li>
+                              <li>
+                                <b>Paul Gibbons</b>
+                                <p>Front end</p>
+                              </li>
+                              <li>
+                                <b>Daniel Khashabi</b>
+                                <p>Liason, project lead, technical advisor and all around contributor</p>
+                              </li>
+                              <li>
+                                <b>Christos Christodoulopoulos</b>
+                                <p>Post-Doc, Advisor, user perspective</p>
+                              </li>
+                              <li>
+                                <b>Mark Sammons</b>
+                                <p>Assistant professor - advises on team meetings</p>
+                              </li>
+                              <li>
+                                <b>Dan Roth</b>
+                                <p>Machine learning professor - client, holds guiding vision</p>
+                              </li>
+                            </ul>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <br>
     </div>
   </body>
 </html>

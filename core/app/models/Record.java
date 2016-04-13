@@ -4,8 +4,6 @@ import java.util.List;
 
 /**
  * Class to model a configuration
- *
- * Record will need a lot of work, and will possibly be different for different task variants
  */
 public class Record {
 

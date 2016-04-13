@@ -3,274 +3,273 @@
 <!DOCTYPE html>
 
 <html lang="en">
-    <head>
-      <script type="text/javascript" src="@routes.Assets.versioned("javascripts/sorttable.js")"></script>
-      <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
-      <script src="http://d3js.org/d3.v3.min.js"></script>
-      <style>
-        .axis path,
-        .axis line {
-          fill: none;
-          stroke: #000;
-          shape-rendering: crispEdges;
+  <head>
+    <script type="text/javascript" src="@routes.Assets.versioned("javascripts/sorttable.js")"></script>
+    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <style>
+      .axis path,
+      .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+      }
+
+      .line {
+        fill: none;
+        /*stroke: gray;*/
+        stroke-width: 1.5px;
+      }
+
+      .datapoint:hover{
+        fill: black;
+      }
+
+      .infobox {
+        box-shadow:#333333 0px 0px 10px;
+        margin:200px auto;
+        padding:5px 10px;
+        background:rgba(35, 35, 35, 0.8);
+        color: white;
+        position:absolute;
+        top:0px;
+        left:0px;
+        z-index:10500;
+        font-weight:bold;
+        padding: 8px;
+        cursor: pointer;
+       }
+
+      select {
+        margin-bottom: 20px;
+      }
+
+      table.sortable th:hover {
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .running {
+        background-color: yellow;
+      }
+    </style>
+  </head>
+  <body class="body">
+    <script type="text/javascript">
+      f1_data = [
+        @for(record <- viewModel.configuration.records) {
+          {'sdate':'@record.date',"close":+@record.metrics.f1,'id':@record.record_id},
         }
+      ];
 
-        .line {
-          fill: none;
-          /*stroke: gray;*/
-          stroke-width: 1.5px;
+      precision_data = [
+        @for(record <- viewModel.configuration.records) {
+          {'sdate':'@record.date',"close":+@record.metrics.precision,'id':@record.record_id},
         }
+      ];
 
-        .datapoint:hover{
-          fill: black;
+      recall_data = [
+        @for(record <- viewModel.configuration.records) {
+          {'sdate':'@record.date',"close":+@record.metrics.recall,'id':@record.record_id},
         }
+      ];
 
-        .infobox {
-         box-shadow:#333333 0px 0px 10px;
-         margin:200px auto;
-         padding:5px 10px;
-         background:rgba(35, 35, 35, 0.8);
-         color: white;
-         position:absolute;
-         top:0px;
-         left:0px;
-         z-index:10500;
-         font-weight:bold;
-         padding: 8px;
-         cursor: pointer;
-         }
+      parseDate = d3.time.format("%Y-%m-%d %H:%M:%S.0").parse;
 
-         select {
-          margin-bottom: 20px;
-         }
+      f1_data.forEach(function(d) {
+        d.disp = d.sdate;
+        d.date = parseDate(d.sdate);
+        d.close = +d.close;
+      });
 
-         table.sortable th:hover {
-          cursor: pointer;
-          font-weight: bold;
-         }
+      precision_data.forEach(function(d) {
+        d.disp = d.sdate;
+        d.date = parseDate(d.sdate);
+        d.close = +d.close;
+      });
 
-         .running {
-          background-color: yellow;
-         }
-      </style>
-    </head>
-    <body class="body">
-        <script type="text/javascript">
-          f1_data = [
-            @for(record <- viewModel.configuration.records) {
-              {'sdate':'@record.date',"close":+@record.metrics.f1,'id':@record.record_id},
-            }
-          ];
+      recall_data.forEach(function(d) {
+        d.disp = d.sdate;
+        d.date = parseDate(d.sdate);
+        d.close = +d.close;
+      });
 
-          precision_data = [
-            @for(record <- viewModel.configuration.records) {
-              {'sdate':'@record.date',"close":+@record.metrics.precision,'id':@record.record_id},
-            }
-          ];
-
-          recall_data = [
-            @for(record <- viewModel.configuration.records) {
-              {'sdate':'@record.date',"close":+@record.metrics.recall,'id':@record.record_id},
-            }
-          ];
-
-          parseDate = d3.time.format("%Y-%m-%d %H:%M:%S.0").parse;
-
-          f1_data.forEach(function(d) {
-              d.disp = d.sdate;
-              d.date = parseDate(d.sdate);
-              d.close = +d.close;
-          });
-
-          precision_data.forEach(function(d) {
-              d.disp = d.sdate;
-              d.date = parseDate(d.sdate);
-              d.close = +d.close;
-          });
-
-          recall_data.forEach(function(d) {
-              d.disp = d.sdate;
-              d.date = parseDate(d.sdate);
-              d.close = +d.close;
-          });
-
-          min_date="a";
-          max_date="";
-          for (var i = 0; i < f1_data.length; i++) {
-            d = f1_data[i].sdate;
-            if (d < min_date) {
-              min_date = d;
-            }
-            if (d > max_date) {
-              max_date = d;
-            }
-          }
-          min_date = min_date.substring(0, min_date.length - 2);
-          max_date = max_date.substring(0, max_date.length - 2);
-        </script>
-        @header()
-        <ol class="breadcrumb">
-          <li><a href="/">Open Eval</a></li>
-          <li><a href="/configuration?conf=@viewModel.configuration.configuration_id">
-            Configuration @viewModel.configuration.configuration_name
-          </a></li>
-        </ol>
-        <p>
-          @defining(viewModel.configuration){conf =>
-            @conf.description
-          }
-        </p>
-        <a href = "/addRun?conf=@viewModel.configuration.configuration_id" class="btn btn-default">
-          New run of configuration
-        </a>
-        <div id="graph" class="graph"></div>
-        <table class="table">
-          <thead>
-            <tr>
-              <th>
-                <h5>Lines</h5>      
-              </th>
-              <th>
-                <h5>Points</h5>      
-              </th>
-              <th>
-                <h5>Change time range</h5>      
-              </th>
-              <th>
-                <h5>Change y axis range</h5>      
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <div>
-                  <label>
-                    <input type="checkbox" checked="true" onchange ="alter_graph()" id="f1c"></input> f1
-                  </label>    
-                </div>
-                <div>
-                  <label>
-                    <input type="checkbox" checked="true" onchange ="alter_graph()" id="precisionc"></input> precision
-                  </label>
-                </div>
-                <div>
-                  <label>
-                    <input type="checkbox" checked="true" onchange ="alter_graph()" id="recallc"></input> recall
-                  </label>
-                </div>
-              </td>
-              <td>
-                <div>
-                  <select name="dataset" onchange="alter_graph();" id="selector">
-                    <option value="f1">f1</option>
-                    <option value="precision">precision</option>
-                    <option value="recall">recall</option>
-                  </select>
-                </div>
-              </td>
-              <td>
-                <div>
-                  <label>
-                    <input type="text" id="start_x" value=""></input> start time
-                  </label>
-                  <script type="text/javascript">
-                    $('#start_x').val(min_date);
-                  </script>
-                </div>
-                <div>
-                  <label>
-                    <input type="text" id="end_x" value=""></input> end time
-                  </label>
-                  <script type="text/javascript">
-                    $('#end_x').val(max_date);
-                  </script>
-                </div>
-                <div>
-                  <label>
-                    <button id="change_x" onclick="alter_graph()" class="btn btn-default">Change</button>
-                  </label>
-                </div>
-              </td>
-              <td>
-                <div>
-                  <label>
-                    <input type="text" id="start_y" value="0.0"></input> min y value
-                  </label>
-                </div>
-                <div>
-                  <label>
-                    <input type="text" id="end_y" value="1.0"></input> max y value
-                  </label>
-                </div>
-                <div>
-                  <label>
-                    <button id="change_y" onclick="alter_graph()" class="btn btn-default">Change</button>
-                  </label>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <em>click table header to sort</em>
-        <table class="table table-bordered sortable">
-          <thead>
-            <tr>
-              <th>Record Id</th>
-              <th>Date</th>
-              <th>Author</th>
-              <th>code link</th>
-              <th>comment</th>
-              <th>f1</th>
-              <th>precision</th>
-              <th>recall</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for(record <- viewModel.configuration.records) {
-              <tr @if(record.isRunning) {class="running"} >
-                <td>
-                    <a href="record?record_id=@record.record_id">
-                      @record.record_id
-                    </a>
-                </td>
-                <td>@record.date</td>
-                <td>@record.author</td>
-                <td>
-                  @if(record.repo.length() < 4) {
-                    (No link provided)
-                  } else {
-                    @if(record.repo.substring(0,4).equals("http")) {
-                      <a href="@record.repo">
-                        code link
-                      </a>
-                    } else {
-                      <a href="http://@record.repo">
-                        code link
-                      </a>
-                    }
-                  }
-                </td>
-                <td>@record.comment</td>
-                <td><span class="score">@record.metrics.f1</span></td>
-                <td><span class="score">@record.metrics.precision</span></td>
-                <td><span class="score">@record.metrics.recall</span></td>
-              </tr>
+      min_date="a";
+      max_date="";
+      for (var i = 0; i < f1_data.length; i++) {
+        d = f1_data[i].sdate;
+        if (d < min_date) {
+          min_date = d;
+        }
+        if (d > max_date) {
+          max_date = d;
+        }
+      }
+      min_date = min_date.substring(0, min_date.length - 2);
+      max_date = max_date.substring(0, max_date.length - 2);
+    </script>
+    @header()
+    <ol class="breadcrumb">
+      <li><a href="/">Open Eval</a></li>
+      <li><a href="/configuration?conf=@viewModel.configuration.configuration_id">
+        Configuration @viewModel.configuration.configuration_name
+      </a></li>
+    </ol>
+    <p>
+      @defining(viewModel.configuration){conf =>
+        @conf.description
+      }
+    </p>
+    <a href = "/addRun?conf=@viewModel.configuration.configuration_id" class="btn btn-default">
+      New run of configuration
+    </a>
+    <div id="graph" class="graph"></div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>
+            <h5>Lines</h5>      
+          </th>
+          <th>
+            <h5>Points</h5>      
+          </th>
+          <th>
+            <h5>Change time range</h5>      
+          </th>
+          <th>
+            <h5>Change y axis range</h5>      
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div>
+              <label>
+                <input type="checkbox" checked="true" onchange ="alter_graph()" id="f1c"></input> f1
+              </label>    
+            </div>
+            <div>
+              <label>
+                <input type="checkbox" checked="true" onchange ="alter_graph()" id="precisionc"></input> precision
+              </label>
+            </div>
+            <div>
+              <label>
+                <input type="checkbox" checked="true" onchange ="alter_graph()" id="recallc"></input> recall
+              </label>
+            </div>
+          </td>
+          <td>
+            <div>
+              <select name="dataset" onchange="alter_graph();" id="selector">
+                <option value="f1">f1</option>
+                <option value="precision">precision</option>
+                <option value="recall">recall</option>
+              </select>
+            </div>
+          </td>
+          <td>
+            <div>
+              <label>
+                <input type="text" id="start_x" value=""></input> start time
+              </label>
+              <script type="text/javascript">
+                $('#start_x').val(min_date);
+              </script>
+            </div>
+            <div>
+              <label>
+                <input type="text" id="end_x" value=""></input> end time
+              </label>
+              <script type="text/javascript">
+                $('#end_x').val(max_date);
+              </script>
+            </div>
+            <div>
+              <label>
+                <button id="change_x" onclick="alter_graph()" class="btn btn-default">Change</button>
+              </label>
+            </div>
+          </td>
+          <td>
+            <div>
+              <label>
+                <input type="text" id="start_y" value="0.0"></input> min y value
+              </label>
+            </div>
+            <div>
+              <label>
+                <input type="text" id="end_y" value="1.0"></input> max y value
+              </label>
+            </div>
+            <div>
+              <label>
+                <button id="change_y" onclick="alter_graph()" class="btn btn-default">Change</button>
+              </label>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <em>click table header to sort</em>
+    <table class="table table-bordered sortable">
+      <thead>
+        <tr>
+          <th>Record Id</th>
+          <th>Date</th>
+          <th>Author</th>
+          <th>code link</th>
+          <th>comment</th>
+          <th>f1</th>
+          <th>precision</th>
+          <th>recall</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for(record <- viewModel.configuration.records) {
+          <tr @if(record.isRunning) {class="running"} >
+            <td>
+              <a href="record?record_id=@record.record_id">
+                @record.record_id
+              </a>
+            </td>
+            <td>@record.date</td>
+            <td>@record.author</td>
+            <td>
+              @if(record.repo.length() < 4) {
+                (No link provided)
+              } else {
+                @if(record.repo.substring(0,4).equals("http")) {
+                  <a href="@record.repo">
+                    code link
+                  </a>
+                } else {
+                  <a href="http://@record.repo">
+                    code link
+                  </a>
+                }
               }
-            </tbody>
-          </table>
-        <form action="/deleteConfiguration" method="post">
-          <input type="hidden"
-           name="conf"
-           value="@viewModel.configuration.configuration_id" />
-          <input type="submit" 
-            rel="facebox[.dangerzone]" 
-            class="btn btn-danger boxed-action"
-            value="Delete this configuration and all its history"
-            onclick="return confirm('Are you sure you want to delete this item?');"
-          />
-        </form>
-    </body>
+            </td>
+            <td>@record.comment</td>
+            <td><span class="score">@record.metrics.f1</span></td>
+            <td><span class="score">@record.metrics.precision</span></td>
+            <td><span class="score">@record.metrics.recall</span></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <form action="/deleteConfiguration" method="post">
+      <input type="hidden"
+        name="conf"
+        value="@viewModel.configuration.configuration_id" />
+      <input type="submit" 
+        rel="facebox[.dangerzone]" 
+        class="btn btn-danger boxed-action"
+        value="Delete this configuration and all its history"
+        onclick="return confirm('Are you sure you want to delete this item?');"
+      />
+    </form>
     <script type="text/javascript">
       (function() {
         var scores = document.getElementsByClassName("score");
@@ -286,150 +285,151 @@
       })();
     </script>
     <script>
-        function drawGraph(color, data, text) {
-          $("#graph").append("<div class='infobox' style='display:none;'></div>");
+      function drawGraph(color, data, text) {
+        $("#graph").append("<div class='infobox' style='display:none;'></div>");
 
-          function showData(obj, date, close, id, text) {
-            var coord = d3.mouse(obj);
-            var infobox = d3.select(".infobox");
-            // now we just position the infobox roughly where our mouse is
-            infobox.style("left", (coord[0] + 90) + "px" );
-            infobox.style("top", (coord[1] - 90) + "px");
-            $(".infobox").html(
-              '<strong>Record ' + id + '</strong><br>' + date + '<br>'+text+': ' + Math.round(close*1000)/1000
-            );
-            $(".infobox").show();
-          }
-           
-          function hideData() {
-            $(".infobox").hide();
-          }
-
-          var margin = {top: 20, right: 20, bottom: 30, left: 50},
-              width = 960 - margin.left - margin.right,
-              height = 500 - margin.top - margin.bottom;
-
-          var x = d3.time.scale()
-              .range([0, width]);
-
-          var y = d3.scale.linear()
-              .range([height, 0]);
-
-          var xAxis = d3.svg.axis()
-              .scale(x)
-              .orient("bottom");
-
-          var yAxis = d3.svg.axis()
-              .scale(y)
-              .orient("left");
-
-          var line = d3.svg.line()
-              .x(function(d) { return x(d.date); })
-              .y(function(d) { return y(d.close); });
-
-          var svg = d3.select("#graph").append("svg")
-              .attr("width", width + margin.left + margin.right)
-              .attr("height", height + margin.top + margin.bottom)
-              .attr("class", "svg_graph")
-              .append("g")
-              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-          function xx(e) { return x(e.date); };
-          function yy(e) { return y(e.close); };
-          function click(d) { 
-            var s = '/';
-            var r = 'record?record_id=';
-            var pathArray = document.location.href.split(s);
-            document.location.href = pathArray[0]+s+pathArray[1]+s+pathArray[2]+s+'record?record_id='+d.id;
-          }
-
-          // x.domain(d3.extent(data, function(d) { return d.date; }));
-          var start_x = parseDate($('#start_x').val()+".0");
-          var end_x = parseDate($('#end_x').val()+".0");
-          x.domain([start_x, end_x]);
-
-          var start_y = +$('#start_y').val();
-          var end_y = +$('#end_y').val();
-          y.domain([start_y, end_y]);
-
-          svg.append("g")
-              .attr("class", "x axis")
-              .attr("transform", "translate(0," + height + ")")
-              .call(xAxis);
-
-          svg.append("g")
-              .attr("class", "y axis")
-              .call(yAxis)
-              .append("text")
-              .attr("transform", "rotate(-90)")
-              .attr("y", 12)
-              .attr("dy", ".71em")
-              .style("text-anchor", "end")
-              .text(text);
-
-          svg.selectAll("circle")
-              .data(data)
-              .enter().append("circle")
-              .attr("fill", color)
-              .attr("r", 6)
-              .attr("cx", xx)
-              .attr("cy", yy)
-              .on("mouseover", function(d) { showData(this, d.disp, d.close, d.id, text);})
-              .on("mouseout", function(){ hideData();})
-              .on("click", click);
-
-          if ($('#f1c').is(':checked')) {
-            svg.append("path")
-                .datum(f1_data)
-                .attr("class", "line")
-                .attr('stroke', 'steelblue')
-                .attr("d", line);
-          }
-
-          if ($('#precisionc').is(':checked')) {
-            svg.append("path")
-                .datum(precision_data)
-                .attr("class", "line")
-                .attr('stroke', 'red')
-                .attr("d", line);
-          }
-
-          if ($('#recallc').is(':checked')) {
-            svg.append("path")
-                .datum(recall_data)
-                .attr("class", "line")
-                .attr('stroke', 'green')
-                .attr("d", line);
-          }
+        function showData(obj, date, close, id, text) {
+          var coord = d3.mouse(obj);
+          var infobox = d3.select(".infobox");
+          // now we just position the infobox roughly where our mouse is
+          infobox.style("left", (coord[0] + 90) + "px" );
+          infobox.style("top", (coord[1] - 90) + "px");
+          $(".infobox").html(
+            '<strong>Record ' + id + '</strong><br>' + date + '<br>'+text+': ' + Math.round(close*1000)/1000
+          );
+          $(".infobox").show();
+        }
+         
+        function hideData() {
+          $(".infobox").hide();
         }
 
-        function deleteGraph() {
-          infoboxes = document.getElementsByClassName('infobox');
-          for (var i = 0; i < infoboxes.length; i++) {
-            var e = infoboxes[i];
-            e.parentElement.removeChild(e);
-          };
-          $('.svg_graph').remove();
+        var margin = {top: 20, right: 20, bottom: 30, left: 50},
+          width = 960 - margin.left - margin.right,
+          height = 500 - margin.top - margin.bottom;
+
+        var x = d3.time.scale()
+          .range([0, width]);
+
+        var y = d3.scale.linear()
+          .range([height, 0]);
+
+        var xAxis = d3.svg.axis()
+          .scale(x)
+          .orient("bottom");
+
+        var yAxis = d3.svg.axis()
+          .scale(y)
+          .orient("left");
+
+        var line = d3.svg.line()
+          .x(function(d) { return x(d.date); })
+          .y(function(d) { return y(d.close); });
+
+        var svg = d3.select("#graph").append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .attr("class", "svg_graph")
+          .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        function xx(e) { return x(e.date); };
+        function yy(e) { return y(e.close); };
+        function click(d) { 
+          var s = '/';
+          var r = 'record?record_id=';
+          var pathArray = document.location.href.split(s);
+          document.location.href = pathArray[0]+s+pathArray[1]+s+pathArray[2]+s+'record?record_id='+d.id;
         }
 
-        drawGraph("steelblue", f1_data, "f1");
+        // x.domain(d3.extent(data, function(d) { return d.date; }));
+        var start_x = parseDate($('#start_x').val()+".0");
+        var end_x = parseDate($('#end_x').val()+".0");
+        x.domain([start_x, end_x]);
 
-        </script>
-        <script type="text/javascript">
-          function alter_graph() {
-            var s = $('#selector').val();
-            if (s==='f1') {
-              deleteGraph();
-              drawGraph("steelblue", f1_data, "f1");
-            } else if (s==='precision') {
-              deleteGraph();
-              drawGraph("red", precision_data, "precision");
-            } else if (s==='recall') {
-              deleteGraph();
-              drawGraph("green", recall_data, "recall");
-            } else {
-              //error
-            }
-          }
-        </script>
+        var start_y = +$('#start_y').val();
+        var end_y = +$('#end_y').val();
+        y.domain([start_y, end_y]);
+
+        svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis);
+
+        svg.append("g")
+          .attr("class", "y axis")
+          .call(yAxis)
+          .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 12)
+          .attr("dy", ".71em")
+          .style("text-anchor", "end")
+          .text(text);
+
+        svg.selectAll("circle")
+          .data(data)
+          .enter().append("circle")
+          .attr("fill", color)
+          .attr("r", 6)
+          .attr("cx", xx)
+          .attr("cy", yy)
+          .on("mouseover", function(d) { showData(this, d.disp, d.close, d.id, text);})
+          .on("mouseout", function(){ hideData();})
+          .on("click", click);
+
+        if ($('#f1c').is(':checked')) {
+          svg.append("path")
+            .datum(f1_data)
+            .attr("class", "line")
+            .attr('stroke', 'steelblue')
+            .attr("d", line);
+        }
+
+        if ($('#precisionc').is(':checked')) {
+          svg.append("path")
+            .datum(precision_data)
+            .attr("class", "line")
+            .attr('stroke', 'red')
+            .attr("d", line);
+        }
+
+        if ($('#recallc').is(':checked')) {
+          svg.append("path")
+            .datum(recall_data)
+            .attr("class", "line")
+            .attr('stroke', 'green')
+            .attr("d", line);
+        }
+      }
+
+      function deleteGraph() {
+        infoboxes = document.getElementsByClassName('infobox');
+        for (var i = 0; i < infoboxes.length; i++) {
+          var e = infoboxes[i];
+          e.parentElement.removeChild(e);
+        };
+        $('.svg_graph').remove();
+      }
+
+      drawGraph("steelblue", f1_data, "f1");
+
+    </script>
+    <script type="text/javascript">
+      function alter_graph() {
+        var s = $('#selector').val();
+        if (s==='f1') {
+          deleteGraph();
+          drawGraph("steelblue", f1_data, "f1");
+        } else if (s==='precision') {
+          deleteGraph();
+          drawGraph("red", precision_data, "precision");
+        } else if (s==='recall') {
+          deleteGraph();
+          drawGraph("green", recall_data, "recall");
+        } else {
+          //error
+        }
+      }
+    </script>
+  </body>
 </html>

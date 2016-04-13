@@ -1,265 +1,263 @@
 @(viewModel: models.RecordViewModel )
 
-
 <!DOCTYPE html>
 
 <html lang="en">
-<body>
-<script type="text/javascript">
-        running = true;
-
-</script>
-<div class="body">
-    @header()
-    <ol class="breadcrumb">
+  <head>
+    <script src="http://code.jquery.com/jquery.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      running = true;
+    </script>
+    <div class="body">
+      @header()
+      <ol class="breadcrumb">
         <li><a href="/">Open Eval</a></li>
         <li><a href="/configuration?conf=@viewModel.record.configuration_id">
-            <!-- should change to get name from db -->
-            Configuration @viewModel.record.configuration_id
+          Configuration @viewModel.record.configuration_id
         </a></li>
         <li><a href="/record?record_id=@viewModel.record.record_id">
-            Record @viewModel.record.record_id
+          Record @viewModel.record.record_id
         </a></li>
-    </ol>
+      </ol>
 
-    @if(viewModel.record.isRunning) {
-    <h5>
-        <center><i>
+      @if(viewModel.record.isRunning) {
+        <h5>
+          <center><i>
             <div id="database"></div>
-        </i></center>
-    </h5>
+          </i></center>
+        </h5>
 
-    <div class="progress" id="progressouter">
-        <div class="progress-bar" id="progress"></div>
-    </div>
-    <div>
-        <table style='display:inline-block'>
+        <div class="progress" id="progressouter">
+          <div class="progress-bar" id="progress"></div>
+        </div>
+        <div>
+          <table style='display:inline-block'>
             <tr>
-                <td>
-                    <div id="completed">0</div>
-                <td>
-                    <div> &nbsp; of &nbsp; </div>
-                </td>
-                </td>
-                <td>
-                    <div id="total">0</div>
-                <td>
-                    <div>  &nbsp; Text Annotations complete.</div>
-                </td>
+              <td>
+                <div id="completed">0</div>
+              <td>
+                <div> &nbsp; of &nbsp; </div>
+              </td>
+              </td>
+              <td>
+                <div id="total">0</div>
+              <td>
+                <div>  &nbsp; Text Annotations complete.</div>
+              </td>
             </tr>
-        </table>
-    </div>
-    <div>
-        <table style='display:inline-block'>
+          </table>
+        </div>
+        <div>
+          <table style='display:inline-block'>
             <tr>
-                <td>
-                    <div id="skipped">0</div>
-                </td>
-                <td>
-                    <div> &nbsp; errors.</div>
-                </td>
+              <td>
+                <div id="skipped">0</div>
+              </td>
+              <td>
+                <div> &nbsp; errors.</div>
+              </td>
             </tr>
-        </table>
-    </div>
+          </table>
+        </div>
 
-    <form action="/stopRun" method="post">
-        <input type="hidden"
-               name="record_id"
-               value="@viewModel.record.record_id"/>
-        <input type="hidden"
-               name="configuration_id"
-               value="@viewModel.record.configuration_id"/>
-        <input type="submit"
-               rel="facebox[.dangerzone]"
-               class="btn btn-danger boxed-action"
-               value="Stop run"
-               onclick="stopRun()"/>
-    </form>
+        <form action="/stopRun" method="post">
+          <input type="hidden"
+            name="record_id"
+            value="@viewModel.record.record_id"/>
+          <input type="hidden"
+            name="configuration_id"
+            value="@viewModel.record.configuration_id"/>
+          <input type="submit"
+            rel="facebox[.dangerzone]"
+            class="btn btn-danger boxed-action"
+            value="Stop run"
+            onclick="stopRun()"/>
+        </form>
 
-    <script src="http://code.jquery.com/jquery.js"></script>
-    <script type="text/javascript">
-                  function stopRun() {
-                    running = false;
-                  }
-                  $(document).ready(function(){
-                    var progresspump = setInterval(function(){
-                    // Query the completion percentage from the server.
-                    $.get("/working/prog?record=" + @viewModel.record.record_id, function(data){
-                      // Extract JSON data.
-                      var progress_info = data;
-                      var percent = progress_info.percent_complete;
-                      var completed = progress_info.completed;
-                      var skipped = progress_info.skipped;
-                      var total = progress_info.total;
-                      $("#progress").css('width',percent+'%');
-                      $("#progress").html(percent+'%');
-                      // If no Text Annotations have been completed, notify the user that the instances are
-                      // being pulled from the database.
-                      $("#database").html(progress_info.status);
+        <script type="text/javascript">
+          function stopRun() {
+            running = false;
+          }
+          $(document).ready(function(){
+            var progresspump = setInterval(function(){
+            // Query the completion percentage from the server.
+            $.get("/working/prog?record=" + @viewModel.record.record_id, function(data){
+              // Extract JSON data.
+              var progress_info = data;
+              var percent = progress_info.percent_complete;
+              var completed = progress_info.completed;
+              var skipped = progress_info.skipped;
+              var total = progress_info.total;
+              $("#progress").css('width',percent+'%');
+              $("#progress").html(percent+'%');
+              // If no Text Annotations have been completed, notify the user that the instances are
+              // being pulled from the database.
+              $("#database").html(progress_info.status);
 
-                      $("#completed").html(completed);
-                      $("#total").html(total);
-                      $("#skipped").html(skipped);
-                      $('#precision').html(progress_info.precision);
-                     $('#recall').html(progress_info.recall);
-                     $('#f1').html(progress_info.f1);
-                     $('#average').html("averageSolveTime");
-                     $('#gold_count').html(progress_info.goldCount);
-                     $('#correct_count').html(progress_info.correctCount);
-                     $('#predicted_count').html(progress_info.predictedCount);
-                     $('#missed_count').html(progress_info.missedCount);
-                     $('#extra_count').html(progress_info.extraCount);
-                      if(!running) {
-                        clearInterval(progresspump);
-                        return;
-                      }
-                    })
-                  }, 1000);});
-
-    </script>
-    }
-    <div class="table-responsive">
+              $("#completed").html(completed);
+              $("#total").html(total);
+              $("#skipped").html(skipped);
+              $('#precision').html(progress_info.precision);
+             $('#recall').html(progress_info.recall);
+             $('#f1').html(progress_info.f1);
+             $('#average').html("averageSolveTime");
+             $('#gold_count').html(progress_info.goldCount);
+             $('#correct_count').html(progress_info.correctCount);
+             $('#predicted_count').html(progress_info.predictedCount);
+             $('#missed_count').html(progress_info.missedCount);
+             $('#extra_count').html(progress_info.extraCount);
+              if(!running) {
+                clearInterval(progresspump);
+                return;
+              }
+            })
+          }, 1000);});
+        </script>
+      }
+      <div class="table-responsive">
         <table class="table">
-            <thead>
+          <thead>
             <tr>
-                <th class="col-md-4">Metrics</th>
-                <th class="col-md-8">Metric Values</th>
+              <th class="col-md-4">Metrics</th>
+              <th class="col-md-8">Metric Values</th>
             </tr>
-            </thead>
-            <tbody>
+          </thead>
+          <tbody>
             <tr>
-                <td>
-                    precision
-                </td>
-                <td id="precision">
-                    @viewModel.record.metrics.precision
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    recall
-                </td>
-                <td id="recall">
-                    @viewModel.record.metrics.recall
-                </td>
+              <td>
+                precision
+              </td>
+              <td id="precision">
+                @viewModel.record.metrics.precision
+              </td>
             </tr>
             <tr>
-                <td>
-                    f1
-                </td>
-                <td id="f1">
-                    @viewModel.record.metrics.f1
-                </td>
+              <td>
+                recall
+              </td>
+              <td id="recall">
+                @viewModel.record.metrics.recall
+              </td>
             </tr>
             <tr>
-                <td>
-                    Average Solve Time
-                </td>
-                <td id="average">
-                    @viewModel.record.metrics.averageSolveTime
-                </td>
+              <td>
+                f1
+              </td>
+              <td id="f1">
+                @viewModel.record.metrics.f1
+              </td>
             </tr>
             <tr>
-                <td>
+              <td>
+                Average Solve Time
+              </td>
+              <td id="average">
+                @viewModel.record.metrics.averageSolveTime
+              </td>
+            </tr>
+            <tr>
+              <td>
 
-                </td>
-                <td>
+              </td>
+              <td>
 
-                </td>
+              </td>
             </tr>
             <tr>
-                <td>
-                    gold count
-                </td>
-                <td id="gold_count">
-                    @viewModel.record.metrics.gold_count
-                </td>
+              <td>
+                gold count
+              </td>
+              <td id="gold_count">
+                @viewModel.record.metrics.gold_count
+              </td>
             </tr>
             <tr>
-                <td>
-                    correct count
-                </td>
-                <td id="correct_count">
-                    @viewModel.record.metrics.correct_count
-                </td>
+              <td>
+                correct count
+              </td>
+              <td id="correct_count">
+                @viewModel.record.metrics.correct_count
+              </td>
             </tr>
             <tr>
-                <td>
-                    predicted count
-                </td>
-                <td id="predicted_count">
-                    @viewModel.record.metrics.predicted_count
-                </td>
+              <td>
+                predicted count
+              </td>
+              <td id="predicted_count">
+                @viewModel.record.metrics.predicted_count
+              </td>
             </tr>
             <tr>
-                <td>
-                    missed count
-                </td>
-                <td id="missed_count">
-                    @viewModel.record.metrics.missed_count
-                </td>
+              <td>
+                missed count
+              </td>
+              <td id="missed_count">
+                @viewModel.record.metrics.missed_count
+              </td>
             </tr>
             <tr>
-                <td>
-                    extra count
-                </td>
-                <td id="extra_count">
-                    @viewModel.record.metrics.extra_count
-                </td>
+              <td>
+                extra count
+              </td>
+              <td id="extra_count">
+                @viewModel.record.metrics.extra_count
+              </td>
             </tr>
             <tr>
-                <td>
+              <td>
 
-                </td>
-                <td>
+              </td>
+              <td>
 
-                </td>
+              </td>
             </tr>
             <tr>
-                <td>
-                    record id
-                </td>
-                <td>
-                    @viewModel.record.record_id
-                </td>
+              <td>
+                record id
+              </td>
+              <td>
+                @viewModel.record.record_id
+              </td>
             </tr>
             <tr>
-                <td>
-                    associated configuration id
-                </td>
-                <td>
-                    <a href="/configuration?conf=@viewModel.record.configuration_id">
-                        @viewModel.record.configuration_id
-                    </a>
-                </td>
+              <td>
+                associated configuration id
+              </td>
+              <td>
+                <a href="/configuration?conf=@viewModel.record.configuration_id">
+                    @viewModel.record.configuration_id
+                </a>
+              </td>
             </tr>
             <tr>
-                <td>
-                    finished
-                </td>
-                <td>
-                    @(!viewModel.record.isRunning)
-                </td>
+              <td>
+                finished
+              </td>
+              <td>
+                @(!viewModel.record.isRunning)
+              </td>
             </tr>
-            </tbody>
+          </tbody>
         </table>
+      </div>
+      @if(!viewModel.record.isRunning) {
+        <form action="/deleteRecord" method="post">
+          <input type="hidden"
+                 name="record_id"
+                 value="@viewModel.record.record_id"/>
+          <input type="hidden"
+                 name="configuration_id"
+                 value="@viewModel.record.configuration_id"/>
+          <input type="submit"
+                 rel="facebox[.dangerzone]"
+                 class="btn btn-danger boxed-action"
+                 value="Delete this record"
+                 onclick="return confirm('Are you sure you want to delete this item?');"
+          />
+        </form>
+      }
     </div>
-    @if(!viewModel.record.isRunning) {
-    <form action="/deleteRecord" method="post">
-        <input type="hidden"
-               name="record_id"
-               value="@viewModel.record.record_id"/>
-        <input type="hidden"
-               name="configuration_id"
-               value="@viewModel.record.configuration_id"/>
-        <input type="submit"
-               rel="facebox[.dangerzone]"
-               class="btn btn-danger boxed-action"
-               value="Delete this record"
-               onclick="return confirm('Are you sure you want to delete this item?');"
-        />
-    </form>
-    }
-</div>
-</body>
+  </body>
 </html>
