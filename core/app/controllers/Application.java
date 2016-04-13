@@ -304,10 +304,6 @@ public class Application extends Controller {
         return redirect("/configuration?conf=" + conf_id);
     }
 
-    public Result about() {
-        return ok(about.render());
-    }
-
     private List<String> getTeamNames() {
         List<String> teamNames = new ArrayList<>();
 
