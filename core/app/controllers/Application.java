@@ -128,11 +128,7 @@ public class Application extends Controller {
         return redirect("/");
     }
 
-    @Security.Authenticated(Secured.class)
     public Result configuration(String configuration_id) {
-        if (!Secured.canAccess(request().username(), configuration_id)) {
-            return this.authError();
-        }
         RecipeViewModel viewModel = new RecipeViewModel();
         FrontEndDBInterface f = new FrontEndDBInterface();
         models.Configuration conf;

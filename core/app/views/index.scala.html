@@ -77,43 +77,47 @@
                             @configuration.configuration_name
                           </a>
                         </td>
-                        @if( configuration.records != null && configuration.records.length > 0 ) {
-                          <td @if( configuration.records(0).isRunning ) { class="running" } >
-                            <a href="record?record_id=@configuration.records(0).record_id">
-                              @configuration.records(0).date [ @configuration.records(0).metrics.f1 ]
-                            </a>
-                          </td>
-                        } else {
-                          <td> [no most recent record] </td>
-                        }
-                        <td>@configuration.dataset</td>
-                        <td>@configuration.task_variant</td>
-                        <td>@configuration.description</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </td>
-              <td>
-                <ul>
-                  <li>
-                    <a type="button" data-toggle="modal" data-target="#myModal" id="abouts">
-                      Getting started
-                    </a>
-                    <div class="modal fade" id="myModal" role="dialog">
-                      <div class="modal-dialog">
-                        <!-- Modal content-->
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Getting started</h4>
-                          </div>
-                          <div class="modal-body">
-                            <ol>
-                              <li>Make a <a href="https://github.com/IllinoisCogComp/open-eval/tree/master/learner#example">solver</a></li>
-                              <li>
-                                <p>Add the following repository to your pom.xml</p>
-                                <div class="highlight highlight-text-xml">
+                          @if( configuration.records != null && configuration.records.length > 0 ) {
+                            <td @if( configuration.records(0).isRunning ) { class="running" } >
+                              <a href="record?record_id=@configuration.records(0).record_id">
+                                @configuration.records(0).date [ 
+                                <span class="f1s">@configuration.records(0).metrics.f1 </span>
+                                ]
+                              </a>
+                            </td>
+                          } else {
+                            <td> [no most recent record] </td>
+                          }
+                          <td>@configuration.dataset</td>
+                          <td>@configuration.task_variant</td>
+                          <td>@configuration.description</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </td>
+                <td>
+                    <ul>
+                      <li>
+                        <a type="button" data-toggle="modal" data-target="#myModal" id="abouts">
+                          Getting started
+                        </a>
+
+                        <div class="modal fade" id="myModal" role="dialog">
+                          <div class="modal-dialog">
+                          
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Getting started</h4>
+                              </div>
+                              <div class="modal-body">
+                                <ol>
+                                  <li>Make a <a href="https://github.com/IllinoisCogComp/open-eval/tree/master/learner#example">solver</a></li>
+                                  <li>
+                                    <p>Add the following repository to your pom.xml</p>
+                                    <div class="highlight highlight-text-xml">
 <pre>&lt;<span class="pl-ent">repository</span>&gt;
 &lt;<span class="pl-ent">id</span>&gt;CogcompSoftware&lt;/<span class="pl-ent">id</span>&gt;
 &lt;<span class="pl-ent">name</span>&gt;CogcompSoftware&lt;/<span class="pl-ent">name</span>&gt;
@@ -122,9 +126,9 @@
                                 <p>Add the following dependency to your pom.xml</p>
                                 <div class="highlight highlight-text-xml">
 <pre>&lt;<span class="pl-ent">dependency</span>&gt;
-&lt;<span class="pl-ent">groupId</span>&gt;edu.illinois.cs.cogcomp&lt;/<span class="pl-ent">groupId</span>&gt;
-&lt;<span class="pl-ent">artifactId</span>&gt;openeval-client_2.11&lt;/<span class="pl-ent">artifactId</span>&gt;
-&lt;<span class="pl-ent">version</span>&gt;"version"&lt;/<span class="pl-ent">version</span>&gt;
+    &lt;<span class="pl-ent">groupId</span>&gt;edu.illinois.cs.cogcomp&lt;/<span class="pl-ent">groupId</span>&gt;
+    &lt;<span class="pl-ent">artifactId</span>&gt;openeval-client_2.11&lt;/<span class="pl-ent">artifactId</span>&gt;
+    &lt;<span class="pl-ent">version</span>&gt;0.1.1&lt;/<span class="pl-ent">version</span>&gt;
 &lt;/<span class="pl-ent">dependency</span>&gt;</pre></div> 
                                 <p>Or run through sbt by</p>
                                 <ul>
@@ -220,5 +224,15 @@
       </div>
       <br>
     </div>
+    <script type="text/javascript">
+      $('.f1s').each(function(i, obj) {
+        try{
+          num = +(obj.innerHTML);
+          obj.innerHTML = Math.round(num*10000)/10000;
+        } catch (err) {
+
+        }
+      });
+    </script>
   </body>
 </html>
