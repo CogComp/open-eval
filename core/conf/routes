@@ -37,9 +37,6 @@ GET        /working              controllers.Application.progressBar(record: Str
 
 GET        /working/prog         controllers.Application.getCurrentProgress(record: String)			
 
-# FAQs
-GET        /about                controllers.Application.about()
-
 # Authentication
 GET        /login                controllers.Application.login()
 

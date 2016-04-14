@@ -22,6 +22,10 @@
         cursor: pointer;
       }
 
+      #abouts {
+      cursor: pointer;
+      }
+
       .pl-ent {
         color: green;
       }
@@ -76,7 +80,9 @@
                           @if( configuration.records != null && configuration.records.length > 0 ) {
                             <td @if( configuration.records(0).isRunning ) { class="running" } >
                               <a href="record?record_id=@configuration.records(0).record_id">
-                                @configuration.records(0).date [ @configuration.records(0).metrics.f1 ]
+                                @configuration.records(0).date [ 
+                                <span class="f1s">@configuration.records(0).metrics.f1 </span>
+                                ]
                               </a>
                             </td>
                           } else {
@@ -93,7 +99,7 @@
                 <td>
                     <ul>
                       <li>
-                        <a type="button" data-toggle="modal" data-target="#myModal" id="quickInstructions">
+                        <a type="button" data-toggle="modal" data-target="#myModal" id="abouts">
                           Getting started
                         </a>
 
@@ -122,7 +128,7 @@
 <pre>&lt;<span class="pl-ent">dependency</span>&gt;
     &lt;<span class="pl-ent">groupId</span>&gt;edu.illinois.cs.cogcomp&lt;/<span class="pl-ent">groupId</span>&gt;
     &lt;<span class="pl-ent">artifactId</span>&gt;openeval-client_2.11&lt;/<span class="pl-ent">artifactId</span>&gt;
-    &lt;<span class="pl-ent">version</span>&gt;"version"&lt;/<span class="pl-ent">version</span>&gt;
+    &lt;<span class="pl-ent">version</span>&gt;0.1.1&lt;/<span class="pl-ent">version</span>&gt;
 &lt;/<span class="pl-ent">dependency</span>&gt;</pre></div> 
                                     <p>Or run through sbt by</p>
                                     <ul>
@@ -147,7 +153,70 @@
                           Instructions on how to use the system
                         </a>
                       </li>
-                      <li><a href="/about">About Team</a></li>
+                      <li>
+                          <a type="button" data-toggle="modal" data-target="#about" id="quickInstructions">
+                              About Team
+                          </a>
+                          <div class="modal fade" id="about" role="dialog">
+                              <div class="modal-dialog">
+
+                                  <!-- Modal content-->
+                                  <div class="modal-content">
+                                      <div class="modal-header">
+                                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                          <h4 class="modal-title">About team</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                          <p>
+                                              We are a combination between UIUC machine learning department and senior students.
+                                          </p>
+                                          <h3>About team</h3>
+                                          <ul>
+                                              <li>
+                                                  <b>Deepak Shine</b>
+                                                  <p>Models and evaluation metrics storage</p>
+                                              </li>
+                                              <li>
+                                                  <b>Dhruv Vajpeyi</b>
+                                                  <p>Core back end infrastructure</p>
+                                              </li>
+                                              <li>
+                                                  <b>Josh Camp</b>
+                                                  <p>Dataset processing and storage; point of contact</p>
+                                              </li>
+                                              <li>
+                                                  <b>Ryan Kelch</b>
+                                                  <p>Client-side server interface layer</p>
+                                              </li>
+                                              <li>
+                                                  <b>Paul Gibbons</b>
+                                                  <p>Front end</p>
+                                              </li>
+                                              <li>
+                                                  <b>Daniel Khashabi</b>
+                                                  <p>Liason, project lead, technical advisor and all around contributor</p>
+                                              </li>
+                                              <li>
+                                                  <b>Christos Christodoulopoulos</b>
+                                                  <p>Post-Doc, Advisor, user perspective</p>
+                                              </li>
+                                              <li>
+                                                  <b>Mark Sammons</b>
+                                                  <p>Assistant professor - advises on team meetings</p>
+                                              </li>
+                                              <li>
+                                                  <b>Dan Roth</b>
+                                                  <p>Machine learning professor - client, holds guiding vision</p>
+                                              </li>
+                                          </ul>
+                                      </div>
+                                      <div class="modal-footer">
+                                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </li>
                     </ul>
                 </td>
               </tr>
@@ -156,5 +225,15 @@
         </div>
         <br>
     </div>
+    <script type="text/javascript">
+      $('.f1s').each(function(i, obj) {
+        try{
+          num = +(obj.innerHTML);
+          obj.innerHTML = Math.round(num*10000)/10000;
+        } catch (err) {
+
+        }
+      });
+    </script>
   </body>
 </html>
