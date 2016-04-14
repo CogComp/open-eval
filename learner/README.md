@@ -72,7 +72,7 @@ public class ToyPosAnnotator extends Annotator
 
 Here is how you can add the learner endpoint through sbt:
  - Add the following resolver: `"CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"`
- - Add the following dependency: `"edu.illinois.cs.cogcomp" % "openeval-client_2.11" % "version"`
+ - Add the following dependency: `"edu.illinois.cs.cogcomp" % "openeval-client_2.11" % "0.1.1"`
 
 Here is how you can add the learner endpoint through Maven:
 
@@ -90,7 +90,7 @@ Add the following dependency to your pom.xml
 <dependency>
 	<groupId>edu.illinois.cs.cogcomp</groupId>
 	<artifactId>openeval-client_2.11</artifactId>
-	<version>"version"</version>
+	<version>0.1.1</version>
 </dependency>
 ```
 
@@ -100,7 +100,7 @@ The `Server` class will be taking care of the communications between your learne
 
 There are two ways to run the server:
  - Use the `Server.start` instance method: This is a non-blocking call. It will start the `Server` and continue to execute code. However, once the program is finished the `Server` will die. Use `Server.stop` to stop the `Server`
- - Use the `fi.iki.elonen.util.ServerRunner.executeInstance` static method: This is a blocking call. It will prevent the program from exiting and therefore keep the `Server` alive. Press `control+D` in the terminal to stop the `Server`.
+ - __(recomended)__ Use the `fi.iki.elonen.util.ServerRunner.executeInstance` static method: This is a blocking call. It will prevent the program from exiting and therefore keep the `Server` alive. Press `control+D` in the terminal to stop the `Server`.
 
 You can test to see if your `Server` is running by browsing to `localhost:<port>/info`. If you get JSON describing your required views the `Server` is working properly. The URL the Open-Eval system needs will either be `<computer_name>:<port>` or `<computer_ip>:port` if your machine and the Open-Eval system are on the same network. If you are outside the network of the Open-Eval system you will either need to use VPN, a domain name, or set up port forwarding.
 
@@ -118,6 +118,10 @@ public static void main(String args[]) throws IOException {
     fi.iki.elonen.util.ServerRunner.executeInstance(server);
 }
 ```
+
+## Running with the open eval system
+
+__You will need to be on the same network as the system, or VPNed in__. When you run the server it will print out a url. Copy this url and browse to the open eval site. Choose a *Configuration* or create one if you haven't yet. Click the button at the top, "New run of configuration". Paste the url in the solver address area.
 
 ## Under the Hood
 
