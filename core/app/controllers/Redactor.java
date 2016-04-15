@@ -119,6 +119,12 @@ public class Redactor {
                 if (view instanceof PredicateArgumentView) {
                     PredicateArgumentView predicateArgumentView = (PredicateArgumentView) view;
                     predicateArgumentView.removeAllRelations();
+                    for (Constituent c : predicateArgumentView.getConstituents()) {
+                        predicateArgumentView.removeConstituent(c);
+                        int start = c.getStartSpan();
+                        int end = c.getEndSpan();
+                        view.addConstituent(new Constituent("", "RELATIONVIEW", textAnnotation, start, end));
+                    }
                 }
             }
         }
