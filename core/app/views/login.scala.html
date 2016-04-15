@@ -1,77 +1,77 @@
 @(viewModel: models.LoginViewModel)
 
 <html>
-    <head>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-    </head>
-    <body>
-        <div class="body">
-            @header()
-            <ol class="breadcrumb">
-              <li><a href="/">Open Eval</a></li>
-              <li><a href="/login">Login</a></li>
-            </ol>
-            <font color="red">@viewModel.errorMessage</font>
-            <form action="addUser" method="post" id="signupform">
-                <h3>Create new user</h3>
-                <table class="table" width="50%">
-                    <tbody>
-                        <tr>
-                            <td><b>Username</b></td>
-                            <td><input type="text" name="username" value="@viewModel.username"></input></td>
-                        </tr>
-                        <tr>
-                            <td><b>Password</b></td>
-                            <td><input type="password" name="password"></input></td>
-                        </tr>
-                        <tr>
-                            <td><b>Verify Password</b></td>
-                            <td><input type="password" name="verify"></input></td>
-                        </tr>
-                        <tr>
-                            <td><b>Team</b></td>
-                            <td>
-                                <select name="teamName" id="teamName">
-                                  @for(teamName <- viewModel.teamNames) {
-                                    <option value="@teamName">@teamName</option>
-                                  }
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><b>Team Password</b></td>
-                            <td><input type="password" name="teamPassword"></input></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <button class="btn btn-default">Create User</button>
-            </form>
-            <hr/>
-            <form action="loginUser" method="post" id="signupform">
-                <h3>Login as existing user</h3>
-                <table class="table" width="50%">
-                    <tbody>
-                        <tr>
-                            <td><b>Username</b></td>
-                            <td><input type="text" name="loginUsername" value="@viewModel.loginUsername"></input></td>
-                        </tr>
-                        <tr>
-                            <td><b>Password</b></td>
-                            <td><input type="password" name="loginPassword"></input></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <button class="btn btn-default">Login</button>
-            </form>
-        </div>
-        <script type="text/javascript">
-            $(document).ready(function() {
-                $('#logoutspan').hide();
-                if ("@viewModel.teamName".length > 0) {
-                    $("#teamName").val("@viewModel.teamName");
-                }
-            });
-        </script>
-    </body>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <div class="body">
+      @header()
+      <ol class="breadcrumb">
+        <li><a href="/">Open Eval</a></li>
+        <li><a href="/login">Login</a></li>
+      </ol>
+      <font color="red">@viewModel.errorMessage</font>
+      <form action="addUser" method="post" id="signupform">
+        <h3>Create new user</h3>
+        <table class="table" width="50%">
+          <tbody>
+            <tr>
+              <td><b>Username</b></td>
+              <td><input type="text" name="username" value="@viewModel.username"></input></td>
+            </tr>
+            <tr>
+              <td><b>Password</b></td>
+              <td><input type="password" name="password"></input></td>
+            </tr>
+            <tr>
+              <td><b>Verify Password</b></td>
+              <td><input type="password" name="verify"></input></td>
+            </tr>
+            <tr>
+              <td><b>Team</b></td>
+              <td>
+                <select name="teamName" id="teamName">
+                  @for(teamName <- viewModel.teamNames) {
+                    <option value="@teamName">@teamName</option>
+                  }
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td><b>Team Password</b></td>
+              <td><input type="password" name="teamPassword"></input></td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="btn btn-default">Create User</button>
+      </form>
+      <hr/>
+      <form action="loginUser" method="post" id="signupform">
+        <h3>Login as existing user</h3>
+        <table class="table" width="50%">
+          <tbody>
+            <tr>
+              <td><b>Username</b></td>
+              <td><input type="text" name="loginUsername" value="@viewModel.loginUsername"></input></td>
+            </tr>
+            <tr>
+              <td><b>Password</b></td>
+              <td><input type="password" name="loginPassword"></input></td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="btn btn-default">Login</button>
+      </form>
+    </div>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $('#logoutspan').hide();
+        if ("@viewModel.teamName".length > 0) {
+          $("#teamName").val("@viewModel.teamName");
+        }
+      });
+    </script>
+  </body>
 </html>

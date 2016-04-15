@@ -29,7 +29,6 @@ import models.LearnerSettings;
 /**
  * Temporary class to represent a dummy solver that lives within the evaluation framework
  */
-
 public class LearnerInterface {
 	
 	WSRequest infoPoster;

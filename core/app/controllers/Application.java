@@ -202,14 +202,6 @@ public class Application extends Controller {
         return ok(record.render(viewModel));
     }
 
-    public Result progressBar(String record_id, String conf_id) {
-        WorkingViewModel viewModel = new WorkingViewModel();
-        viewModel.conf_id = conf_id;
-        viewModel.record_id = record_id;
-        viewModel.percent_complete = 0;
-        return ok(working.render(viewModel));
-    }
-
     public Promise<Result> getCurrentProgress(String record_id) {
         return Promise.wrap(ask(masterActor, new StatusRequest(record_id), 60000))
             .map(new Function<Object, Result>() {
@@ -219,7 +211,9 @@ public class Application extends Controller {
                         StatusUpdate update = ((StatusUpdate) response);
                         int percentComplete;
                         if (update.getTotal() > 0) {
-                            double comp = ((double) (update.getCompleted() + update.getSkipped())) / ((double) update.getTotal());
+                            double comp = ((double) (
+                                update.getCompleted() + update.getSkipped())) / ((double) update.getTotal()
+                            );
                             percentComplete = (int) (comp * 100.0);
                         } else {
                             percentComplete = 0;

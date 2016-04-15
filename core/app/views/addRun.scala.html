@@ -3,82 +3,82 @@
 <!DOCTYPE html>
 
 <html lang="en">
-    <body>
-        <div class="body">
-            @header()
-            <ol class="breadcrumb">
-              <li><a href="/">Open Eval</a></li>
-              <li><a href="/configuration?conf=@viewModel.configuration_id">
-                <!-- should change to get name from db -->
-                Configuration @viewModel.configuration_id
-              </a></li>
-              <li><a href="/addRun?conf=@viewModel.configuration_id">
-                <!-- should change to get name from db -->
-                Add run
-              </a></li>
-            </ol>
-            <h3>New run of configuration</h3>
-            <p>This will run a job at the provided address and will create a new record.</p>
-            <font color="red">@viewModel.error_message</font>
-            <form action="submitRun" method="post" id="usrform">
-              <table class="table" style="width: 40%;">
-                <thead>
-                  <tr>
-                    <th class="col-md-2"></th>
-                    <th class="col-md-2"></th>
-                    <th class="col-md-2"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <input type="hidden" value=@viewModel.configuration_id name="configuration_id">
-                  <tr>
-                    <td>
-                      URL (Solver address)<font color="red">*</font>:
-                    </td>
-                    <td>
-                       <input type="text" name="url" value="@viewModel.default_url">
-                    </td>
-                    <td>
-                      <em>console output from running server script</em>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      Author<font color="red">*</font>:
-                    </td>
-                    <td>
-                       <input type="text" name="author" value="@viewModel.default_author">
-                    </td>
-                    <td>
-                      <em>person running the job</em>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      Code repo commit link:
-                    </td>
-                    <td>
-                       <input type="text" name="repo" value="@viewModel.default_repo">
-                    </td>
-                    <td>
-                      <em>optional e.g. github link to see code</em>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      Comment:
-                    </td>
-                    <td>
-                       <textarea name="comment" form="usrform">@viewModel.default_comment</textarea>
-                    </td>
-                    <td>
-                      <em>description of how the solver works</em>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <button class="btn btn-default">Run</button>
-            </form>
-        </div>
-    </body>
+  <head>
+  </head>
+  <body>
+    <div class="body">
+      @header()
+      <ol class="breadcrumb">
+        <li><a href="/">Open Eval</a></li>
+        <li><a href="/configuration?conf=@viewModel.configuration_id">
+          Configuration @viewModel.configuration_id
+        </a></li>
+        <li><a href="/addRun?conf=@viewModel.configuration_id">
+          Add run
+        </a></li>
+      </ol>
+      <h3>New run of configuration</h3>
+      <p>This will run a job at the provided address and will create a new record.</p>
+      <font color="red">@viewModel.error_message</font>
+      <form action="submitRun" method="post" id="usrform">
+        <table class="table" style="width: 40%;">
+          <thead>
+            <tr>
+              <th class="col-md-2"></th>
+              <th class="col-md-2"></th>
+              <th class="col-md-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <input type="hidden" value=@viewModel.configuration_id name="configuration_id">
+            <tr>
+              <td>
+                URL (Solver address)<font color="red">*</font>:
+              </td>
+              <td>
+                 <input type="text" name="url" value="@viewModel.default_url">
+              </td>
+              <td>
+                <em>console output from running server script</em>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Author<font color="red">*</font>:
+              </td>
+              <td>
+                 <input type="text" name="author" value="@viewModel.default_author">
+              </td>
+              <td>
+                <em>person running the job</em>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Code commit repo link:
+              </td>
+              <td>
+                 <input type="text" name="repo" value="@viewModel.default_repo">
+              </td>
+              <td>
+                <em>optional e.g. github link to see code</em>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Comment:
+              </td>
+              <td>
+                 <textarea name="comment" form="usrform">@viewModel.default_comment</textarea>
+              </td>
+              <td>
+                <em>description of how the solver works</em>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="btn btn-default">Run</button>
+      </form>
+    </div>
+  </body>
 </html>
