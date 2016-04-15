@@ -3,109 +3,109 @@
 <!DOCTYPE html>
 
 <html lang="en">
-    <head>
-        <script type="text/javascript">
-        var tvs = {
-         @for((k,v) <- viewModel.task_variants) {
+  <head>
+    <script type="text/javascript">
+      var tvs = {
+        @for((k,v) <- viewModel.task_variants) {
           "@k":
           @for(l<-v) {
             ' <option value="@l">@l</option>'+
           }
           ' ',
-         }
         }
+      }
 
-        var ds = {
-          @for((k,v) <- viewModel.datasets) {
-            "@k":
-            @for(l<-v) {
-              ' <option value="@l">@l</option>'+
-            }
-            ' ',
+      var ds = {
+        @for((k,v) <- viewModel.datasets) {
+          "@k":
+          @for(l<-v) {
+            ' <option value="@l">@l</option>'+
           }
-        };
-
-        function alter_task(selected) {
-          var s = document.getElementById('task').children[selected].innerHTML;
-          document.getElementById('tv').innerHTML = tvs[s];
-          document.getElementById('ds').innerHTML = ds[s];
+          ' ',
         }
-        </script>
-    </head>
-    <body>
-        <div class="body">
-            @header()
-            <ol class="breadcrumb">
-              <li><a href="/">Open Eval</a></li>
-              <li><a href="/addConfiguration">
-                Add Configuration
-              </a></li>
-            </ol>
-            <form action="submitConfiguration" method="post" id="usrform">
-              <table class="table" style="width: 40%;">
-                <thead>
-                  <tr>
-                    <th class="col-md-6"></th>
-                    <th class="col-md-6"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      Configuration name<font color="red">*</font>:
-                    </td>
-                    <td>
-                       <input type="text" name="configurationname">
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      Description:
-                    </td>
-                    <td>
-                       <textarea name="description" form="usrform"></textarea>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      Task<font color="red">*</font>:
-                    </td>
-                    <td>
-                      <select name="task" onchange="alter_task(this.selectedIndex);" id="task">
-                        @for(task <- viewModel.tasks) {
-                          <option value="@task">@task</option>
-                        }
-                      </select>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      Dataset (limited by task)<font color="red">*</font>:
-                    </td>
-                    <td>
-                      <select name="dataset" id="ds">
-                        @for(dataset <- viewModel.datasets.get("Part of Speech Tagging")) {
-                          <option value="@dataset">@dataset</option>
-                        }
-                      </select>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      Task variant (limited by task)<font color="red">*</font>:
-                    </td>
-                    <td>
-                      <select name="taskvariant" id="tv">
-                        @for(task_variant <- viewModel.task_variants.get("Part of Speech Tagging")) {
-                          <option value="@task_variant">@task_variant</option>
-                        }
-                      </select>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <button class="btn btn-default">Create Configuration</button>
-            </form>
-        </div>
-    </body>
+      };
+
+      function alter_task(selected) {
+        var s = document.getElementById('task').children[selected].innerHTML;
+        document.getElementById('tv').innerHTML = tvs[s];
+        document.getElementById('ds').innerHTML = ds[s];
+      }
+    </script>
+  </head>
+  <body>
+    <div class="body">
+      @header()
+      <ol class="breadcrumb">
+        <li><a href="/">Open Eval</a></li>
+        <li><a href="/addConfiguration">
+          Add Configuration
+        </a></li>
+      </ol>
+      <form action="submitConfiguration" method="post" id="usrform">
+        <table class="table" style="width: 40%;">
+          <thead>
+            <tr>
+              <th class="col-md-6"></th>
+              <th class="col-md-6"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                Configuration name<font color="red">*</font>:
+              </td>
+              <td>
+                 <input type="text" name="configurationname">
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Description:
+              </td>
+              <td>
+                 <textarea name="description" form="usrform"></textarea>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Task<font color="red">*</font>:
+              </td>
+              <td>
+                <select name="task" onchange="alter_task(this.selectedIndex);" id="task">
+                  @for(task <- viewModel.tasks) {
+                    <option value="@task">@task</option>
+                  }
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Dataset (limited by task)<font color="red">*</font>:
+              </td>
+              <td>
+                <select name="dataset" id="ds">
+                  @for(dataset <- viewModel.datasets.get("Part of Speech Tagging")) {
+                    <option value="@dataset">@dataset</option>
+                  }
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Task variant (limited by task)<font color="red">*</font>:
+              </td>
+              <td>
+                <select name="taskvariant" id="tv">
+                  @for(task_variant <- viewModel.task_variants.get("Part of Speech Tagging")) {
+                    <option value="@task_variant">@task_variant</option>
+                  }
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="btn btn-default">Create Configuration</button>
+      </form>
+    </div>
+  </body>
 </html>

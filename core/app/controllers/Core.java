@@ -2,12 +2,14 @@ package controllers;
 
 import java.util.List;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
 import models.LearnerSettings;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import controllers.readers.POSReader;
+import controllers.readers.Reader;
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
@@ -74,9 +76,9 @@ public class Core {
     }
 
 	public static void evaluate(Evaluator evaluator, ClassificationTester eval,  TextAnnotation gold,
-			TextAnnotation predicted) {
-		View goldView = gold.getView(ViewNames.POS);
-		View predictedView = predicted.getView(ViewNames.POS);
+			TextAnnotation predicted, String viewName) {
+		View goldView = gold.getView(viewName);
+		View predictedView = predicted.getView(viewName);
 		evaluator.setViews(goldView, predictedView);
 		evaluator.evaluate(eval);
 	}
@@ -107,18 +109,24 @@ public class Core {
         return config;
     }
     
-    public static Evaluator getEvaluator(String conf_id) {
+    public static Evaluator getEvaluator(String conf_id) throws Exception{
+        Config conf = ConfigFactory.load();
         Configuration runConfig = getConfigurationFromDb(conf_id);
-        Evaluator evaluator = null;
-        
-        switch (runConfig.evaluator) {
-            case "Constituent Labeling": 
-                evaluator = new ConstituentLabelingEvaluator();
-                break;
-        }
-        
-        return evaluator;
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        String evaluator = conf.getString("evaluator.root")+f.getEvaluator(runConfig.task, runConfig.task_variant);
+        System.out.println("Evaluator: "+evaluator);
+        Class<?> cls = Class.forName(evaluator);
+        return (Evaluator)cls.newInstance();
     }
+
+    public static String getEvaluatorView(String conf_id) {
+        Configuration runConfig = getConfigurationFromDb(conf_id);
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        String viewName = f.getEvaluatorView(runConfig.task);
+        System.out.println("View: "+viewName);
+        return viewName;
+    }
+
 
     /**
      * Retrieve a stored dataset from the database
@@ -128,9 +136,9 @@ public class Core {
      * @return - list of TextAnnotation instances from the database
      */
     private static List<TextAnnotation> getInstancesFromDb(Configuration runConfig) {
-        POSReader posReader = new POSReader();
+        Reader reader = new Reader();
         System.out.println("Retrieving instances from db");
-        List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB(runConfig.dataset);
+        List<TextAnnotation> TextAnnotations = reader.getTextAnnotationsFromDB(runConfig.dataset);
         return TextAnnotations;
     }
 

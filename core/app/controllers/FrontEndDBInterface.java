@@ -231,14 +231,14 @@ public class FrontEndDBInterface {
         try {       
             Connection connection = getConnection();
             
-            String sql = "SELECT teamName, description, datasetName, evaluator, id FROM configurations WHERE id = " + id + ";"; 
+            String sql = "SELECT teamName, description, datasetName, taskType, taskVariant, evaluator, id FROM configurations WHERE id = " + id + ";";
             PreparedStatement insertStmt = connection.prepareStatement(sql);
             ResultSet configInfoList = insertStmt.executeQuery();
             configInfoList.next();
             
             /*Return information about configuration.*/
-            models.Configuration config = new models.Configuration(configInfoList.getString(1), configInfoList.getString(2), configInfoList.getString(3), "task",
-                "task_variant_b", configInfoList.getString(4), Integer.toString(configInfoList.getInt(5))); 
+            models.Configuration config = new models.Configuration(configInfoList.getString(1), configInfoList.getString(2), configInfoList.getString(3), configInfoList.getString(4),
+                configInfoList.getString(5), configInfoList.getString(6), Integer.toString(configInfoList.getInt(7)));
             connection.close(); 
             return config; 
         } catch (Exception e) {
@@ -514,8 +514,28 @@ public class FrontEndDBInterface {
             throw new RuntimeException(e);
         }
     }
+    
+    /**Gets the evaluator, which is determined by a task and a task-variant.*/
+    public String getEvaluator(String taskName, String taskVariant) {
+        try {
+            Connection conn = getConnection();
+            System.out.println(taskName+", "+taskVariant);
+            String sql = "SELECT name FROM taskMappings WHERE task_name = ? AND task_variant = ?;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, taskName);
+            stmt.setString(2, taskVariant);
+            ResultSet evaluatorRS = stmt.executeQuery();
+            evaluatorRS.first();
+            String evaluator = evaluatorRS.getString(1);
+            
+            conn.close();
+            return evaluator;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
    
-    /**Gets the evaluator for a task.*/
+    /**Gets the evaluator for a task. - DON'T USE THIS ONE.*/
     public String getEvaluatorForTask (String taskName) {
         try {
             Connection conn = getConnection();
@@ -556,6 +576,24 @@ public class FrontEndDBInterface {
         }
         
         
+    }
+    
+    public String getEvaluatorView(String task) {
+        try {
+            Connection conn = getConnection();
+            
+            String sql = "SELECT evaluatorView FROM tasks WHERE name = ?;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, task);
+            ResultSet evaluatorViewRS = stmt.executeQuery();
+            evaluatorViewRS.first();
+            String evaluatorView = evaluatorViewRS.getString(1);
+            
+            conn.close();
+            return evaluatorView;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
     
     /**---------------------HELPER FUNCTIONS-----------------------------------*/

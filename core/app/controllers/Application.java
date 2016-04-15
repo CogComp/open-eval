@@ -26,8 +26,6 @@ import akka.*;
 import play.mvc.Controller;
 import javax.inject.*;
 
-import controllers.readers.POSReader;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import static akka.pattern.Patterns.ask;
@@ -117,8 +115,8 @@ public class Application extends Controller {
         String taskVariant = bindedForm.get("taskvariant");
         String username = request().username();
         String teamName = f.getTeamnameFromUsername(username);
-
-        String evaluator = f.getEvaluatorForTask(taskName);
+        
+        String evaluator = f.getEvaluator(taskName, taskVariant);
 
         try {
             f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),
@@ -130,11 +128,7 @@ public class Application extends Controller {
         return redirect("/");
     }
 
-    @Security.Authenticated(Secured.class)
     public Result configuration(String configuration_id) {
-        if (!Secured.canAccess(request().username(), configuration_id)) {
-            return this.authError();
-        }
         RecipeViewModel viewModel = new RecipeViewModel();
         FrontEndDBInterface f = new FrontEndDBInterface();
         models.Configuration conf;
@@ -208,14 +202,6 @@ public class Application extends Controller {
         return ok(record.render(viewModel));
     }
 
-    public Result progressBar(String record_id, String conf_id) {
-        WorkingViewModel viewModel = new WorkingViewModel();
-        viewModel.conf_id = conf_id;
-        viewModel.record_id = record_id;
-        viewModel.percent_complete = 0;
-        return ok(working.render(viewModel));
-    }
-
     public Promise<Result> getCurrentProgress(String record_id) {
         return Promise.wrap(ask(masterActor, new StatusRequest(record_id), 60000))
             .map(new Function<Object, Result>() {
@@ -225,7 +211,9 @@ public class Application extends Controller {
                         StatusUpdate update = ((StatusUpdate) response);
                         int percentComplete;
                         if (update.getTotal() > 0) {
-                            double comp = ((double) (update.getCompleted() + update.getSkipped())) / ((double) update.getTotal());
+                            double comp = ((double) (
+                                update.getCompleted() + update.getSkipped())) / ((double) update.getTotal()
+                            );
                             percentComplete = (int) (comp * 100.0);
                         } else {
                             percentComplete = 0;
@@ -304,10 +292,6 @@ public class Application extends Controller {
         FrontEndDBInterface f = new FrontEndDBInterface();
         f.deleteRecordFromRecordID(Integer.parseInt(record_id));
         return redirect("/configuration?conf=" + conf_id);
-    }
-
-    public Result about() {
-        return ok(about.render());
     }
 
     private List<String> getTeamNames() {
