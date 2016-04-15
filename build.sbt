@@ -21,6 +21,7 @@ lazy val core = (project in file("core")).
     name := "core",
       libraryDependencies ++= Seq(
       "edu.illinois.cs.cogcomp" % "illinois-core-utilities" % cogcompNLPVersion,
+      "edu.illinois.cs.cogcomp" % "illinois-corpusreaders" % cogcompNLPVersion,
       "org.webjars" %% "webjars-play" % "2.4.0-1",
       "org.webjars" % "bootstrap" % "3.1.1-2",
       "org.json" % "json" % "20140107",

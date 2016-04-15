@@ -1,6 +1,7 @@
 package controllers;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -8,36 +9,55 @@ import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.CoreferenceView;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.PredicateArgumentView;
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Relation;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TokenLabelView;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
+import models.Configuration;
 
 public class Redactor {
 	/**
-     * Calls removeAnnotations without the need for the user to create a singleton list.
-     * @param textAnnotations
-     * @param viewToKeep
-     * @return
+	 * Only publicly visible method in the {@code Redactor} class. Given the task and task variant, 
+	 * it removes the appropriate Views and/or Relations. For the task variants "Raw Text" and 
+	 * "Sentence Boundaries", it removes all views except {@code SENTENCE} and {@code TOKENS}.
+	 * 
+     * @param textAnnotations: List of {@code TextAnnotation} objects.
+     * @param runConfig: Configuration
+     * @return List of redacted instances.
      */
-    public static List<TextAnnotation> removeAnnotations(List<TextAnnotation> textAnnotations, String viewToKeep) {
-        List<String> viewsToKeep = new ArrayList<>();
-        viewsToKeep.add(viewToKeep);
-        return removeAnnotations(textAnnotations, viewsToKeep);
+    public static List<TextAnnotation> removeAnnotations(List<TextAnnotation> textAnnotations, Configuration runConfig) {
+    	List<String> sentenceBoundariesViewNames = new ArrayList<>();
+    	sentenceBoundariesViewNames.add(ViewNames.SENTENCE);
+    	sentenceBoundariesViewNames.add(ViewNames.TOKENS);
+
+		if (runConfig.task_variant == "Raw Text") {
+			return removeViews(textAnnotations, sentenceBoundariesViewNames);
+		} else if (runConfig.task_variant == "Sentence Boundaries") {
+			return removeViews(textAnnotations, sentenceBoundariesViewNames);
+		}	
+        switch (runConfig.task) {
+        	case "Part of Speech Tagging":
+       			return removeViews(textAnnotations, sentenceBoundariesViewNames);
+        	case "Parsing":
+        		return removeViews(textAnnotations, sentenceBoundariesViewNames);
+        	case "Named Entity Recognition":
+       			return removeLabelsForNER(textAnnotations);
+        	case "Relation Extraction":
+       			return removeRelationsFromPredicateArgumentView(textAnnotations);
+        	case "Co-reference":
+       			return removeCoreferenceRelations(textAnnotations);
+        	default:
+        		throw new RuntimeException("Task " + runConfig.task + " not yet implemented");
+        }
     }
     /**
      * Static method to remove views from `TextAnnotation` objects.  Each task variant has a number of views
-     * necessary for the learner to solve it.  All other views should be removed.
-     * @param textAnnotations
-     * @param viewsToKeep
-     * @return
+     * necessary for the solver to solve it.  All other views should be removed.
      */
-    public static List<TextAnnotation> removeAnnotations(List<TextAnnotation> textAnnotations, List<String> viewsToKeep) {
+    private static List<TextAnnotation> removeViews(List<TextAnnotation> textAnnotations, List<String> viewsToKeep) {
         if (viewsToKeep == null) {
             viewsToKeep = new ArrayList<String>();
         }
         viewsToKeep = new ArrayList<>(viewsToKeep);
-        viewsToKeep.add(ViewNames.SENTENCE);
         List<String> viewsToRemove = new ArrayList<>();
         List<TextAnnotation> cleansed = new ArrayList<>();
         for (TextAnnotation textAnnotation : textAnnotations) {
@@ -62,36 +82,37 @@ public class Redactor {
         return cleansed;
     }
     /**
-     * Removes the token label from all views for which the {@code ViewType} is {@code TokenLabelView}.
-     * @param textAnnotation
+     * Removes the label from the NER_GOLD_EXTENT_SPAN.
      */
-    public static List<TextAnnotation> removeTokenLabels(List<TextAnnotation> textAnnotations) {
+    private static List<TextAnnotation> removeLabelsForNER(List<TextAnnotation> cleansedAnnotations) {
+    	List<String> nerViews = new ArrayList<>();
+    	nerViews.add(ViewNames.SENTENCE);
+    	nerViews.add(ViewNames.TOKENS);
+    	nerViews.add("NER_GOLD_EXTENT_SPAN");
+    	List<TextAnnotation> textAnnotations = removeViews(cleansedAnnotations, nerViews);
         for (TextAnnotation textAnnotation : textAnnotations) {
-            Set<String> viewNames = textAnnotation.getAvailableViews();
-            for (String viewName : viewNames) {
-            	View view = textAnnotation.getView(viewName);
-            	if (view instanceof TokenLabelView) {
-	                TokenLabelView tokenLabelView = (TokenLabelView) view;
-	                int start = tokenLabelView.getStartSpan();
-	                int end = tokenLabelView.getEndSpan();
-	                List<Constituent> constituents = tokenLabelView.getConstituents();
-	                for (Constituent c : constituents) {
-	                    tokenLabelView.removeConstituent(c);
-	                }
-	                for (int i = start; i < end; i++) {
-	                    tokenLabelView.addTokenLabel(i, "", 1.0);
-	                }
-	                textAnnotation.addView(view.getViewName(), view);
-	            }
+        	View view = textAnnotation.getView("NER_GOLD_EXTENT_SPAN");
+            List<Constituent> constituents = view.getConstituents();
+            for (Constituent c : constituents) {
+                view.removeConstituent(c);
+                int start = c.getStartSpan();
+                int end = c.getEndSpan();
+                view.addConstituent(new Constituent("", "NER_GOLD_EXTENT_SPAN", textAnnotation, start, end));
             }
+            textAnnotation.addView(view.getViewName(), view);
         }
         return textAnnotations;
     }
     
     /**
-     * Removes every {@code Relation} from every {@code PredicateArgumentView} in the list of text annotations.
+     * Removes every {@code Relation} from the {@code RELATIONVIEW} in the list of text annotations.
      */
-    public static List<TextAnnotation> removeRelationsFromPredicateArgumentView(List<TextAnnotation> textAnnotations) {
+    private static List<TextAnnotation> removeRelationsFromPredicateArgumentView(List<TextAnnotation> uncleansedAnnotations) {
+    	List<String> relationExtractionViews = new ArrayList<>();
+    	relationExtractionViews.add(ViewNames.SENTENCE);
+    	relationExtractionViews.add(ViewNames.TOKENS);
+    	relationExtractionViews.add("RELATIONVIEW");
+    	List<TextAnnotation> textAnnotations = removeViews(uncleansedAnnotations, relationExtractionViews);
     	for (TextAnnotation textAnnotation : textAnnotations) {
     		Set<String> viewNames = textAnnotation.getAvailableViews();
     		for (String viewName : viewNames) {
@@ -106,25 +127,16 @@ public class Redactor {
     }
     
     /**
-     * Removes every {@code Relation} from every {@code PredicateArgumentView} in the list of text annotations,
-     * as well as all {@code Constituents} corresponding to predicates or arguments.
+     * Removes all coreference relations from {@code COREF} View.
+     * @param uncleansedAnnotations
+     * @return
      */
-    public static List<TextAnnotation> removePredicatesArgumentsAndRelations(List<TextAnnotation> textAnnotations) {
-    	for (TextAnnotation textAnnotation : textAnnotations) {
-    		Set<String> viewNames = textAnnotation.getAvailableViews();
-    		for (String viewName : viewNames) {
-    			View view = textAnnotation.getView(viewName);
-    			if (view instanceof PredicateArgumentView) {
-    				PredicateArgumentView predicateArgumentView = (PredicateArgumentView) view;
-    				predicateArgumentView.removeAllConstituents();
-    				textAnnotation.addView(viewName, predicateArgumentView);
-    			}
-    		}
-    	}
-    	return textAnnotations;
-    }
-    
-    public static List<TextAnnotation> removeCoreferenceRelations(List<TextAnnotation> textAnnotations) {
+    private static List<TextAnnotation> removeCoreferenceRelations(List<TextAnnotation> uncleansedAnnotations) {
+    	List<String> coreferenceViews = new ArrayList<>();
+    	coreferenceViews.add(ViewNames.SENTENCE);
+    	coreferenceViews.add(ViewNames.TOKENS);
+    	coreferenceViews.add(ViewNames.COREF);
+    	List<TextAnnotation> textAnnotations = removeViews(uncleansedAnnotations, coreferenceViews);
     	for (TextAnnotation textAnnotation : textAnnotations) {
     		Set<String> viewNames = textAnnotation.getAvailableViews();
     		for (String viewName : viewNames) {
@@ -134,21 +146,6 @@ public class Redactor {
     				coreferenceView.removeAllRelations();
     				textAnnotation.addView(viewName, coreferenceView);
     				
-    			}
-    		}
-    	}
-    	return textAnnotations;
-    }
-    
-    public static List<TextAnnotation> removeCoreferenceRelationsAndConstituents(List<TextAnnotation> textAnnotations) {
-    	for (TextAnnotation textAnnotation : textAnnotations) {
-    		Set<String> viewNames = textAnnotation.getAvailableViews();
-    		for (String viewName : viewNames) {
-    			View view = textAnnotation.getView(viewName);
-    			if (view instanceof CoreferenceView) {
-    				CoreferenceView coreferenceView = (CoreferenceView) view;
-    				coreferenceView.removeAllConstituents();
-    				textAnnotation.addView(viewName, coreferenceView);
     			}
     		}
     	}

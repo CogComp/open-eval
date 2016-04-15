@@ -62,7 +62,7 @@ public class Core {
             System.out.println("Could not connect to server");
             return new Job(settings.error);
         }
-        List<TextAnnotation> cleansedInstances =  cleanseInstances(correctInstances, settings.requiredViews);
+        List<TextAnnotation> cleansedInstances =  cleanseInstances(correctInstances, settings.requiredViews, runConfig);
         if (cleansedInstances == null) {
             return new Job("Error in cleanser. Please check your requiredViews");
         }
@@ -88,10 +88,10 @@ public class Core {
      *            - The correct instances from the databse
      * @return - The cleansed instance
      */
-    public static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, List<String> requiredViews) {
+    public static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, List<String> requiredViews, Configuration runConfig) {
         if (requiredViews == null)
             return null;
-        return Redactor.removeAnnotations(correctInstances, requiredViews);
+        return Redactor.removeAnnotations(correctInstances, runConfig);
     }
 
     /**
