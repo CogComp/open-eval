@@ -19,8 +19,8 @@ import models.Configuration;
 public class RedactorTest {
     @Test
     public void sentenceboundariesRedactorTest() {
-    	List<TextAnnotation> toyAnnotations = new ArrayList<>();
-    	for (int i = 0; i < 1 ; i++) {
+        List<TextAnnotation> toyAnnotations = new ArrayList<>();
+        for (int i = 0; i < 1 ; i++) {
             TextAnnotation ta =  DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(true); //ToyTextAnnotationGenerator.generateToyTextAnnotation(3);
             toyAnnotations.add(ta);
         }
@@ -30,7 +30,7 @@ public class RedactorTest {
     
     @Test
     public void rawTextRedactionTest() {
-    	List<TextAnnotation> toyAnnotations = new ArrayList<>();
+        List<TextAnnotation> toyAnnotations = new ArrayList<>();
         for (int i = 0; i < 1 ; i++) {
             TextAnnotation ta =  DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(true); //ToyTextAnnotationGenerator.generateToyTextAnnotation(3);
             toyAnnotations.add(ta);
@@ -43,35 +43,35 @@ public class RedactorTest {
   //      System.out.println(json);
     }
     /*
-	@Test
-	public void aceDataTest() {
-		String everything = "";
-		try {
-			BufferedReader br = new BufferedReader(new FileReader("sampleDocument.json"));
-		    StringBuilder sb = new StringBuilder();
-		    String line = br.readLine();
+    @Test
+    public void aceDataTest() {
+        String everything = "";
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("sampleDocument.json"));
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
 
-		    while (line != null) {
-		        sb.append(line);
-		        line = br.readLine();
-		    }
-		    everything = sb.toString();
-		} catch (Exception e) {
-		    e.printStackTrace();
-		}
-		try {
-			TextAnnotation ta = SerializationHelper.deserializeFromJson(everything);
-			List<TextAnnotation> tas = new ArrayList<>();
-			tas.add(ta);
-	        Configuration runConfig = new Configuration("", "", "", "Co-reference", "Gold Token", "", "");
-	        List<TextAnnotation> cleansedAnnotations = Redactor.removeAnnotations(tas, runConfig);
-	        String jsonS = SerializationHelper.serializeToJson(cleansedAnnotations.get(0));
-	        PrintWriter writer = new PrintWriter("the-file-name.txt", "UTF-8");
-	        writer.write(jsonS);
-	        writer.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+            while (line != null) {
+                sb.append(line);
+                line = br.readLine();
+            }
+            everything = sb.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            TextAnnotation ta = SerializationHelper.deserializeFromJson(everything);
+            List<TextAnnotation> tas = new ArrayList<>();
+            tas.add(ta);
+            Configuration runConfig = new Configuration("", "", "", "Co-reference", "Gold Token", "", "");
+            List<TextAnnotation> cleansedAnnotations = Redactor.removeAnnotations(tas, runConfig);
+            String jsonS = SerializationHelper.serializeToJson(cleansedAnnotations.get(0));
+            PrintWriter writer = new PrintWriter("the-file-name.txt", "UTF-8");
+            writer.write(jsonS);
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     */
 }
