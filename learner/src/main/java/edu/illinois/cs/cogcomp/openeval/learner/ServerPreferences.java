@@ -1,5 +1,7 @@
+package edu.illinois.cs.cogcomp.openeval.learner;
+
 /**
- * Holds preferences a Server instance. This tells the core what will be the biggest batch to send.
+ * Holds preferences a edu.illinois.cs.cogcomp.openeval.learner.Server instance. This tells the core what will be the biggest batch to send.
  * It does not enforce the preferences, and if used outside of the Open-Eval system it might be ignored.
  */
 public class ServerPreferences {

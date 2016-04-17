@@ -1,3 +1,6 @@
+import edu.illinois.cs.cogcomp.openeval.learner.Server;
+import edu.illinois.cs.cogcomp.openeval.learner.ServerPreferences;
+
 import java.io.IOException;
 
 /**
