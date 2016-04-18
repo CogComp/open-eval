@@ -18,6 +18,7 @@ public class Redactor {
      * Only publicly visible method in the {@code Redactor} class. Given the task and task variant, 
      * it removes the appropriate Views and/or Relations. For the task variants "Raw Text" and 
      * "Sentence Boundaries", it removes all views except {@code SENTENCE} and {@code TOKENS}.
+     * 
      * @param textAnnotations: List of {@code TextAnnotation} objects.
      * @param runConfig: Configuration
      * @return List of redacted instances.
