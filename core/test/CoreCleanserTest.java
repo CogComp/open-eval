@@ -23,6 +23,7 @@ public class CoreCleanserTest {
         viewsToAdd = new String[]{ViewNames.POS, ViewNames.SENTENCE};
         requiredViews = Arrays.asList(new String[]{"SENTENCE"});
     }
+    /*
     @Test
     public void basicTest(){
         List<TextAnnotation> correct = new ArrayList<>();
@@ -48,5 +49,5 @@ public class CoreCleanserTest {
             Assert.assertTrue(cleanTA.hasView(ViewNames.SENTENCE));
             Assert.assertFalse(cleanTA.hasView(ViewNames.POS));
         }
-    }
+    } */
 }

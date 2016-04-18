@@ -64,7 +64,7 @@ public class Core {
             System.out.println("Could not connect to server");
             return new Job(settings.error);
         }
-        List<TextAnnotation> cleansedInstances =  cleanseInstances(correctInstances, settings.requiredViews);
+        List<TextAnnotation> cleansedInstances =  cleanseInstances(correctInstances, runConfig);
         if (cleansedInstances == null) {
             return new Job("Error in cleanser. Please check your requiredViews");
         }
@@ -75,13 +75,13 @@ public class Core {
         storeEvaluationIntoDb(evaluation.getEvaluationRecord(), record_id, isRunning);
     }
 
-	public static void evaluate(Evaluator evaluator, ClassificationTester eval,  TextAnnotation gold,
-			TextAnnotation predicted, String viewName) {
-		View goldView = gold.getView(viewName);
-		View predictedView = predicted.getView(viewName);
-		evaluator.setViews(goldView, predictedView);
-		evaluator.evaluate(eval);
-	}
+    public static void evaluate(Evaluator evaluator, ClassificationTester eval,  TextAnnotation gold,
+            TextAnnotation predicted, String viewName) {
+        View goldView = gold.getView(viewName);
+        View predictedView = predicted.getView(viewName);
+        evaluator.setViews(goldView, predictedView);
+        evaluator.evaluate(eval);
+    }
 
     /**
      * Cleanse the correct instances
@@ -90,10 +90,8 @@ public class Core {
      *            - The correct instances from the databse
      * @return - The cleansed instance
      */
-    public static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, List<String> requiredViews) {
-        if (requiredViews == null)
-            return null;
-        return Redactor.removeAnnotations(correctInstances, requiredViews);
+    public static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, Configuration runConfig) {
+        return Redactor.removeAnnotations(correctInstances, runConfig);
     }
 
     /**
