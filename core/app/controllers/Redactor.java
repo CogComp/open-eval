@@ -133,8 +133,6 @@ public class Redactor {
     
     /**
      * Removes all coreference relations from {@code COREF} View.
-     * @param uncleansedAnnotations
-     * @return
      */
     private static List<TextAnnotation> removeCoreferenceRelations(List<TextAnnotation> uncleansedAnnotations) {
         List<String> coreferenceViews = new ArrayList<>();
