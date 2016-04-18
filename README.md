@@ -1,6 +1,7 @@
 # OpenEval 
 
 [![Build Status](https://semaphoreci.com/api/v1/projects/4f27c2b5-9ce3-4fca-95a1-064b60600f44/589884/badge.svg)](https://semaphoreci.com/danyaljj/open-eval)
+[![Build Status](https://travis-ci.org/IllinoisCogComp/open-eval.svg?branch=master)](https://travis-ci.org/IllinoisCogComp/open-eval)
 
 - Project's [slack channel](https://cogcomp.slack.com/messages/open-eval/).
 

@@ -2,6 +2,8 @@
  * Created by Dhruv on 1/6/2016.
  */
 import controllers.Core;
+import edu.illinois.cs.cogcomp.openeval.learner.Server;
+import edu.illinois.cs.cogcomp.openeval.learner.ServerPreferences;
 import models.Job;
 import models.LearnerInstancesResponse;
 import models.LearnerInterface;
@@ -13,7 +15,6 @@ import models.LearnerSettings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import play.libs.ws.WSResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;

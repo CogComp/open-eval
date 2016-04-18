@@ -1,5 +1,9 @@
+package edu.illinois.cs.cogcomp.openeval.learner;
+
 import com.google.gson.*;
 import edu.illinois.cs.cogcomp.annotation.Annotator;
+import edu.illinois.cs.cogcomp.openeval.learner.InfoController;
+import edu.illinois.cs.cogcomp.openeval.learner.ServerPreferences;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.router.RouterNanoHTTPD;
 import org.apache.commons.io.IOUtils;
