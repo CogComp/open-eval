@@ -79,19 +79,23 @@ Here is how you can add the learner endpoint through Maven:
 Add the following repository to your pom.xml
 
 ```xml
-<repository>
-	<id>CogcompSoftware</id>
-	<name>CogcompSoftware</name>
-	<url>http://cogcomp.cs.illinois.edu/m2repo/</url>
-</repository>
+<repositories>
+	<repository>
+		<id>CogcompSoftware</id>
+		<name>CogcompSoftware</name>
+		<url>http://cogcomp.cs.illinois.edu/m2repo/</url>
+	</repository>
+</repositories>
 ```
 Add the following dependency to your pom.xml
 ```xml
-<dependency>
-	<groupId>edu.illinois.cs.cogcomp</groupId>
-	<artifactId>openeval-client_2.11</artifactId>
-	<version>0.1.2</version>
-</dependency>
+<dependencies>
+	<dependency>
+		<groupId>edu.illinois.cs.cogcomp</groupId>
+		<artifactId>openeval-client_2.11</artifactId>
+		<version>0.1.2</version>
+	</dependency>
+</dependencies>
 ```
 
 ## The `Server` class
