@@ -70,5 +70,4 @@ To deploy this application, you'll need to have an SQL database set up.  We've p
 
 ## How to add your own datasets
 
-**Placeholder**
- - put em in the database or somethin idk figure it out
+[TODO]
