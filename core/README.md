@@ -7,31 +7,29 @@ responding to incoming http requests, communicating with the database, and inter
 ## Basic definitions and components 
 
 Before we begin a discussion of the actual system, we must define a few terms.
-  • A **task** is a specific AI problem such as Part of Speech Tagging or Named-Entity Recognition.
-  • A **task-variant** is a modification to the task. For example, part-of-speech tagging can be done
+
+  - A **task** is a specific AI problem such as Part of Speech Tagging or Named-Entity Recognition.
+  - A **task-variant** is a modification to the task. For example, part-of-speech tagging can be done
 on tokenized sentences or on raw text.
-  • A **solver** is a piece of software developed to solve a target task. For example, for the task of
+  - A **solver** is a piece of software developed to solve a target task. For example, for the task of
 Part of Speech Tagging, the solver would receive sentences as input, and assign a part of speech
 to each word.
-  • A **dataset** is set of (input, output) pairs. In the part-of-speech tagging example, the input would
+  - A **dataset** is set of (input, output) pairs. In the part-of-speech tagging example, the input would
 be a sentence, and the output would be an ordered list of part-of-speech tags.
-  • A **configuration** is what the user runs. It encapsulates a task, a task-variant, a dataset.
-  • A **run** is specific instance of running the configuration. Users can run their configuration any
+  - A **configuration** is what the user runs. It encapsulates a task, a task-variant, a dataset.
+  - A **run** is specific instance of running the configuration. Users can run their configuration any
 number of items to see how their solver improves over time.
 
 Our project backend is implemented as a set of modules that pass around and process the instances
 of the dataset. These modules include: 
 
-  – **Database Interface:** Allows the backend to store and retrieve configurations, evaluation
-records and datasets in the MySQL database.
-  – **Redactors:** Processes the dataset and removes the values to be predicted.
-  – **Learner Endpoint:** A thin server provided to the client. This is run independently to allow
-our system to send test instances to the solver and retrieve solved instances back.
-  – **Learner Interface:** Sends test instances to the Learner Endpoint and retrieves predictions.
-  – **Evaluators:** Creates an evaluation (results of accuracy and efficiency) given the solver’s predictions
-and the original dataset.
-  – **Core:** Connects all other modules by passing the data between them
-
+  - **Database Interface:** Allows the backend to store and retrieve configurations, evaluation records and datasets in the MySQL database.
+  - **Redactors:** Processes the dataset and removes the values to be predicted.
+  - **Learner Endpoint:** A thin server provided to the client. This is run independently to allow our system to send test instances to the solver and retrieve solved instances back.
+  - **Learner Interface:** Sends test instances to the Learner Endpoint and retrieves predictions.
+  - **Evaluators:** Creates an evaluation (results of accuracy and efficiency) given the solver’s predictions and the original dataset.
+  - **Core:** Connects all other modules by passing the data between them
+  
 ## Technologies used 
   - The actual datasets are stored and passed around as lists of `TextAnnotation` objects. A `TextAnnotation`
 is a central data structure created by the IllinoisCogComp team that serves as a container for 
