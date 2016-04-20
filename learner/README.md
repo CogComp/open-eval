@@ -112,7 +112,8 @@ public static void main(String args[]) throws IOException {
     Annotator annotator = new ToyPosAnnotator();
     
     // We will have our server listen on port 5757 and pass it our toy annotator
-    Server server = new Server(5757, annotator);
+    // Tell the client to request batches with 50 instances
+    Server server = new Server(5757, new ServerPreferences(10000, 50), annotator);
 
     // We have no more work to do, so we will use the executeInstance method to start and keep our Server alive
     fi.iki.elonen.util.ServerRunner.executeInstance(server);
