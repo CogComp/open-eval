@@ -28,9 +28,9 @@ public class Redactor {
         sentenceBoundariesViewNames.add(ViewNames.SENTENCE);
         sentenceBoundariesViewNames.add(ViewNames.TOKENS);
 
-        if (runConfig.task_variant == "Raw Text") {
+        if (runConfig.task_variant.equals("Raw Text")) {
             return removeViews(textAnnotations, sentenceBoundariesViewNames);
-        } else if (runConfig.task_variant == "Sentence Boundaries") {
+        } else if (runConfig.task_variant.equals("Sentence Boundaries")) {
             return removeViews(textAnnotations, sentenceBoundariesViewNames);
         }    
         switch (runConfig.task) {
