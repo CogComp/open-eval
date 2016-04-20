@@ -5,7 +5,19 @@
 
 - Project's [slack channel](https://cogcomp.slack.com/messages/open-eval/).
 
-## Intructions 
+## About 
+Data scientists working on machine learning problems have historically had several issues
+relating to evaluating their systems: spending time individually developing
+evaluation frameworks for tasks, comparing results over time, and keeping evaluations
+consistent among teams. OpenEval is a system designed to address these problems.
+
+In developing this system we set out to build a centralized, easy-to-use platform for groups to
+evaluate their models. All the user needs to do to evaluate their solver is host it on a thin server,
+which we provide. Then, on the web interface, they need to select their desired task and dataset
+to test their solver. After their solver finishes processing the dataset, the user can view
+the results.
+
+## Modules  
 The project contains two main modules. 
 
  - The OpenEval core, which contains the main functionalities and the web app. To read more on details of core, visit [here](core/). 
