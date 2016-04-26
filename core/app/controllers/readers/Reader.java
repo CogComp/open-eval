@@ -86,6 +86,54 @@ public class Reader {
         return textAnnotations; 
     }
     
+    /** Specialized function to insert just 20% of the ACE-2005 nw and bn folders for Paul's class. 
+    */
+    public void insertDatasetACE(String corpusName, String datasetPath) {
+        ACEReader aceReaderNW;
+        ACEReader aceReaderBN;
+        String nw[] = {"nw"};
+        String bn[] = {"bn"};
+        
+        try {
+            aceReaderNW = new ACEReader(datasetPath, nw, false);
+            aceReaderBN = new ACEReader(datasetPath, bn, false);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        
+        Iterator taIteratorNW = aceReaderNW.iterator();
+        Iterator taIteratorBN = aceReaderBN.iterator();
+        
+        int sizeNW = 0; //Number of text annotations in NW folder.
+        int sizeBN = 0; //Number of text annotations in BN folder.
+       
+        List<TextAnnotation> textAnnotationsNW = new ArrayList<>();
+        while (taIteratorNW.hasNext()) {
+            TextAnnotation ta = (TextAnnotation) taIteratorNW.next();
+            textAnnotationsNW.add(ta);
+            sizeNW++;
+        }
+        
+        List<TextAnnotation> textAnnotationsBN = new ArrayList<>();
+        while (taIteratorBN.hasNext()) {
+            TextAnnotation ta = (TextAnnotation) taIteratorBN.next();
+            textAnnotationsBN.add(ta);
+            sizeBN++;
+        }
+       
+        List<TextAnnotation> textAnnotations = new ArrayList<>();
+        
+        for (int i = 0; i < (int)(sizeNW * .2); i++) {
+            textAnnotations.add(textAnnotationsNW.get(i));
+        }
+        
+        for (int i = 0; i < (int)(sizeBN * .2); i++) {
+            textAnnotations.add(textAnnotationsBN.get(i));
+        }
+        
+        insertIntoDatasets(corpusName);
+        storeTextAnnotations(corpusName, textAnnotations);
+    }
     
     /** Inserts a dataset into the MySQL database as a series of JSON TextAnnotations.
     */

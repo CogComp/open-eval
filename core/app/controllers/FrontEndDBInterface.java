@@ -178,7 +178,7 @@ public class FrontEndDBInterface {
     
     
     /** Stores the received configuration in the MySQL configurations table and taskvariants table. */
-    public void insertConfigToDB(String datasetName, String configName, String description, String evaluator, String taskType, String taskVariant, String teamName) {
+    public long insertConfigToDB(String datasetName, String configName, String description, String evaluator, String taskType, String taskVariant, String teamName) {
         try {            
             Connection conn = getConnection();
             
@@ -195,20 +195,26 @@ public class FrontEndDBInterface {
             stmt.setString(8, teamName);
             stmt.executeUpdate();
             
+            ResultSet idRS = stmt.getGeneratedKeys();
+            idRS.first();
+            long id = idRS.getLong(1);
+           
             conn.close();
+            return id;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
     
     /** Returns a list of all the configurations in the database to be displayed on landing page. */
-    public List<models.Configuration> getConfigList() {
+    public List<models.Configuration> getConfigList(String teamName) {
         try {
             Connection conn = getConnection();
             
-            String sql = "SELECT teamName, description, datasetName, taskType, taskVariant, evaluator, id FROM configurations ORDER BY lastUpdated DESC;";
+            String sql = "SELECT teamName, description, datasetName, taskType, taskVariant, evaluator, id FROM configurations WHERE team_name = ? ORDER BY lastUpdated DESC;";
            
             PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, teamName);
             ResultSet configList = stmt.executeQuery();
             
             List<models.Configuration> configs = new ArrayList<>();
