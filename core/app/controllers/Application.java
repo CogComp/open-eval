@@ -61,6 +61,7 @@ public class Application extends Controller {
     public Result index() {
         IndexViewModel viewModel = new IndexViewModel();
         viewModel.configurations = getConfigurations();
+        viewModel.user = request().username();
         return ok(index.render(viewModel));
     }
 
@@ -72,6 +73,7 @@ public class Application extends Controller {
     @Security.Authenticated(Secured.class)
     public Result addConfiguration() {
         AddConfigurationViewModel viewModel = new AddConfigurationViewModel();
+        viewModel.user = request().username();
 
         FrontEndDBInterface f = new FrontEndDBInterface();
 
@@ -129,8 +131,10 @@ public class Application extends Controller {
         return redirect("/configuration?conf=" + newConfigID);
     }
 
+    @Security.Authenticated(Secured.class)
     public Result configuration(String configuration_id) {
         RecipeViewModel viewModel = new RecipeViewModel();
+        viewModel.user = request().username();
         FrontEndDBInterface f = new FrontEndDBInterface();
         models.Configuration conf;
 
@@ -153,6 +157,7 @@ public class Application extends Controller {
             return this.authError();
         }
         AddRunViewModel viewModel = new AddRunViewModel();
+        viewModel.user = request().username();
 
         // should also get name passed through here
         viewModel.configuration_id = configuration_id;
@@ -199,6 +204,7 @@ public class Application extends Controller {
         Record rec = f.getRecordFromRecordID(Integer.parseInt(record_id));
         masterActor.tell(new SetUpJobMessage(conf_id, url, record_id, settings), masterActor);
         RecordViewModel viewModel = new RecordViewModel();
+        viewModel.user = request().username();
         viewModel.record = rec;
         return ok(record.render(viewModel));
     }
@@ -258,6 +264,7 @@ public class Application extends Controller {
     @Security.Authenticated(Secured.class)
     public Result record(String record_id) {
         RecordViewModel viewModel = new RecordViewModel();
+        viewModel.user = request().username();
         FrontEndDBInterface f = new FrontEndDBInterface();
         Record associated_record = f.getRecordFromRecordID(Integer.parseInt(record_id));
 
@@ -315,6 +322,7 @@ public class Application extends Controller {
 
     public Result login() {
         LoginViewModel viewModel = new LoginViewModel();
+        viewModel.user = request().username();
 
         viewModel.teamNames = getTeamNames();
 
@@ -330,6 +338,7 @@ public class Application extends Controller {
         String teamName = bindedForm.get("teamName");
 
         LoginViewModel viewModel = new LoginViewModel();
+        viewModel.user = request().username();
         viewModel.username = username;
         viewModel.teamNames = getTeamNames();
         viewModel.teamName = teamName;
