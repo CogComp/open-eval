@@ -1,7 +1,11 @@
 package models;
 
-public class BaseViewModel {
+public abstract class BaseViewModel {
 
     public String user;
+
+    public BaseViewModel() {
+        this.user = "";
+    }
     
 }
