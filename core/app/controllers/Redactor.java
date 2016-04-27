@@ -118,7 +118,7 @@ public class Redactor {
                 View view = textAnnotation.getView(viewName);
                 if (view instanceof PredicateArgumentView) {
                     PredicateArgumentView predicateArgumentView = (PredicateArgumentView) view;
-                    predicateArgumentView.removeAllRelations();
+                    //predicateArgumentView.removeAllRelations();
                     for (Constituent c : predicateArgumentView.getConstituents()) {
                         predicateArgumentView.removeConstituent(c);
                         int start = c.getStartSpan();
@@ -146,7 +146,7 @@ public class Redactor {
                 View view = textAnnotation.getView(viewName);
                 if (view instanceof CoreferenceView) {
                     CoreferenceView coreferenceView = (CoreferenceView) view;
-                    coreferenceView.removeAllRelations();
+                    //coreferenceView.removeAllRelations();
                     textAnnotation.addView(viewName, coreferenceView);
                     
                 }
