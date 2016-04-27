@@ -80,7 +80,7 @@ public class DBTest {
             /*Putting in a test configuration to see if it shows up in our configuration list.*/
             DriverManager.setLoginTimeout(2);
             Connection conn = DriverManager.getConnection(mysqlURL, username, password);
-            String sql = "INSERT INTO configurations (datasetName, teamName, description, evaluator, taskType) VALUES ('testDataset', 'testTeamName', 'testDescription', 'testEvaluator', 'testTaskType')";
+            String sql = "INSERT INTO configurations (datasetName, teamName, description, evaluator, taskType, team_name) VALUES ('testDataset', 'testConfigName', 'testDescription', 'testEvaluator', 'testTaskType', 'testTeamName')";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.executeUpdate();
             
@@ -95,7 +95,7 @@ public class DBTest {
             /*Seeing if the newly inserted configuration shows up in the configuration list.*/
             boolean inConfigList = false; 
             FrontEndDBInterface f = new FrontEndDBInterface();
-            List<models.Configuration> configList = f.getConfigList(); 
+            List<models.Configuration> configList = f.getConfigList("testTeamName"); 
             if (configList != null) {
                  for (int i = 0; i < configList.size(); i++) {
                     if (configList.get(i).configuration_id.equals(id)) {

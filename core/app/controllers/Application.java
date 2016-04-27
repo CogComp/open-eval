@@ -49,7 +49,7 @@ public class Application extends Controller {
         FrontEndDBInterface f = new FrontEndDBInterface();
         List<models.Configuration> configList;
         try {
-            configList = f.getConfigList();
+            configList = f.getConfigList("Dev");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -118,14 +118,15 @@ public class Application extends Controller {
         
         String evaluator = f.getEvaluator(taskName, taskVariant);
 
+        long newConfigID;
         try {
-            f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),
+            newConfigID = f.insertConfigToDB(bindedForm.get("dataset"), bindedForm.get("configurationname"),
                     bindedForm.get("description"), evaluator, taskName, taskVariant, teamName);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        return redirect("/");
+        return redirect("/configuration?conf=" + newConfigID);
     }
 
     public Result configuration(String configuration_id) {
@@ -299,14 +300,15 @@ public class Application extends Controller {
 
         teamNames.add("team NN1");
         teamNames.add("team NN2");
-        teamNames.add("team CRF1");
-        teamNames.add("team CRF2");
+        teamNames.add("team CCM1");
+        teamNames.add("team CCM2");
         teamNames.add("team Perc1");
         teamNames.add("team Perc2");
         teamNames.add("team SVM1");
         teamNames.add("team SVM2");
         teamNames.add("team Exp1");
         teamNames.add("team Exp2");
+        teamNames.add("Dev");
 
         return teamNames;
     }
