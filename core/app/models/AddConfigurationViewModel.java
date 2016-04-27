@@ -3,7 +3,7 @@ package models;
 import java.util.List;
 import java.util.Map;
 
-public class AddConfigurationViewModel {
+public class AddConfigurationViewModel extends BaseViewModel {
 
     public List<String> tasks;
     public Map<String,List<String>> datasets;

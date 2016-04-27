@@ -3,7 +3,7 @@ package models;
 import java.util.List;
 import java.util.Map;
 
-public class LoginViewModel {
+public class LoginViewModel extends BaseViewModel {
 
     public List<String> teamNames;
     public String teamName;

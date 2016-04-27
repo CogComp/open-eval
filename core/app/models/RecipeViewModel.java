@@ -1,6 +1,6 @@
 package models;
 
-public class RecipeViewModel {
+public class RecipeViewModel extends BaseViewModel {
 
     public Configuration configuration;
 

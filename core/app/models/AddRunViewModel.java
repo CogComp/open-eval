@@ -2,7 +2,7 @@ package models;
 
 import java.util.List;
 
-public class AddRunViewModel {
+public class AddRunViewModel extends BaseViewModel {
 
     public String configuration_id;
     public String default_url;

@@ -1,5 +1,5 @@
 package models;
 
-public class WelcomeViewModel {
+public class WelcomeViewModel extends BaseViewModel {
     
 }
