@@ -148,8 +148,6 @@ public class Application extends Controller {
         conf.records = records;
         viewModel.configuration = conf;
 
-        System.out.println(viewModel.user);
-
         return ok(recipe.render(viewModel));
     }
 
