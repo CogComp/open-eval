@@ -31,7 +31,6 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
 import edu.illinois.cs.cogcomp.nlp.utilities.POSUtils;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
