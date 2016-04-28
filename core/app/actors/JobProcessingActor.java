@@ -91,7 +91,6 @@ public class JobProcessingActor extends UntypedActor {
             System.out.println("Sending and recieving annotations:");
             try {
                 int maxBatchSize = learnerSettings.maxNumInstancesAccepted;
-                int killCheckCounter = 1;
                 for (int startIndex = 0; startIndex < unprocessedInstances.size(); startIndex+=maxBatchSize) {
                     int batchSize = Math.min(maxBatchSize, unprocessedInstances.size() - startIndex);
                     List<TextAnnotation> batch = makeBatch(unprocessedInstances, startIndex, batchSize);
@@ -104,7 +103,15 @@ public class JobProcessingActor extends UntypedActor {
                             for(int batchIndex = 0;batchIndex<batchSize;batchIndex++){
                                 if (learnerInstancesResponse.textAnnotations[batchIndex] != null){
                                     TextAnnotation goldInstance = goldInstances.get(batchStartIndex + batchIndex);
-                                    Core.evaluate(evaluator, eval, goldInstance, learnerInstancesResponse.textAnnotations[batchIndex], viewName);
+                                    try {
+                                        Core.evaluate(evaluator, eval, goldInstance, learnerInstancesResponse.textAnnotations[batchIndex], viewName);
+                                    }
+                                    catch(Exception e){
+                                        Core.storeResultsOfRunInDatabase(eval, record_id, false);
+                                        master.tell(new StatusUpdate(completed, skipped, total, record_id, eval, "Error in evaluator. Please check your returned View: "+viewName), getSelf());
+                                        master.tell(new StopRunMessage(record_id), master);
+                                        return;
+                                    }
                                     completed++;
                                 } else {
                                     skipped++;
@@ -121,15 +128,10 @@ public class JobProcessingActor extends UntypedActor {
                         }
                     });
                     response.get(learnerTimeout);
-                    if (killCheckCounter == 5) {
-	                    if (killCommandHasBeenSent()) {
-                            System.out.println("Exiting");
-                            Core.storeResultsOfRunInDatabase(eval, record_id, false);
-                            break;
-                        }
-                        killCheckCounter = 1;
-                    } else {
-                        killCheckCounter++;
+                    if (killCommandHasBeenSent()) {
+                        System.out.println("Exiting");
+                        Core.storeResultsOfRunInDatabase(eval, record_id, false);
+                        break;
                     }
                 }
             } catch (Exception ex) {
