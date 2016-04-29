@@ -135,6 +135,7 @@ public class Application extends Controller {
     public Result configuration(String configuration_id) {
         RecipeViewModel viewModel = new RecipeViewModel();
         viewModel.user = request().username();
+        viewModel.best_score = 0.0;
         FrontEndDBInterface f = new FrontEndDBInterface();
         models.Configuration conf;
 
