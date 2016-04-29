@@ -46,7 +46,7 @@ Your editor should look like the following.
 
 ## Part 3: Implement an `Annotator` and create a main method
 
-The `Annotator` is the interface through which the learner endpoint communicates with your machine learner. If you would like to learn more about this you can read more in the [learner documentation]. For this tutorial you can just create a java file in "src/main/java" called "ToyPosAnnotator.java". In this file copy the below code.
+The `Annotator` is the interface through which the learner endpoint communicates with your machine learner. If you would like to learn more about this you can read more in the [learner documentation](https://github.com/IllinoisCogComp/open-eval/tree/master/learner). For this tutorial you can just create a java file in "src/main/java" called "ToyPosAnnotator.java". In this file copy the below code.
 
 ```java
 import edu.illinois.cs.cogcomp.annotation.Annotator;
