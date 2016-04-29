@@ -122,4 +122,8 @@ Start your learner endpoint. Open a browser and go to the Open Eval site. Log in
 
 On the configurations page click the "Run" button. Enter in the URL printed by the learner endpoint. Please note, in order to use the Open Eval system, the server must be on the same network as your learner endpoint. This can be achived through a vpn. If you are using a vpn the URL printed out might not be accurate. In this case run ipconfig on windows or ifconfig on mac/linux and find your vpn ip address. In the create run form enter in your url in the following format: http://{ip}:{port}/.
 
+![alt text](images/eclipse6_new_run.png)
+
 If everything is successful you should see the progress bar start to increase gradually.
+
+![alt text](images/eclipse7_done.png)
