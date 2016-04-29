@@ -417,11 +417,7 @@
             .attr('stroke', 'green')
             .attr("d", line);
         }
-
-        f1_data.forEach(function(d) {
-          d.close = +'0.5';
-        });
-
+        
         svg.append("path")
           .datum(best_data)
           .attr("class", "line")
