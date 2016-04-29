@@ -105,8 +105,25 @@
           max_date = d;
         }
       }
+
+      @if(viewModel.best_score > 0.0) {
+        best_data = [
+          {
+            date : (parseDate(min_date)),
+            close: +@viewModel.best_score
+          },
+          {
+            date : (parseDate(max_date)),
+            close: +@viewModel.best_score
+          }
+        ];
+      } else {
+        best_data = [];
+      }
+
       min_date = min_date.substring(0, min_date.length - 2);
       max_date = max_date.substring(0, max_date.length - 2);
+
     </script>
     @header(viewModel)
     <ol class="breadcrumb">
@@ -400,6 +417,14 @@
             .attr('stroke', 'green')
             .attr("d", line);
         }
+        
+        svg.append("path")
+          .datum(best_data)
+          .attr("class", "line")
+          .attr('stroke', 'black')
+          .style("stroke-dasharray", ("3, 3"))
+          .attr("d", line);
+
       }
 
       function deleteGraph() {
