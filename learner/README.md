@@ -73,7 +73,7 @@ public class ToyPosAnnotator extends Annotator
 
 Here is how you can add the learner endpoint through sbt:
  - Add the following resolver: `"CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"`
- - Add the following dependency: `"edu.illinois.cs.cogcomp" % "openeval-client_2.11" % "0.1.2"`
+ - Add the following dependency: `"edu.illinois.cs.cogcomp" % "openeval-client_2.11" % "#version"`
 
 Here is how you can add the learner endpoint through Maven:
 
@@ -94,10 +94,12 @@ Add the following dependency to your pom.xml
 	<dependency>
 		<groupId>edu.illinois.cs.cogcomp</groupId>
 		<artifactId>openeval-client_2.11</artifactId>
-		<version>0.1.2</version>
+		<version>#version</version>
 	</dependency>
 </dependencies>
 ```
+
+where `#version` entry replaced with the version listed in this project's `build.sbt` file.
 
 ## The `Server` class
 
