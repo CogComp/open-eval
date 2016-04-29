@@ -50,7 +50,13 @@ public class Core {
     public static Job setUpJob(String conf_id, String url, String record_id) {
         Configuration runConfig = getConfigurationFromDb(conf_id);
 
-        List<TextAnnotation> correctInstances = getInstancesFromDb(runConfig);
+        List<TextAnnotation> correctInstances;
+        try {
+            correctInstances = getInstancesFromDb(runConfig);
+        }
+        catch(Exception e){
+            return new Job("Error retrieving dataset");
+        }
         System.out.println(url);
         LearnerInterface learner;
         try {
@@ -76,7 +82,7 @@ public class Core {
     }
 
     public static void evaluate(Evaluator evaluator, ClassificationTester eval,  TextAnnotation gold,
-            TextAnnotation predicted, String viewName) {
+            TextAnnotation predicted, String viewName) throws Exception {
         View goldView = gold.getView(viewName);
         View predictedView = predicted.getView(viewName);
         evaluator.setViews(goldView, predictedView);

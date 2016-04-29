@@ -4,10 +4,18 @@
 
 <html lang="en">
   <head>
+    <style type="text/css">
+      input {
+        width: 100%;
+      }
+      textarea {
+        width: 100%;
+      }
+    </style>
   </head>
   <body>
     <div class="body">
-      @header()
+      @header(viewModel)
       <ol class="breadcrumb">
         <li><a href="/">Open Eval</a></li>
         <li><a href="/configuration?conf=@viewModel.configuration_id">
@@ -21,7 +29,7 @@
       <p>This will run a job at the provided address and will create a new record.</p>
       <font color="red">@viewModel.error_message</font>
       <form action="submitRun" method="post" id="usrform">
-        <table class="table" style="width: 40%;">
+        <table class="table" style="width: 80%;">
           <thead>
             <tr>
               <th class="col-md-2"></th>

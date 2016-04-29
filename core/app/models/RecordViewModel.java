@@ -1,6 +1,6 @@
 package models;
 
-public class RecordViewModel {
+public class RecordViewModel extends BaseViewModel {
 
     public Record record;
 

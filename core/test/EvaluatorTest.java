@@ -36,7 +36,12 @@ public class EvaluatorTest {
         Evaluator evaluator = new ConstituentLabelingEvaluator();
         String viewName = ViewNames.POS;
         ClassificationTester eval = new ClassificationTester();
-        Core.evaluate(evaluator, eval, correctTextAnnotation, incorrectTextAnnotation, viewName);
+        try {
+            Core.evaluate(evaluator, eval, correctTextAnnotation, incorrectTextAnnotation, viewName);
+        }
+        catch(Exception e){
+            Assert.fail();
+        }
         Assert.assertTrue(eval.getEvaluationRecord().getGoldCount()>= 1);
         Assert.assertTrue(eval.getEvaluationRecord().getPredictedCount()>= 1);
     }
@@ -49,7 +54,12 @@ public class EvaluatorTest {
         for (int i = 0; i < 1000; i++) {
             TextAnnotation correctTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false);
             TextAnnotation incorrectTextAnnotation = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(viewsToAdd,false);
-            Core.evaluate(evaluator, eval, correctTextAnnotation, incorrectTextAnnotation, viewName);
+            try {
+                Core.evaluate(evaluator, eval, correctTextAnnotation, incorrectTextAnnotation, viewName);
+            }
+            catch(Exception e){
+                Assert.fail();
+            }
         }
         EvaluationRecord record = eval.getEvaluationRecord();
         Assert.assertTrue(record.getGoldCount()>=1000);

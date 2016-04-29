@@ -127,8 +127,9 @@ body {
     border: 8px;
     border-radius: 8px;
     padding: 2px;
-    bottom:10%;
-    background-color: rgba(255,255,255,.6);
+    position: absolute;
+    bottom:5%;
+    background-color: rgba(255,255,255,.7);
 }
 
 #loginButton {
@@ -136,7 +137,7 @@ body {
     margin-left: 42.5%;
     margin-right: 42.5%;
     width: 15%;
-    bottom:20%;
+    bottom:25%;
     opacity: 1;
 }
 
