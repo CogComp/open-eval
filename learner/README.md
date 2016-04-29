@@ -2,6 +2,8 @@
 
 The learner endpoint is built to be used alongside the [Open-Eval](https://github.com/IllinoisCogComp/open-eval) system. The Open-Eval system will test your learner and record previous runs in a central place. In order to do this it will send instances to your learner to label and send back. To ease this process we have built the learner endpoint, which will take care of most of these communications for you.
 
+_If you want to set up a project in eclipse or a similar IDE, follow this [tutorial](tutorials/eclipse.md)_
+
 # Background
 
 ## About `TextAnnotation`'s and `View`'s
@@ -31,7 +33,6 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
 import edu.illinois.cs.cogcomp.nlp.utilities.POSUtils;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
@@ -111,16 +112,24 @@ You can test to see if your `Server` is running by browsing to `localhost:<port>
 ### Example
 
 ```java
-public static void main(String args[]) throws IOException {
-    // Create the annotator
-    Annotator annotator = new ToyPosAnnotator();
-    
-    // We will have our server listen on port 5757 and pass it our toy annotator
-    // Tell the client to request batches with 50 instances
-    Server server = new Server(5757, new ServerPreferences(10000, 50), annotator);
+import java.io.IOException;
 
-    // We have no more work to do, so we will use the executeInstance method to start and keep our Server alive
-    fi.iki.elonen.util.ServerRunner.executeInstance(server);
+import edu.illinois.cs.cogcomp.annotation.Annotator;
+import edu.illinois.cs.cogcomp.openeval.learner.Server;
+import edu.illinois.cs.cogcomp.openeval.learner.ServerPreferences;
+
+public class Main {
+	public static void main(String args[]) throws IOException {
+	    // Create the annotator
+	    Annotator annotator = new ToyPosAnnotator();
+
+	    // We will have our server listen on port 5757 and pass it our toy annotator
+	    // Tell the client to request batches with 50 instances
+	    Server server = new Server(5757, new ServerPreferences(10000, 50), annotator);
+
+	    // We have no more work to do, so we will use the executeInstance method to start and keep our Server alive
+	    fi.iki.elonen.util.ServerRunner.executeInstance(server);
+	}
 }
 ```
 
