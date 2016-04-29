@@ -14,7 +14,7 @@ For more information and examples check the [illinois-core-utilities documentati
 
 ## The `Annotator` class
 
-The `Annotator` class must be extended in order for the `Server` to communicate with your learner. In super constructor you must specify the name of the `View` that your learner will be adding, and also any names of `View`'s that your learner requires. For example, if you are doing POS tagging, you will be adding the POS `View`. You may depend on receiving a token `View`. You would specify this, and any other `View` your require in the second parameter or the super constructor. Not all views will be provided, and if not available, the Open-Eval system will notify you.
+The `Annotator` class must be extended in order for the `Server` to communicate with your learner. In super constructor you must specify the name of the `View` that your learner will be adding, and also any names of `View`'s that your learner requires. For example, if you are doing POS tagging, you will be adding the POS `View`. You may depend on receiving a token `View`. You would specify this, and any other `View` your require in the second parameter or the super constructor. __Not all views will be provided__.
 
 The `Annotator` will receive instances by the `addView` method. You will receive a `TextAnnotation` object, which you must add the type of view you specified in the constructor.
 
@@ -40,7 +40,7 @@ public class ToyPosAnnotator extends Annotator
     public ToyPosAnnotator()
     {
         // The problem we are trying to solve is parts of speech (POS)
-        // The view we require is TOKENS
+        // The view we require is TOKENS, which is an avalible view for the data set we use
         super(ViewNames.POS, new String[] {ViewNames.TOKENS});
     }
 
