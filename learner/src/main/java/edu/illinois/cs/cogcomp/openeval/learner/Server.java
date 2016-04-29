@@ -59,7 +59,7 @@ public class Server extends RouterNanoHTTPD
     private void printListeningAddress() throws UnknownHostException {
         InetAddress address = getLocalAddress();
         int port  = this.getListeningPort();
-        System.out.println(String.format("Your learner endpoint is listening at address is http://%s:%d/", address.toString(), port));
+        System.out.println(String.format("Your learner endpoint is listening at http://%s:%d/", address.getHostAddress(), port));
     }
 
     private static InetAddress getLocalAddress(){
