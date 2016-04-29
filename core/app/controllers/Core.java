@@ -2,12 +2,14 @@ package controllers;
 
 import java.util.List;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
 import models.LearnerSettings;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import controllers.readers.POSReader;
+import controllers.readers.Reader;
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
@@ -30,12 +32,14 @@ public class Core {
      * Otherwise, it returns the info string returned by the learner server.
      */
     public static LearnerSettings testConnection(String url) {
-        LearnerInterface learner = new LearnerInterface(url);
-        LearnerSettings settings = learner.getInfo();
-        if (settings == null) {
-            System.out.println("Could not connect to server");
-            return null;
+        LearnerInterface learner;
+        try {
+            learner = new LearnerInterface(url);
         }
+        catch(Exception e){
+            return new LearnerSettings("You have entered an invalid url");
+        }
+        LearnerSettings settings = learner.getInfo();
         return settings;
     }
 
@@ -46,18 +50,29 @@ public class Core {
     public static Job setUpJob(String conf_id, String url, String record_id) {
         Configuration runConfig = getConfigurationFromDb(conf_id);
 
-        List<TextAnnotation> correctInstances = getInstancesFromDb(runConfig);
-        System.out.println(url);
-        LearnerInterface learner = new LearnerInterface(url);
-        LearnerSettings settings = learner.getInfo();
-        if (settings == null) {
-            System.out.println("Could not connect to server");
-            return null;
+        List<TextAnnotation> correctInstances;
+        try {
+            correctInstances = getInstancesFromDb(runConfig);
         }
-        List<TextAnnotation> cleansedInstances =  cleanseInstances(correctInstances, settings.requiredViews);
+        catch(Exception e){
+            return new Job("Error retrieving dataset");
+        }
+        System.out.println(url);
+        LearnerInterface learner;
+        try {
+            learner = new LearnerInterface(url);
+        }
+        catch(Exception e){
+            return new Job("Invalid url");
+        }
+        LearnerSettings settings = learner.getInfo();
+        if (settings.error != null) {
+            System.out.println("Could not connect to server");
+            return new Job(settings.error);
+        }
+        List<TextAnnotation> cleansedInstances =  cleanseInstances(correctInstances, runConfig);
         if (cleansedInstances == null) {
-            System.out.println("Error in cleanser");
-            return null;
+            return new Job("Error in cleanser. Please check your requiredViews");
         }
         return new Job(learner, cleansedInstances, correctInstances);
     }
@@ -66,27 +81,23 @@ public class Core {
         storeEvaluationIntoDb(evaluation.getEvaluationRecord(), record_id, isRunning);
     }
 
-	public static void evaluate(Evaluator evaluator, ClassificationTester eval,  TextAnnotation gold,
-			TextAnnotation predicted) {
-		View goldView = gold.getView(ViewNames.POS);
-		View predictedView = predicted.getView(ViewNames.POS);
-		evaluator.setViews(goldView, predictedView);
-		evaluator.evaluate(eval);
-	}
+    public static void evaluate(Evaluator evaluator, ClassificationTester eval,  TextAnnotation gold,
+            TextAnnotation predicted, String viewName) throws Exception {
+        View goldView = gold.getView(viewName);
+        View predictedView = predicted.getView(viewName);
+        evaluator.setViews(goldView, predictedView);
+        evaluator.evaluate(eval);
+    }
 
     /**
      * Cleanse the correct instances
      *
      * @param correctInstances
      *            - The correct instances from the databse
-     * @param jsonInfo
-     *            - The information given by the learner
      * @return - The cleansed instance
      */
-    public static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, List<String> requiredViews) {
-        if (requiredViews == null)
-            return null;
-        return Redactor.removeAnnotations(correctInstances, requiredViews);
+    public static List<TextAnnotation> cleanseInstances(List<TextAnnotation> correctInstances, Configuration runConfig) {
+        return Redactor.removeAnnotations(correctInstances, runConfig);
     }
 
     /**
@@ -102,18 +113,24 @@ public class Core {
         return config;
     }
     
-    public static Evaluator getEvaluator(String conf_id) {
+    public static Evaluator getEvaluator(String conf_id) throws Exception{
+        Config conf = ConfigFactory.load();
         Configuration runConfig = getConfigurationFromDb(conf_id);
-        Evaluator evaluator = null;
-        
-        switch (runConfig.evaluator) {
-            case "Constituent Labeling": 
-                evaluator = new ConstituentLabelingEvaluator();
-                break;
-        }
-        
-        return evaluator;
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        String evaluator = conf.getString("evaluator.root")+f.getEvaluator(runConfig.task, runConfig.task_variant);
+        System.out.println("Evaluator: "+evaluator);
+        Class<?> cls = Class.forName(evaluator);
+        return (Evaluator)cls.newInstance();
     }
+
+    public static String getEvaluatorView(String conf_id) {
+        Configuration runConfig = getConfigurationFromDb(conf_id);
+        FrontEndDBInterface f = new FrontEndDBInterface();
+        String viewName = f.getEvaluatorView(runConfig.task);
+        System.out.println("View: "+viewName);
+        return viewName;
+    }
+
 
     /**
      * Retrieve a stored dataset from the database
@@ -123,9 +140,9 @@ public class Core {
      * @return - list of TextAnnotation instances from the database
      */
     private static List<TextAnnotation> getInstancesFromDb(Configuration runConfig) {
-        POSReader posReader = new POSReader();
+        Reader reader = new Reader();
         System.out.println("Retrieving instances from db");
-        List<TextAnnotation> TextAnnotations = posReader.getTextAnnotationsFromDB(runConfig.dataset);
+        List<TextAnnotation> TextAnnotations = reader.getTextAnnotationsFromDB(runConfig.dataset);
         return TextAnnotations;
     }
 

@@ -1,3 +1,5 @@
+package edu.illinois.cs.cogcomp.openeval.learner;
+
 import edu.illinois.cs.cogcomp.annotation.Annotator;
 import fi.iki.elonen.router.RouterNanoHTTPD;
 
@@ -24,7 +26,7 @@ public class Server extends RouterNanoHTTPD
     /**
      * Creates a server that is ready to bind to the port and use annotator. This does not start the server.
      * @param port The port to bind to
-     * @param serverPreferences The settings of the Server instance
+     * @param serverPreferences The settings of the edu.illinois.cs.cogcomp.openeval.learner.Server instance
      * @param annotator The annotator that represents your learner.
      * @throws IOException
      */

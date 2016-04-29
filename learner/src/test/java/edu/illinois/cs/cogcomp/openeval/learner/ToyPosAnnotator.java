@@ -1,3 +1,5 @@
+package edu.illinois.cs.cogcomp.openeval.learner;
+
 import edu.illinois.cs.cogcomp.annotation.Annotator;
 import edu.illinois.cs.cogcomp.annotation.AnnotatorException;
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
@@ -49,7 +51,7 @@ public class ToyPosAnnotator extends Annotator
         ServerPreferences serverPreferences = new ServerPreferences(1000000, 25);
         Server server = new Server(5757, serverPreferences, annotator);
 
-        // We have no more work to do, so we will use the executeInstance method to start and keep our Server alive
+        // We have no more work to do, so we will use the executeInstance method to start and keep our edu.illinois.cs.cogcomp.openeval.learner.Server alive
         fi.iki.elonen.util.ServerRunner.executeInstance(server);
     }
 }

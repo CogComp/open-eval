@@ -63,19 +63,34 @@ public class JobProcessingActor extends UntypedActor {
             this.url = jobInfo.getUrl();
             LearnerSettings learnerSettings = jobInfo.getLearnerSettings();
             Job job = Core.setUpJob(conf_id, url, record_id);
-            Evaluator evaluator = Core.getEvaluator(conf_id);
             ClassificationTester eval = new ClassificationTester();
+            Evaluator evaluator;
+            String viewName;
+            try {
+                evaluator = Core.getEvaluator(conf_id);
+                viewName = Core.getEvaluatorView(conf_id);
+            }
+            catch(Exception e){
+                master.tell(new StatusUpdate(0, 0, 0, record_id, eval, "Error receiving evaluator from database"), getSelf());
+                Core.storeResultsOfRunInDatabase(eval, record_id, false);
+                return;
+            }
+            if(job.getError() != null){
+                master.tell(new StatusUpdate(0, 0, 0, record_id, eval, job.getError()), getSelf());
+                Core.storeResultsOfRunInDatabase(eval, record_id, false);
+                return;
+            }
             List<TextAnnotation> unprocessedInstances = job.getUnprocessedInstances();
             List<TextAnnotation> goldInstances = job.getGoldInstances();
             completed = 0;
             skipped = 0;
             total = unprocessedInstances.size();
+            master.tell(new StatusUpdate(completed, skipped, total, record_id, eval, null), getSelf());
 
             System.out.println("Created Job Processor Worker");
             System.out.println("Sending and recieving annotations:");
             try {
                 int maxBatchSize = learnerSettings.maxNumInstancesAccepted;
-                int killCheckCounter = 1;
                 for (int startIndex = 0; startIndex < unprocessedInstances.size(); startIndex+=maxBatchSize) {
                     int batchSize = Math.min(maxBatchSize, unprocessedInstances.size() - startIndex);
                     List<TextAnnotation> batch = makeBatch(unprocessedInstances, startIndex, batchSize);
@@ -88,7 +103,15 @@ public class JobProcessingActor extends UntypedActor {
                             for(int batchIndex = 0;batchIndex<batchSize;batchIndex++){
                                 if (learnerInstancesResponse.textAnnotations[batchIndex] != null){
                                     TextAnnotation goldInstance = goldInstances.get(batchStartIndex + batchIndex);
-                                    Core.evaluate(evaluator, eval, goldInstance, learnerInstancesResponse.textAnnotations[batchIndex]);
+                                    try {
+                                        Core.evaluate(evaluator, eval, goldInstance, learnerInstancesResponse.textAnnotations[batchIndex], viewName);
+                                    }
+                                    catch(Exception e){
+                                        Core.storeResultsOfRunInDatabase(eval, record_id, false);
+                                        master.tell(new StatusUpdate(completed, skipped, total, record_id, eval, "Error in evaluator. Please check your returned View: "+viewName), getSelf());
+                                        master.tell(new StopRunMessage(record_id), master);
+                                        return;
+                                    }
                                     completed++;
                                 } else {
                                     skipped++;
@@ -100,23 +123,20 @@ public class JobProcessingActor extends UntypedActor {
                             else
                                 Core.storeResultsOfRunInDatabase(eval, record_id, false);
 
-                            master.tell(new StatusUpdate(completed, skipped, total, record_id), getSelf());
+                            master.tell(new StatusUpdate(completed, skipped, total, record_id, eval, null), getSelf());
                             System.out.println(String.format("Completed batch of size %s", batchSize));
                         }
                     });
                     response.get(learnerTimeout);
-                    if (killCheckCounter == 5) {
-	                    if (killCommandHasBeenSent()) {
-                            System.out.println("Exiting");
-                            break;
-                        }
-                        killCheckCounter = 1;
-                    } else {
-                        killCheckCounter++;
+                    if (killCommandHasBeenSent()) {
+                        System.out.println("Exiting");
+                        Core.storeResultsOfRunInDatabase(eval, record_id, false);
+                        break;
                     }
                 }
             } catch (Exception ex) {
-                System.out.println("Error sending and receiving text annotations" + ex.getMessage());
+                System.out.println("Err sending and receiving text annotations" + ex.getMessage());
+                master.tell(new StatusUpdate(completed, skipped, total, record_id, eval, "Error receiving and sending text annotations"), getSelf());
                 Core.storeResultsOfRunInDatabase(eval, record_id, false);
             }
             System.out.println("Done");

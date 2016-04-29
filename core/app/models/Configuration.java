@@ -2,10 +2,6 @@ package models;
 
 import java.util.List;
 
-
-/**
- * Class to model a configuration
- */
 public class Configuration {
 
     public String configuration_name;
@@ -13,7 +9,6 @@ public class Configuration {
     public String dataset;
     public List<Record> records;
 
-    /*These should eventually not be strings, but im not positive how all of it is set up*/
     public String task;
     public String task_variant;
     public String evaluator;

@@ -6,13 +6,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Iterator;
 
 import controllers.FrontEndDBInterface;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
 import edu.illinois.cs.cogcomp.nlp.corpusreaders.PennTreebankPOSReader; 
+import edu.illinois.cs.cogcomp.nlp.corpusreaders.ACEReader;
 
-public class POSReader {
+public class Reader {
     private int queryOffset = 0;
     
      /** Given a dataset name, this will return a List<TextAnnotation> from the database. 
@@ -84,11 +86,59 @@ public class POSReader {
         return textAnnotations; 
     }
     
+    /** Specialized function to insert just 20% of the ACE-2005 nw and bn folders for Paul's class. 
+    */
+    public void insertDatasetACE(String corpusName, String datasetPath) {
+        ACEReader aceReaderNW;
+        ACEReader aceReaderBN;
+        String nw[] = {"nw"};
+        String bn[] = {"bn"};
+        
+        try {
+            aceReaderNW = new ACEReader(datasetPath, nw, false);
+            aceReaderBN = new ACEReader(datasetPath, bn, false);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        
+        Iterator taIteratorNW = aceReaderNW.iterator();
+        Iterator taIteratorBN = aceReaderBN.iterator();
+        
+        int sizeNW = 0; //Number of text annotations in NW folder.
+        int sizeBN = 0; //Number of text annotations in BN folder.
+       
+        List<TextAnnotation> textAnnotationsNW = new ArrayList<>();
+        while (taIteratorNW.hasNext()) {
+            TextAnnotation ta = (TextAnnotation) taIteratorNW.next();
+            textAnnotationsNW.add(ta);
+            sizeNW++;
+        }
+        
+        List<TextAnnotation> textAnnotationsBN = new ArrayList<>();
+        while (taIteratorBN.hasNext()) {
+            TextAnnotation ta = (TextAnnotation) taIteratorBN.next();
+            textAnnotationsBN.add(ta);
+            sizeBN++;
+        }
+       
+        List<TextAnnotation> textAnnotations = new ArrayList<>();
+        
+        for (int i = 0; i < (int)(sizeNW * .2); i++) {
+            textAnnotations.add(textAnnotationsNW.get(i));
+        }
+        
+        for (int i = 0; i < (int)(sizeBN * .2); i++) {
+            textAnnotations.add(textAnnotationsBN.get(i));
+        }
+        
+        insertIntoDatasets(corpusName);
+        storeTextAnnotations(corpusName, textAnnotations);
+    }
     
     /** Inserts a dataset into the MySQL database as a series of JSON TextAnnotations.
     */
-    public List<TextAnnotation> insertDatasetIntoDB(String corpusName, String datasetPath) {
-        List<TextAnnotation> textAnnotations = getTextAnnotations(corpusName, datasetPath); 
+    public List<TextAnnotation> insertDatasetIntoDB(String corpusName, String datasetPath, String dType) {
+        List<TextAnnotation> textAnnotations = getTextAnnotations(corpusName, datasetPath, dType); 
         insertIntoDatasets(corpusName); 
         storeTextAnnotations(corpusName, textAnnotations);   
         return textAnnotations; 
@@ -96,10 +146,28 @@ public class POSReader {
     
     /** Gets a List of TextAnnotations given the name of the corpus and the path to the dataset. 
     */
-    private List<TextAnnotation> getTextAnnotations(String corpusName, String datasetPath) {
-        PennTreebankPOSReader posReader = new PennTreebankPOSReader(corpusName); 
-        posReader.readFile(datasetPath);
-        List<TextAnnotation> textAnnotations = posReader.getTextAnnotations(); 
+    private List<TextAnnotation> getTextAnnotations(String corpusName, String datasetPath, String dType) {
+        List<TextAnnotation> textAnnotations = null;
+        if (dType.equals("POS")) {
+            PennTreebankPOSReader posReader = new PennTreebankPOSReader(corpusName); 
+            posReader.readFile(datasetPath);
+            textAnnotations = posReader.getTextAnnotations(); 
+        }
+        else if (dType.equals("ACE")) {
+            ACEReader aceReader;
+            try {
+                aceReader = new ACEReader(datasetPath, false);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            Iterator taIterator = aceReader.iterator();
+           
+            textAnnotations = new ArrayList<>();
+            while (taIterator.hasNext()) {
+                TextAnnotation ta = (TextAnnotation) taIterator.next();
+                textAnnotations.add(ta);
+            }
+        }
         return textAnnotations; 
     }
     
@@ -108,7 +176,7 @@ public class POSReader {
     private void insertIntoDatasets(String corpusName) {
         FrontEndDBInterface f = new FrontEndDBInterface(); 
         Connection conn = f.getConnection(); 
-        String sql = "INSERT INTO datasets VALUES (?);";
+        String sql = "INSERT INTO datasets VALUES (?, 'Part of Speech Tagging') ;";
         
         try {
             PreparedStatement stmt = conn.prepareStatement(sql);
