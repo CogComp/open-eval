@@ -35,10 +35,12 @@ Now that your project is created, we can add the repository and dependency so we
     <dependency>
         <groupId>edu.illinois.cs.cogcomp</groupId>
         <artifactId>openeval-client_2.11</artifactId>
-        <version>0.1.2</version>
+        <version>#version</version>
     </dependency>
 </dependencies>
 ```
+
+where `#version` entry replaced with the version listed in this project's `build.sbt` file.
 
 Your editor should look like the following.
 
