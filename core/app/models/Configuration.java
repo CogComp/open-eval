@@ -16,6 +16,7 @@ public class Configuration {
 
 
     public Configuration(String configuration_name, String description, String dataset, String task, String task_variant, String evaluator, String configuration_id) {
+        super();
         this.configuration_name = configuration_name;
         this.description = description;
         this.dataset = dataset;
