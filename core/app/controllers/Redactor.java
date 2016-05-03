@@ -17,23 +17,26 @@ import models.Configuration;
 /**
  * This class contains several static methods for removing information (e.g. views or labels)
  * from {@code TextAnnotations} objects.
+ * 
+ *  TODO: Extract tasks and task variants to enumerators.
+ *  TODO: Generalize. Much of this was hard-coded to fit the specific needs of the CS546 class.
  *  
  */
 public class Redactor {
-	
-	/**
-	 * List of view names to be kept when the task variant is "Sentence Boundaries".
-	 */
-	private static final List<String> sentenceBoundariesViewNames = Arrays.asList(ViewNames.SENTENCE, ViewNames.TOKENS);
-	
-	private static final String NER_VIEW_NAME = "NER_GOLD_EXTENT_SPAN";
-	
-	private static final String RELATION_EXTRACTION_VIEW_NAME = "RELATIONVIEW";
-	
-	private static final String RAW_TEXT = "Raw Text";
-	
-	private static final String SENTENCE_BOUNDARIES = "Sentence Boundaries";
-		
+    
+    /**
+     * List of view names to be kept when the task variant is "Sentence Boundaries".
+     */
+    private static final List<String> sentenceBoundariesViewNames = Arrays.asList(ViewNames.SENTENCE, ViewNames.TOKENS);
+    
+    public static final String NER_VIEW_NAME = "NER_GOLD_EXTENT_SPAN";
+    
+    public static final String RELATION_EXTRACTION_VIEW_NAME = "RELATIONVIEW";
+    
+    public static final String RAW_TEXT = "Raw Text";
+    
+    public static final String SENTENCE_BOUNDARIES = "Sentence Boundaries";
+        
     /**
      * Only publicly visible method in the {@code Redactor} class. Given the task and task variant
      * (members of the {@code Configuration} object, it removes the appropriate Views and/or Relations.
