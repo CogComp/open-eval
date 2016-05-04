@@ -76,7 +76,7 @@ public class LearnerInterface {
 			@Override
 			public LearnerInstancesResponse apply() throws Throwable {
 				Promise<WSResponse> jsonPromise = instancePoster.post(stringBuilder.toString());
-				WSResponse response = jsonPromise.get(50000);
+				WSResponse response = jsonPromise.get(timeout);
 
 				TextAnnotation[] results = new TextAnnotation[textAnnotations.size()];
 				String[] errors = new String[textAnnotations.size()];
