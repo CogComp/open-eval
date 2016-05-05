@@ -1,4 +1,4 @@
-val cogcompNLPVersion = "3.0.30"
+val cogcompNLPVersion = "3.0.37"
 lazy val root = (project in file(".")).
   aggregate(core, learner)
 
