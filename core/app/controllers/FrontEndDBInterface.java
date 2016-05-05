@@ -628,15 +628,19 @@ public class FrontEndDBInterface {
     public String getEvaluatorView(String task, String taskVariant) {
         try {
             Connection conn = getConnection();
+            String evaluatorView = "";
             
             String sql = "SELECT evaluatorView FROM tasks WHERE name = ? AND task_variant = ?;";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, task);
             stmt.setString(2, taskVariant);
             ResultSet evaluatorViewRS = stmt.executeQuery();
-            evaluatorViewRS.first();
-            String evaluatorView = evaluatorViewRS.getString(1);
             
+             if (evaluatorViewRS.isBeforeFirst()) {
+                evaluatorViewRS.first();
+                evaluatorView = evaluatorViewRS.getString(1);
+            }
+       
             conn.close();
             return evaluatorView;
         } catch (Exception e) {
