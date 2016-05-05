@@ -85,8 +85,7 @@ public class Core {
             TextAnnotation predicted, String viewName) throws Exception {
         View goldView = gold.getView(viewName);
         View predictedView = predicted.getView(viewName);
-        evaluator.setViews(goldView, predictedView);
-        evaluator.evaluate(eval);
+        evaluator.evaluate(eval, goldView, predictedView);
     }
 
     /**
