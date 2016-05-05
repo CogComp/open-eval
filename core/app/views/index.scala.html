@@ -128,14 +128,15 @@
 <pre>&lt;<span class="pl-ent">dependency</span>&gt;
     &lt;<span class="pl-ent">groupId</span>&gt;edu.illinois.cs.cogcomp&lt;/<span class="pl-ent">groupId</span>&gt;
     &lt;<span class="pl-ent">artifactId</span>&gt;openeval-client_2.11&lt;/<span class="pl-ent">artifactId</span>&gt;
-    &lt;<span class="pl-ent">version</span>&gt;0.1.2&lt;/<span class="pl-ent">version</span>&gt;
+    &lt;<span class="pl-ent">version</span>&gt;#version&lt;/<span class="pl-ent">version</span>&gt;
 &lt;/<span class="pl-ent">dependency</span>&gt;</pre></div> 
                                 <p>Or run through sbt by</p>
                                 <ul>
                                   <li>Add the following resolver: <div class="highlight highlight-text-xml">"CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"</div></li>
-                                  <li>Add the following dependency: <div class="highlight highlight-text-xml">"edu.illinois.cs.cogcomp" % "openeval-client_2.11" % "version"</div></li>
+                                  <li>Add the following dependency: <div class="highlight highlight-text-xml">"edu.illinois.cs.cogcomp" % "openeval-client_2.11" % "#version"</div></li>
                                 </ul>
                               </li>
+                                  where `#version` entry replaced with the version listed in this project's `build.sbt` file.
                               <li>Run <a href="/serve.sh">serve.sh</a> or <a href="/serve.bet">serve.bat</a></li>
                               <li>Start a new run from configuration page to start the job</li>
                             </ol>

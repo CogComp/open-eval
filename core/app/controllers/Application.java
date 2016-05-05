@@ -149,7 +149,9 @@ public class Application extends Controller {
         RecipeViewModel viewModel = new RecipeViewModel();
         viewModel.user = request().username();
         viewModel.best_score = 0.0;
+
         FrontEndDBInterface f = new FrontEndDBInterface();
+        viewModel.teamName = f.getTeamnameFromUsername(viewModel.user);
         models.Configuration conf;
 
         try {
