@@ -70,7 +70,7 @@ public class FrontEndDBInterface {
             bw.write(textAnnotationStr);
             bw.close();
         } catch (IOException e) {
-            
+        
         }
     }
     
