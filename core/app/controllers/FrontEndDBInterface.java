@@ -494,7 +494,7 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection();
             
-            String sql = "SELECT name FROM tasks;";
+            String sql = "SELECT DISTINCT name FROM tasks;";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet tasksRS = stmt.executeQuery();
             
