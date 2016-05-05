@@ -28,6 +28,12 @@ import javax.inject.*;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+
+
+import play.Logger;
+import controllers.readers.Reader;
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+
 import static akka.pattern.Patterns.ask;
 
 @Singleton
@@ -45,11 +51,11 @@ public class Application extends Controller {
         masterActor = system.actorOf(MasterActor.props);
     }
 
-    private List<models.Configuration> getConfigurations(String teamName) {
+    private List<models.Configuration> getConfigurations(String username) {
         FrontEndDBInterface f = new FrontEndDBInterface();
         List<models.Configuration> configList;
         try {
-            configList = f.getConfigList(teamName);
+            configList = f.getConfigList(f.getTeamnameFromUsername(username));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -58,12 +64,17 @@ public class Application extends Controller {
 
     // eventually things should all be seperated into a class, and this should be at the class level
     @Security.Authenticated(Secured.class)
-    public Result index() {
+    public Result index() {        
+        /*
+        Reader r = new Reader();
+        List<TextAnnotation> tas = r.insertDatasetACENWBN("ace-2005-nw-bn", "C:\\Users\\Deepak\\Desktop\\English");
+        Logger.info("Size of tas: " + tas.size());
+        */
+       
+        
         IndexViewModel viewModel = new IndexViewModel();
+        viewModel.configurations = getConfigurations(request().username());
         viewModel.user = request().username();
-        FrontEndDBInterface f = new FrontEndDBInterface();
-        String teamName = f.getTeamnameFromUsername(viewModel.user);
-        viewModel.configurations = getConfigurations(teamName);
         return ok(index.render(viewModel));
     }
 
@@ -137,6 +148,7 @@ public class Application extends Controller {
     public Result configuration(String configuration_id) {
         RecipeViewModel viewModel = new RecipeViewModel();
         viewModel.user = request().username();
+        viewModel.best_score = 0.0;
         FrontEndDBInterface f = new FrontEndDBInterface();
         models.Configuration conf;
 
