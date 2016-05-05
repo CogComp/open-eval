@@ -11,6 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.security.MessageDigest;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -39,6 +44,34 @@ public class FrontEndDBInterface {
     	username = conf.getString("db.default.username");
     	password = conf.getString("db.default.password");
     	timeout = conf.getInt("db.default.timeout");
+    }
+    
+    public void getTextAnnotation(String dataset, String destPath) {        
+        String textAnnotationStr;
+        try {
+            Connection conn = getConnection();
+            String sql = "SELECT textAnnotation FROM textannotations where dataset_name = ? LIMIT 1";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, dataset);
+            ResultSet taRS = stmt.executeQuery();
+            taRS.first();
+            textAnnotationStr = taRS.getString(1);
+            
+            conn.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+      
+        try {
+            File file = new File(destPath);
+            
+            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(textAnnotationStr);
+            bw.close();
+        } catch (IOException e) {
+            
+        }
     }
     
     /**----------------------USER & TEAM DB FUNCTIONS-------------------------------------------*/
@@ -242,9 +275,11 @@ public class FrontEndDBInterface {
             ResultSet configInfoList = insertStmt.executeQuery();
             configInfoList.next();
             
+            String evaluatorView = getEvaluatorView(configInfoList.getString(4), configInfoList.getString(5));
+            
             /*Return information about configuration.*/
             models.Configuration config = new models.Configuration(configInfoList.getString(1), configInfoList.getString(2), configInfoList.getString(3), configInfoList.getString(4),
-                configInfoList.getString(5), configInfoList.getString(6), Integer.toString(configInfoList.getInt(7)));
+                configInfoList.getString(5), configInfoList.getString(6), Integer.toString(configInfoList.getInt(7)), evaluatorView);
             connection.close(); 
             return config; 
         } catch (Exception e) {
@@ -523,6 +558,8 @@ public class FrontEndDBInterface {
     
     /**Gets the evaluator, which is determined by a task and a task-variant.*/
     public String getEvaluator(String taskName, String taskVariant) {
+        String evaluator = "";
+        
         try {
             Connection conn = getConnection();
             System.out.println(taskName+", "+taskVariant);
@@ -531,8 +568,12 @@ public class FrontEndDBInterface {
             stmt.setString(1, taskName);
             stmt.setString(2, taskVariant);
             ResultSet evaluatorRS = stmt.executeQuery();
-            evaluatorRS.first();
-            String evaluator = evaluatorRS.getString(1);
+            
+            if (evaluatorRS.isBeforeFirst()) {
+                evaluatorRS.first();
+                evaluator = evaluatorRS.getString(1);
+            }
+           
             
             conn.close();
             return evaluator;
@@ -584,13 +625,14 @@ public class FrontEndDBInterface {
         
     }
     
-    public String getEvaluatorView(String task) {
+    public String getEvaluatorView(String task, String taskVariant) {
         try {
             Connection conn = getConnection();
             
-            String sql = "SELECT evaluatorView FROM tasks WHERE name = ?;";
+            String sql = "SELECT evaluatorView FROM tasks WHERE name = ? AND task_variant = ?;";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, task);
+            stmt.setString(2, taskVariant);
             ResultSet evaluatorViewRS = stmt.executeQuery();
             evaluatorViewRS.first();
             String evaluatorView = evaluatorViewRS.getString(1);
