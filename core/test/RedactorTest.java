@@ -68,16 +68,16 @@ public class RedactorTest {
     public void removeNerLabelsTest() {
         // First, make sure the supplied file actually contains the NER View.
         for (TextAnnotation ta : aceTextAnnotations) {
-            String message = Redactor.NER_VIEW_NAME + " not found in " + ACE_DATA_FILENAME  + ".";
-            Assert.assertNotNull(message, ta.getView(Redactor.NER_VIEW_NAME));
+            String message = ViewNames.NER_ACE_COARSE_EXTENT + " not found in " + ACE_DATA_FILENAME  + ".";
+            Assert.assertNotNull(message, ta.getView(ViewNames.NER_ACE_COARSE_EXTENT));
         }
         
-        Configuration runConfig = new Configuration("", "", "", "Named Entity Recognition", "Gold Tokens", "", "");
+        Configuration runConfig = new Configuration("", "", "", "Named Entity Recognition", Redactor.GOLD_MENTIONS_EXTENT_COARSE, "", "");
         List<TextAnnotation> cleansedAnnotations = Redactor.removeAnnotations(aceTextAnnotations, runConfig);
         for (TextAnnotation ta: cleansedAnnotations) {
             // Ensure the NER view name was not removed.
-            View nerView = ta.getView(Redactor.NER_VIEW_NAME);
-            Assert.assertNotNull(Redactor.NER_VIEW_NAME + " erroneously removed", nerView);
+            View nerView = ta.getView(ViewNames.NER_ACE_COARSE_EXTENT);
+            Assert.assertNotNull(ViewNames.NER_ACE_COARSE_EXTENT + " erroneously removed", nerView);
 
             // Make sure all constituent labels have been removed.
             for (Constituent c : nerView.getConstituents()) {
@@ -87,23 +87,23 @@ public class RedactorTest {
     }
     
     /**
-     * Fails if the {@code Redactor.RELATION_EXTRACTION_VIEW_NAME} does not exist, it was removed by the {@code Redactor},
+     * Fails if the {@code ViewNames.RELATION_ACE_COARSE_EXTENT} does not exist, it was removed by the {@code Redactor},
      * the {@code Relation}s were not removed, or the {@code Constituent} labels were not removed.
      */
     @Test
     public void relationExtractionTest() {
         // First, make sure the supplied file actually contains the relation extraction view.
         for (TextAnnotation ta : aceTextAnnotations) {
-            String message = Redactor.RELATION_EXTRACTION_VIEW_NAME + " not found in " + ACE_DATA_FILENAME + ".";
-            Assert.assertNotNull(message, ta.getView(Redactor.RELATION_EXTRACTION_VIEW_NAME));
+            String message = ViewNames.RELATION_ACE_COARSE_EXTENT + " not found in " + ACE_DATA_FILENAME + ".";
+            Assert.assertNotNull(message, ta.getView(ViewNames.RELATION_ACE_COARSE_EXTENT));
         }
         
-        Configuration runConfig = new Configuration("", "", "", "Relation Extraction", "Gold Tokens", "", "");
+        Configuration runConfig = new Configuration("", "", "", "Relation Extraction", Redactor.GOLD_MENTIONS_EXTENT_COARSE, "", "");
         List<TextAnnotation> cleansedAnnotations = Redactor.removeAnnotations(aceTextAnnotations, runConfig);
         for (TextAnnotation ta: cleansedAnnotations) {
             // Ensure the relation extraction view name was not removed.
-            View reView = ta.getView(Redactor.RELATION_EXTRACTION_VIEW_NAME);
-            Assert.assertNotNull(Redactor.RELATION_EXTRACTION_VIEW_NAME + " erroneously removed", reView);
+            View reView = ta.getView(ViewNames.RELATION_ACE_COARSE_EXTENT);
+            Assert.assertNotNull(ViewNames.RELATION_ACE_COARSE_EXTENT + " erroneously removed", reView);
             
             // Make sure all relations are removed.
             Assert.assertEquals("Not all relations removed", Collections.EMPTY_LIST, reView.getRelations());
@@ -116,23 +116,23 @@ public class RedactorTest {
     }
     
     /**
-     * Fails if the {@code ViewNames.COREF} view name does not exist, it was removed by the {@code Redactor},
+     * Fails if the {@code ViewNames.COREF_EXTENT} view name does not exist, it was removed by the {@code Redactor},
      * or the {@code Relation}s were not removed.
      */
     @Test
     public void corefTest() {
         // First, make sure the supplied file actually contains the coref view.
         for (TextAnnotation ta : aceTextAnnotations) {
-            String message = ViewNames.COREF + " not found in " + ACE_DATA_FILENAME + ".";
-            Assert.assertNotNull(message, ta.getView(ViewNames.COREF));
+            String message = ViewNames.COREF_EXTENT + " not found in " + ACE_DATA_FILENAME + ".";
+            Assert.assertNotNull(message, ta.getView(ViewNames.COREF_EXTENT));
         }
         
-        Configuration runConfig = new Configuration("", "", "", "Co-reference", "Gold Tokens", "", "");
+        Configuration runConfig = new Configuration("", "", "", "Co-reference", Redactor.GOLD_MENTIONS_EXTENT, "", "");
         List<TextAnnotation> cleansedAnnotations = Redactor.removeAnnotations(aceTextAnnotations, runConfig);
         for (TextAnnotation ta: cleansedAnnotations) {
             // Ensure the coref view name was not removed.
-            View corefView = ta.getView(ViewNames.COREF);
-            Assert.assertNotNull(ViewNames.COREF + " erroneously removed", corefView);
+            View corefView = ta.getView(ViewNames.COREF_EXTENT);
+            Assert.assertNotNull(ViewNames.COREF_EXTENT + " erroneously removed", corefView);
             
             // Make sure all relations are removed.
             Assert.assertEquals("Not all relations removed", Collections.EMPTY_LIST, corefView.getRelations());

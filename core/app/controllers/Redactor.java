@@ -27,16 +27,34 @@ public class Redactor {
     /**
      * List of view names to be kept when the task variant is "Sentence Boundaries".
      */
-    private static final List<String> sentenceBoundariesViewNames = Arrays.asList(ViewNames.SENTENCE, ViewNames.TOKENS);
-    
-    public static final String NER_VIEW_NAME = "NER_GOLD_EXTENT_SPAN";
-    
-    public static final String RELATION_EXTRACTION_VIEW_NAME = "RELATIONVIEW";
+    private static final List<String> rawTextViewNames = Arrays.asList(ViewNames.SENTENCE, ViewNames.TOKENS);
     
     public static final String RAW_TEXT = "Raw Text";
     
-    public static final String SENTENCE_BOUNDARIES = "Sentence Boundaries";
-        
+    public static final String RAW_TEXT_HEAD = "Raw Text with Head";
+    
+    public static final String RAW_TEXT_COARSE = "Raw Text with Coarse";
+    
+    public static final String RAW_TEXT_HEAD_FINE = "Raw Text with Head and Fine Labels";
+    
+    public static final String RAW_TEXT_HEAD_COARSE = "Raw Text with Head and Coarse Labels";
+    
+    public static final String RAW_TEXT_EXTENT_FINE = "Raw Text with Extent and Fine Labels";
+    
+    public static final String RAW_TEXT_EXTENT_COARSE = "Raw Text with Extent and Coarse Labels";
+    
+    public static final String GOLD_MENTIONS_HEAD = "Gold Mentions with Head";
+    
+    public static final String GOLD_MENTIONS_EXTENT = "Gold Mentions with Extent";
+    
+    public static final String GOLD_MENTIONS_HEAD_FINE = "Gold Mentions with Head and Fine Labels";
+    
+    public static final String GOLD_MENTIONS_HEAD_COARSE = "Gold Mentions with Head and Coarse Labels";
+    
+    public static final String GOLD_MENTIONS_EXTENT_FINE = "Gold Mentions with Extent and Fine Labels";
+    
+    public static final String GOLD_MENTIONS_EXTENT_COARSE = "Gold Mentions with Extent and Coarse Labels";
+    
     /**
      * Only publicly visible method in the {@code Redactor} class. Given the task and task variant
      * (members of the {@code Configuration} object, it removes the appropriate Views and/or Relations.
@@ -50,20 +68,20 @@ public class Redactor {
     public static List<TextAnnotation> removeAnnotations(List<TextAnnotation> textAnnotations, Configuration runConfig) {
         // TODO: Send raw text without any views. This is currently not possible because serializaing and
         // deserializing text annotations requires the SENTENCE and TOKEN views.
-        if (runConfig.task_variant.equals(RAW_TEXT) || runConfig.task_variant.equals(SENTENCE_BOUNDARIES)) {
-            return removeViews(textAnnotations, sentenceBoundariesViewNames);
+        if (isRawText(runConfig)) {
+            return removeViews(textAnnotations, rawTextViewNames);
         } 
         switch (runConfig.task) {
             case "Part of Speech Tagging":
-                   return removeViews(textAnnotations, sentenceBoundariesViewNames);
+                   return removeViews(textAnnotations, rawTextViewNames);
             case "Parsing":
-                return removeViews(textAnnotations, sentenceBoundariesViewNames);
+                return removeViews(textAnnotations, rawTextViewNames);
             case "Named Entity Recognition":
-                   return removeLabelsForNER(textAnnotations);
+                   return removeLabelsForNER(textAnnotations, runConfig);
             case "Relation Extraction":
-                   return removeRelationsFromPredicateArgumentView(textAnnotations);
+                   return removeRelationsFromPredicateArgumentView(textAnnotations, runConfig);
             case "Co-reference":
-                   return removeCoreferenceRelations(textAnnotations);
+                   return removeCoreferenceRelations(textAnnotations, runConfig);
             default:
                 throw new RuntimeException("Task " + runConfig.task + " not yet implemented");
         }
@@ -103,22 +121,41 @@ public class Redactor {
     /**
      * Removes the label from the {@code NER_VIEW_NAME} view.
      */
-    private static List<TextAnnotation> removeLabelsForNER(List<TextAnnotation> cleansedAnnotations) {
+    private static List<TextAnnotation> removeLabelsForNER(List<TextAnnotation> cleansedAnnotations, Configuration runConfig) {
         List<String> nerViews = new ArrayList<>();
         nerViews.add(ViewNames.SENTENCE);
         nerViews.add(ViewNames.TOKENS);
-        nerViews.add(NER_VIEW_NAME);
+        String nerViewName;
+        
+        switch (runConfig.task_variant) {
+        	case GOLD_MENTIONS_EXTENT_COARSE :
+        		nerViewName = ViewNames.NER_ACE_COARSE_EXTENT;
+        		break;
+        	case GOLD_MENTIONS_EXTENT_FINE :
+        		nerViewName = ViewNames.NER_ACE_FINE_EXTENT;
+        		break;
+        	case GOLD_MENTIONS_HEAD_COARSE :
+        		nerViewName = ViewNames.NER_ACE_COARSE_HEAD;
+        		break;
+        	case GOLD_MENTIONS_HEAD_FINE :
+        		nerViewName = ViewNames.NER_ACE_FINE_HEAD;
+        		break;
+        	default:
+        		throw new RuntimeException("Not a valid NER ViewName");
+        }
+        
+        nerViews.add(nerViewName);
         
         List<TextAnnotation> textAnnotations = removeViews(cleansedAnnotations, nerViews);
         for (TextAnnotation textAnnotation : textAnnotations) {
-            View view = textAnnotation.getView(NER_VIEW_NAME);
+            View view = textAnnotation.getView(nerViewName);
             List<Constituent> constituents = view.getConstituents();
             // Each constituent is removed and re-added with an empty label
             for (Constituent c : constituents) {
                 view.removeConstituent(c);
                 int start = c.getStartSpan();
                 int end = c.getEndSpan();
-                view.addConstituent(new Constituent("", NER_VIEW_NAME, textAnnotation, start, end));
+                view.addConstituent(new Constituent("", nerViewName, textAnnotation, start, end));
             }
             textAnnotation.addView(view.getViewName(), view);
         }
@@ -128,11 +165,31 @@ public class Redactor {
     /**
      * Removes every {@code Relation} from the {@code RELATIONVIEW} in the list of text annotations.
      */
-    private static List<TextAnnotation> removeRelationsFromPredicateArgumentView(List<TextAnnotation> uncleansedAnnotations) {
+    private static List<TextAnnotation> removeRelationsFromPredicateArgumentView(List<TextAnnotation> uncleansedAnnotations, Configuration runConfig) {
         List<String> relationExtractionViews = new ArrayList<>();
         relationExtractionViews.add(ViewNames.SENTENCE);
         relationExtractionViews.add(ViewNames.TOKENS);
-        relationExtractionViews.add(RELATION_EXTRACTION_VIEW_NAME);
+
+        String relationExtractionViewName;
+        
+        switch (runConfig.task_variant) {
+        	case GOLD_MENTIONS_EXTENT_COARSE :
+        		relationExtractionViewName = ViewNames.RELATION_ACE_COARSE_EXTENT;
+        		break;
+        	case GOLD_MENTIONS_EXTENT_FINE :
+        		relationExtractionViewName = ViewNames.RELATION_ACE_FINE_EXTENT;
+        		break;
+        	case GOLD_MENTIONS_HEAD_COARSE :
+        		relationExtractionViewName = ViewNames.RELATION_ACE_COARSE_HEAD;
+        		break;
+        	case GOLD_MENTIONS_HEAD_FINE :
+        		relationExtractionViewName = ViewNames.RELATION_ACE_FINE_HEAD;
+        		break;
+        	default:
+        		throw new RuntimeException("Not a valid Relation Extraction ViewName");
+        }
+        
+        relationExtractionViews.add(relationExtractionViewName);
         
         List<TextAnnotation> textAnnotations = removeViews(uncleansedAnnotations, relationExtractionViews);
         for (TextAnnotation textAnnotation : textAnnotations) {
@@ -148,7 +205,7 @@ public class Redactor {
                         predicateArgumentView.removeConstituent(c);
                         int start = c.getStartSpan();
                         int end = c.getEndSpan();
-                        view.addConstituent(new Constituent("", RELATION_EXTRACTION_VIEW_NAME, textAnnotation, start, end));
+                        view.addConstituent(new Constituent("", relationExtractionViewName, textAnnotation, start, end));
                     }
                 }
             }
@@ -159,11 +216,25 @@ public class Redactor {
     /**
      * Removes all coreference relations from {@code COREF} View.
      */
-    private static List<TextAnnotation> removeCoreferenceRelations(List<TextAnnotation> uncleansedAnnotations) {
+    private static List<TextAnnotation> removeCoreferenceRelations(List<TextAnnotation> uncleansedAnnotations, Configuration runConfig) {
         List<String> coreferenceViews = new ArrayList<>();
         coreferenceViews.add(ViewNames.SENTENCE);
         coreferenceViews.add(ViewNames.TOKENS);
-        coreferenceViews.add(ViewNames.COREF);
+
+        String coreferenceViewName;
+        
+        switch (runConfig.task_variant) {
+        	case GOLD_MENTIONS_EXTENT :
+        		coreferenceViewName = ViewNames.COREF_EXTENT;
+        		break;
+        	case GOLD_MENTIONS_HEAD :
+        		coreferenceViewName = ViewNames.COREF_HEAD;
+        		break;
+        	default:
+        		throw new RuntimeException("Not a valid Coreference ViewName");
+        }
+        
+        coreferenceViews.add(coreferenceViewName);	
         
         List<TextAnnotation> textAnnotations = removeViews(uncleansedAnnotations, coreferenceViews);
         for (TextAnnotation textAnnotation : textAnnotations) {
@@ -179,5 +250,15 @@ public class Redactor {
             }
         }
         return textAnnotations;
+    }
+    
+    private static boolean isRawText(Configuration runConfig) {
+    	return runConfig.task_variant.equals(RAW_TEXT)
+    			|| runConfig.task_variant.equals(RAW_TEXT_HEAD)
+    			|| runConfig.task_variant.equals(RAW_TEXT_COARSE)
+    			|| runConfig.task_variant.equals(RAW_TEXT_HEAD_COARSE)
+    			|| runConfig.task_variant.equals(RAW_TEXT_HEAD_FINE)
+    			|| runConfig.task_variant.equals(RAW_TEXT_EXTENT_COARSE)
+    			|| runConfig.task_variant.equals(RAW_TEXT_EXTENT_FINE);
     }
 }
