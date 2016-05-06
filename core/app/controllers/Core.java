@@ -116,7 +116,7 @@ public class Core {
         Config conf = ConfigFactory.load();
         Configuration runConfig = getConfigurationFromDb(conf_id);
         FrontEndDBInterface f = new FrontEndDBInterface();
-        String evaluator = conf.getString("evaluator.root")+f.getEvaluator(runConfig.task, runConfig.task_variant);
+        String evaluator = conf.getString("evaluator.root")+f.getEvaluatorForTask(runConfig.task);
         System.out.println("Evaluator: "+evaluator);
         Class<?> cls = Class.forName(evaluator);
         return (Evaluator)cls.newInstance();
