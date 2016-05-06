@@ -125,7 +125,7 @@ public class Core {
     public static String getEvaluatorView(String conf_id) {
         Configuration runConfig = getConfigurationFromDb(conf_id);
         FrontEndDBInterface f = new FrontEndDBInterface();
-        String viewName = f.getEvaluatorView(runConfig.task);
+        String viewName = f.getEvaluatorView(runConfig.task, runConfig.task_variant);
         System.out.println("View: "+viewName);
         return viewName;
     }

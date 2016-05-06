@@ -123,8 +123,8 @@
 
       min_date = min_date.substring(0, min_date.length - 2);
       max_date = max_date.substring(0, max_date.length - 2);
-
     </script>
+    
     @header(viewModel)
     <ol class="breadcrumb">
       <li><a href="/">Open Eval</a></li>
@@ -133,6 +133,9 @@
       </a></li>
     </ol>
     <h4>Team name: @viewModel.teamName</h4>
+    <p>
+        @viewModel.configuration.view_name
+    </p>
     <p>
       @defining(viewModel.configuration){conf =>
         @conf.description

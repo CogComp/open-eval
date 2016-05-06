@@ -28,6 +28,11 @@ import javax.inject.*;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+
+
+import controllers.readers.Reader;
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+
 import static akka.pattern.Patterns.ask;
 
 @Singleton
@@ -58,7 +63,7 @@ public class Application extends Controller {
 
     // eventually things should all be seperated into a class, and this should be at the class level
     @Security.Authenticated(Secured.class)
-    public Result index() {
+    public Result index() {        
         IndexViewModel viewModel = new IndexViewModel();
         viewModel.configurations = getConfigurations(request().username());
         viewModel.user = request().username();

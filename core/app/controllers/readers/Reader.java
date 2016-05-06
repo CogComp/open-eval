@@ -44,6 +44,7 @@ public class Reader {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+       
         return textAnnotations; 
     }
     
@@ -85,55 +86,31 @@ public class Reader {
         queryOffset += queryCount;
         return textAnnotations; 
     }
-    
-    /** Specialized function to insert just 20% of the ACE-2005 nw and bn folders for Paul's class. 
-    */
-    public void insertDatasetACE(String corpusName, String datasetPath) {
-        ACEReader aceReaderNW;
-        ACEReader aceReaderBN;
-        String nw[] = {"nw"};
-        String bn[] = {"bn"};
+    /** Inserts just the NW and BN folders of ACE. */
+    public List<TextAnnotation>  insertDatasetACENWBN(String corpusName, String datasetPath) {
+        ACEReader aceReader;
+        String folders[] = {"nw", "bn"};
         
         try {
-            aceReaderNW = new ACEReader(datasetPath, nw, false);
-            aceReaderBN = new ACEReader(datasetPath, bn, false);
+            aceReader = new ACEReader(datasetPath, folders, false);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         
-        Iterator taIteratorNW = aceReaderNW.iterator();
-        Iterator taIteratorBN = aceReaderBN.iterator();
+        Iterator taIterator = aceReader.iterator();
         
-        int sizeNW = 0; //Number of text annotations in NW folder.
-        int sizeBN = 0; //Number of text annotations in BN folder.
-       
-        List<TextAnnotation> textAnnotationsNW = new ArrayList<>();
-        while (taIteratorNW.hasNext()) {
-            TextAnnotation ta = (TextAnnotation) taIteratorNW.next();
-            textAnnotationsNW.add(ta);
-            sizeNW++;
-        }
-        
-        List<TextAnnotation> textAnnotationsBN = new ArrayList<>();
-        while (taIteratorBN.hasNext()) {
-            TextAnnotation ta = (TextAnnotation) taIteratorBN.next();
-            textAnnotationsBN.add(ta);
-            sizeBN++;
-        }
-       
         List<TextAnnotation> textAnnotations = new ArrayList<>();
-        
-        for (int i = 0; i < (int)(sizeNW * .2); i++) {
-            textAnnotations.add(textAnnotationsNW.get(i));
+        while (taIterator.hasNext()) {
+            TextAnnotation ta = (TextAnnotation) taIterator.next();
+            textAnnotations.add(ta);
         }
         
-        for (int i = 0; i < (int)(sizeBN * .2); i++) {
-            textAnnotations.add(textAnnotationsBN.get(i));
-        }
-        
-        insertIntoDatasets(corpusName);
-        storeTextAnnotations(corpusName, textAnnotations);
+        //insertIntoDatasets(corpusName);
+        //storeTextAnnotations(corpusName, textAnnotations);
+        return textAnnotations;
     }
+    
+    
     
     /** Inserts a dataset into the MySQL database as a series of JSON TextAnnotations.
     */
