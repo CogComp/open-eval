@@ -587,7 +587,7 @@ public class FrontEndDBInterface {
         try {
             Connection conn = getConnection();
             
-            String sql = "SELECT name FROM evaluators WHERE task_name = ?";
+            String sql = "SELECT name FROM taskMappings WHERE task_name = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, taskName);
             ResultSet evaluatorRS = stmt.executeQuery();
