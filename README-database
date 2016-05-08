@@ -115,7 +115,3 @@ CREATE TABLE `records` (
   PRIMARY KEY (`record_id`),
   KEY `configuration_id` (`configuration_id`)
 )
-
-
-
-
