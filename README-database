@@ -1,0 +1,113 @@
+The open-eval system uses MySQL as its RDBMS
+
+Tables:
+
+configurations: Contains all information regarding a configuration.
+
+CREATE TABLE `configurations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `datasetName` varchar(20) DEFAULT NULL,
+  `teamName` varchar(50) DEFAULT NULL,
+  `description` varchar(150) DEFAULT NULL,
+  `evaluator` varchar(50) DEFAULT NULL,
+  `taskType` varchar(50) DEFAULT NULL,
+  `taskVariant` varchar(100) DEFAULT NULL,
+  `lastUpdated` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `team_name` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `teamName` (`teamName`),
+  KEY `fk_team_name` (`team_name`)
+)                        
+
+
+tasks: Lists all the tasks in the database as well as provide the mapping from (task, task-variant) -> evaluatorView
+
+CREATE TABLE `tasks` (
+  `name` varchar(50) NOT NULL,
+  `evaluatorView` varchar(50) DEFAULT NULL,
+  `task_variant` varchar(100) DEFAULT NULL
+)
+
+taskvariants: Specifies for which task, all the available task-variants. 
+
+CREATE TABLE `taskvariants` (
+  `name` varchar(100) DEFAULT NULL,
+  `task_name` varchar(50) DEFAULT NULL,
+  KEY `task_name` (`task_name`)
+)
+
+datasets: Specifies which datasets are available for which tasks. 
+
+CREATE TABLE `datasets` (
+  `name` varchar(50) NOT NULL DEFAULT '',
+  `task` varchar(50) NOT NULL,
+  KEY `fk_task` (`task`)
+)
+
+records: Contains information about a record (a specific run of a configuration).
+
+CREATE TABLE `records` (
+  `configuration_id` int(11) NOT NULL,
+  `record_id` int(11) NOT NULL AUTO_INCREMENT,
+  `url` varchar(250) DEFAULT NULL,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `comment` varchar(150) DEFAULT NULL,
+  `repo` varchar(250) DEFAULT NULL,
+  `author` varchar(20) DEFAULT NULL,
+  `recall` double DEFAULT NULL,
+  `f1` double DEFAULT NULL,
+  `gold_count` int(11) DEFAULT NULL,
+  `correct_count` int(11) DEFAULT NULL,
+  `predicted_count` int(11) DEFAULT NULL,
+  `missed_count` int(11) DEFAULT NULL,
+  `extra_count` int(11) DEFAULT NULL,
+  `precision_score` double DEFAULT NULL,
+  `isRunning` tinyint(1) DEFAULT NULL,
+  `avgSolveTime` double DEFAULT NULL,
+  PRIMARY KEY (`record_id`),
+  KEY `configuration_id` (`configuration_id`)
+)
+
+textAnnotations: Contains all the text annotations in the database along with the corresponding dataset they belong to.
+
+CREATE TABLE `textannotations` (
+  `textAnnotation` mediumtext,
+  `dataset_name` varchar(50) DEFAULT NULL,
+  KEY `dataset_name` (`dataset_name`)
+)
+
+taskMappings: Lists the mappings of (task, task-variant) -> evaluator. 
+
+CREATE TABLE `taskMappings` (
+  `name` varchar(50) DEFAULT NULL,
+  `task_name` varchar(50) DEFAULT NULL,
+  `task_variant` varchar(100) DEFAULT NULL,
+  KEY `task_name` (`task_name`)
+)
+
+
+teams:
+name								varchar(50) UNIQUE PRIMARY KEY
+password							char(64)
+
+
+users: Contains all information about a specific user. 
+
+CREATE TABLE `users` (
+  `username` varchar(50) NOT NULL DEFAULT '',
+  `password` char(64) DEFAULT NULL,
+  `teamName` varchar(50) DEFAULT NULL,
+  `isSuper` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`username`),
+  UNIQUE KEY `username` (`username`),
+  KEY `teamName` (`teamName`)
+)
+
+teams:  Contains names and passwords of a team. 
+
+CREATE TABLE `teams` (
+  `name` varchar(50) NOT NULL DEFAULT '',
+  `password` char(64) DEFAULT NULL,
+  PRIMARY KEY (`name`),
+  UNIQUE KEY `name` (`name`)
+)
