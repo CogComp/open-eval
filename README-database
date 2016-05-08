@@ -1,8 +1,53 @@
-The open-eval system uses MySQL as its RDBMS
+The open-eval system uses MySQL as its RDBMS.
 
 Tables:
 
+users: Contains all information about a specific user. 
+*Passwords are stored as a SHA-256 hash.
+*isSuper is a boolean indicating whether the user is allowed to see and run all configurations i.e., the admin user. 
+*teamName is a foreign key referencing "name" of the "teams" table. 
+
+CREATE TABLE `users` (
+  `username` varchar(50) NOT NULL DEFAULT '',
+  `password` char(64) DEFAULT NULL,
+  `teamName` varchar(50) DEFAULT NULL,
+  `isSuper` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`username`),
+  UNIQUE KEY `username` (`username`),
+  KEY `teamName` (`teamName`)
+)
+
+teams:  Contains names and passwords of a team. 
+
+CREATE TABLE `teams` (
+  `name` varchar(50) NOT NULL DEFAULT '',
+  `password` char(64) DEFAULT NULL,
+  PRIMARY KEY (`name`),
+  UNIQUE KEY `name` (`name`)
+)
+
+datasets: Specifies which datasets are available for which tasks. The acutal data (text annotations) are in the textannotations table.
+*task is a foreign key referencing "name" of the "tasks" table. 
+
+CREATE TABLE `datasets` (
+  `name` varchar(50) NOT NULL DEFAULT '',
+  `task` varchar(50) NOT NULL,
+  KEY `fk_task` (`task`)
+)
+
+textAnnotations: Contains all the text annotations in the database along with the corresponding dataset they belong to.
+*dataset_name is a foreign key referencing "name" of the "datasets" table.  
+
+CREATE TABLE `textannotations` (
+  `textAnnotation` mediumtext,
+  `dataset_name` varchar(50) DEFAULT NULL,
+  KEY `dataset_name` (`dataset_name`)
+)
+
 configurations: Contains all information regarding a configuration.
+*The evaluator field was used before, but now it is obsolete and the evaluator is specified in the "taskMappings" table. 
+*"teamName" is an old field, but now is treated as the name of the whole configuration. 
+*team_name is a foreign key referencing "name" of the "teams" table. 
 
 CREATE TABLE `configurations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -17,10 +62,9 @@ CREATE TABLE `configurations` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `teamName` (`teamName`),
   KEY `fk_team_name` (`team_name`)
-)                        
+)   
 
-
-tasks: Lists all the tasks in the database as well as provide the mapping from (task, task-variant) -> evaluatorView
+tasks: Lists all the tasks in the database as well as provides the mapping from (task, task-variant) -> evaluatorView
 
 CREATE TABLE `tasks` (
   `name` varchar(50) NOT NULL,
@@ -29,6 +73,7 @@ CREATE TABLE `tasks` (
 )
 
 taskvariants: Specifies for which task, all the available task-variants. 
+*task_name is a foreign key referencing "name" of the "tasks" table. 
 
 CREATE TABLE `taskvariants` (
   `name` varchar(100) DEFAULT NULL,
@@ -36,15 +81,18 @@ CREATE TABLE `taskvariants` (
   KEY `task_name` (`task_name`)
 )
 
-datasets: Specifies which datasets are available for which tasks. 
+taskMappings: Lists the mappings of (task, task-variant) -> evaluator. 
+*task_name is a foreign key referencing "name" of the "tasks" table.
 
-CREATE TABLE `datasets` (
-  `name` varchar(50) NOT NULL DEFAULT '',
-  `task` varchar(50) NOT NULL,
-  KEY `fk_task` (`task`)
+CREATE TABLE `taskMappings` (
+  `name` varchar(50) DEFAULT NULL,
+  `task_name` varchar(50) DEFAULT NULL,
+  `task_variant` varchar(100) DEFAULT NULL,
+  KEY `task_name` (`task_name`)
 )
 
 records: Contains information about a record (a specific run of a configuration).
+*configuration_id is a foreign key referencing "id" of the "configurations" table. 
 
 CREATE TABLE `records` (
   `configuration_id` int(11) NOT NULL,
@@ -68,46 +116,6 @@ CREATE TABLE `records` (
   KEY `configuration_id` (`configuration_id`)
 )
 
-textAnnotations: Contains all the text annotations in the database along with the corresponding dataset they belong to.
-
-CREATE TABLE `textannotations` (
-  `textAnnotation` mediumtext,
-  `dataset_name` varchar(50) DEFAULT NULL,
-  KEY `dataset_name` (`dataset_name`)
-)
-
-taskMappings: Lists the mappings of (task, task-variant) -> evaluator. 
-
-CREATE TABLE `taskMappings` (
-  `name` varchar(50) DEFAULT NULL,
-  `task_name` varchar(50) DEFAULT NULL,
-  `task_variant` varchar(100) DEFAULT NULL,
-  KEY `task_name` (`task_name`)
-)
 
 
-teams:
-name								varchar(50) UNIQUE PRIMARY KEY
-password							char(64)
 
-
-users: Contains all information about a specific user. 
-
-CREATE TABLE `users` (
-  `username` varchar(50) NOT NULL DEFAULT '',
-  `password` char(64) DEFAULT NULL,
-  `teamName` varchar(50) DEFAULT NULL,
-  `isSuper` tinyint(1) DEFAULT NULL,
-  PRIMARY KEY (`username`),
-  UNIQUE KEY `username` (`username`),
-  KEY `teamName` (`teamName`)
-)
-
-teams:  Contains names and passwords of a team. 
-
-CREATE TABLE `teams` (
-  `name` varchar(50) NOT NULL DEFAULT '',
-  `password` char(64) DEFAULT NULL,
-  PRIMARY KEY (`name`),
-  UNIQUE KEY `name` (`name`)
-)
