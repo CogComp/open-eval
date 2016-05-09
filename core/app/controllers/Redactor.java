@@ -199,14 +199,6 @@ public class Redactor {
                 if (view instanceof PredicateArgumentView) {
                     PredicateArgumentView predicateArgumentView = (PredicateArgumentView) view;
                     predicateArgumentView.removeAllRelations();
-                    
-                    // Each constituent is removed and re-added with an empty label
-                    for (Constituent c : predicateArgumentView.getConstituents()) {
-                        predicateArgumentView.removeConstituent(c);
-                        int start = c.getStartSpan();
-                        int end = c.getEndSpan();
-                        view.addConstituent(new Constituent("", relationExtractionViewName, textAnnotation, start, end));
-                    }
                 }
             }
         }
