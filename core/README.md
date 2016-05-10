@@ -195,8 +195,8 @@ CREATE TABLE records (
  - Add *the same* evaluator name to the database
 
 ## How to add your own datasets
- - First, add the name of dataset and its corresponding task into the database using the [method] (https://github.com/dshine2/open-eval-1/blob/master/core/app/controllers/readers/Reader.java) `Reader.insertIntoDatasets(String corpusName, String task)`. If the dataset is associated with multiple tasks, then call the above function for each of those tasks. 
-  - Any dataset can be added as long as it can be transformed into a series of Text Annotations, so use a reader to output a `List<TextAnnotation>`.
-  - Then, insert the Text Annotations into the database using [method](https://github.com/IllinoisCogComp/illinois-cogcomp-nlp/blob/master/core-utilities/src/main/java/edu/illinois/cs/cogcomp/core/utilities/SerializationHelper.java)`Reader.storeTextAnnotations(String corpusName, List<TextAnnotation> textAnnotations)`.
+ - First, add the name of dataset and its corresponding task into the database using the [method] (https://github.com/dshine2/open-eval-1/blob/master/core/app/controllers/readers/Reader.java) `Reader.insertIntoDatasets(String corpusName, String task)`. If the dataset is associated with multiple tasks, then call the above function for each of those tasks.
+ - Any dataset can be added as long as it can be transformed into a series of Text Annotations, so use a reader to output a `List<TextAnnotation>`.
+ - Then, insert the Text Annotations into the database using [method](https://github.com/IllinoisCogComp/illinois-cogcomp-nlp/blob/master/core-utilities/src/main/java/edu/illinois/cs/cogcomp/core/utilities/SerializationHelper.java)`Reader.storeTextAnnotations(String corpusName, List<TextAnnotation> textAnnotations)` with the same corpusName you used in step 1. 
 
 
