@@ -86,6 +86,7 @@ public class Reader {
         queryOffset += queryCount;
         return textAnnotations; 
     }
+    
     /** Inserts just the NW and BN folders of ACE. */
     public List<TextAnnotation>  insertDatasetACENWBN(String corpusName, String datasetPath) {
         ACEReader aceReader;
@@ -114,9 +115,9 @@ public class Reader {
     
     /** Inserts a dataset into the MySQL database as a series of JSON TextAnnotations.
     */
-    public List<TextAnnotation> insertDatasetIntoDB(String corpusName, String datasetPath, String dType) {
+    public List<TextAnnotation> insertDatasetIntoDB(String corpusName, String datasetPath, String dType, String task) {
         List<TextAnnotation> textAnnotations = getTextAnnotations(corpusName, datasetPath, dType); 
-        insertIntoDatasets(corpusName); 
+        insertIntoDatasets(corpusName, task); 
         storeTextAnnotations(corpusName, textAnnotations);   
         return textAnnotations; 
     }
@@ -150,14 +151,15 @@ public class Reader {
     
     /** Inserts the name of the new dataset into the datasets table. 
     */
-    private void insertIntoDatasets(String corpusName) {
+    public void insertIntoDatasets(String corpusName, String task) {
         FrontEndDBInterface f = new FrontEndDBInterface(); 
         Connection conn = f.getConnection(); 
-        String sql = "INSERT INTO datasets VALUES (?, 'Part of Speech Tagging') ;";
+        String sql = "INSERT INTO datasets VALUES (?, ?) ;";
         
         try {
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, corpusName);
+            stmt.setString(2, task);
             stmt.executeUpdate(); 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -166,7 +168,7 @@ public class Reader {
     
     /** Stores the TextAnnotations into the DB serialized to JSON.
     */
-    private void storeTextAnnotations(String corpusName, List<TextAnnotation> textAnnotations) {
+    public void storeTextAnnotations(String corpusName, List<TextAnnotation> textAnnotations) {
         FrontEndDBInterface f = new FrontEndDBInterface(); 
         Connection conn = f.getConnection(); 
         
