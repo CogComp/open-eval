@@ -138,6 +138,7 @@ public class JobProcessingActor extends UntypedActor {
                 System.out.println("Err sending and receiving text annotations" + ex.getMessage());
                 master.tell(new StatusUpdate(completed, skipped, total, record_id, eval, "Error receiving and sending text annotations"), getSelf());
                 Core.storeResultsOfRunInDatabase(eval, record_id, false);
+                System.out.println(ex.getStackTrace());
             }
             System.out.println("Done");
         } else
