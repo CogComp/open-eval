@@ -33,7 +33,7 @@ public class Redactor {
     
     public static final String RAW_TEXT_HEAD = "Raw Text with Head";
     
-    public static final String RAW_TEXT_COARSE = "Raw Text with Coarse";
+    public static final String RAW_TEXT_EXTENT = "Raw Text with Extent";
     
     public static final String RAW_TEXT_HEAD_FINE = "Raw Text with Head and Fine Labels";
     
@@ -247,7 +247,7 @@ public class Redactor {
     private static boolean isRawText(Configuration runConfig) {
     	return runConfig.task_variant.equals(RAW_TEXT)
     			|| runConfig.task_variant.equals(RAW_TEXT_HEAD)
-    			|| runConfig.task_variant.equals(RAW_TEXT_COARSE)
+    			|| runConfig.task_variant.equals(RAW_TEXT_EXTENT)
     			|| runConfig.task_variant.equals(RAW_TEXT_HEAD_COARSE)
     			|| runConfig.task_variant.equals(RAW_TEXT_HEAD_FINE)
     			|| runConfig.task_variant.equals(RAW_TEXT_EXTENT_COARSE)
