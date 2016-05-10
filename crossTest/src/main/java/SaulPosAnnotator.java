@@ -32,6 +32,13 @@ public class SaulPosAnnotator extends Annotator
         View posView = new View(ViewNames.POS,"POS-annotator",textAnnotation,1.0);
         textAnnotation.addView(ViewNames.POS,posView);
 
+        try {
+            System.out.println("Waiting ... ");
+            Thread.sleep(99999999);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         for(int i=0;i<constituents.size();i++){
             String predicted = POSClassifiers.POSClassifier(constituents.get(i));
             posView.addConstituent(new Constituent(predicted,ViewNames.POS,textAnnotation,i,i+1));
