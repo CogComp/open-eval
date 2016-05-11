@@ -6,8 +6,6 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
 import edu.illinois.cs.cogcomp.saulexamples.nlp.POSTagger.POSClassifiers;
 import edu.illinois.cs.cogcomp.saulexamples.nlp.POSTagger.POSDataModel;
-//import edu.illinois.cs.cogcomp.saulexamples.nlp.POSTagger.POSClassifiers;
-//import edu.illinois.cs.cogcomp.saulexamples.nlp.POSTagger.POSDataModel;
 
 import java.util.List;
 
@@ -26,18 +24,11 @@ public class SaulPosAnnotator extends Annotator
     {
         List<Constituent> constituents = textAnnotation.getView(ViewNames.TOKENS).getConstituents();
         scala.collection.Iterable<Constituent> scalaConstitutes = scala.collection.JavaConversions.asScalaBuffer(constituents);
-        POSDataModel.tokens().populate(scalaConstitutes, false);
+        POSDataModel.tokens().populate(scalaConstitutes, false, true);
         POSClassifiers.loadModelsFromPackage();
 
         View posView = new View(ViewNames.POS,"POS-annotator",textAnnotation,1.0);
         textAnnotation.addView(ViewNames.POS,posView);
-
-        try {
-            System.out.println("Waiting ... ");
-            Thread.sleep(99999999);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         for(int i=0;i<constituents.size();i++){
             String predicted = POSClassifiers.POSClassifier(constituents.get(i));
