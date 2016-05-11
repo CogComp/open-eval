@@ -1,30 +1,22 @@
 package models;
 
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
+import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
-
-
-import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper;
-import play.api.libs.ws.*;
 import play.libs.F;
-import play.libs.ws.*;
 import play.libs.F.Promise;
 import play.mvc.Http;
 import play.libs.ws.WS;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 
-import models.LearnerSettings;
+import java.util.Arrays;
+import java.util.List;
+
 
 /**
  * Temporary class to represent a dummy solver that lives within the evaluation framework
@@ -48,11 +40,10 @@ public class LearnerInterface {
 			url = "http://"+url;
 		if(!url.endsWith("/"))
 			url+="/";
-		this.infoPoster = WS.url(url+"info");
-		this.instancePoster = WS.url(url+"instance");
-		System.out.println(this.infoPoster);
 		Config conf = ConfigFactory.load();
 		timeout = conf.getInt("learner.default.timeout");
+		this.infoPoster = WS.url(url+"info");
+		this.instancePoster = WS.url(url+"instance").setRequestTimeout(timeout);
 	}
 
 	/**
