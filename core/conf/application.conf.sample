@@ -27,11 +27,11 @@ play.i18n.langs = [ "en" ]
 
 # Database configuration
 #
-# Note: db.default.timeout is in SECONDS, while learner.default.timeout is in MILLISECONDS
+# Note: db.default.timeout is in SECONDS, while learner.default.timeout and ws.timeout.idle are in MILLISECONDS
 db.default.driver="com.mysql.jdbc.Driver"
-db.default.url="jdbc:mysql://gargamel.cs.illinois.edu/openeval_db"
-db.default.username="oeroot"
-db.default.password="Fow,10#"
+db.default.url="jdbc:mysql://URL"
+db.default.username="USERNAME"
+db.default.password="PASSWORD"
 db.default.timeout=5
 // the following two timeout variables are usually set to the same number
 learner.default.timeout=900000 // max time to receive the future variables
