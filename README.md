@@ -20,8 +20,8 @@ the results.
 ## Modules  
 The project contains two main modules. 
 
- - The OpenEval core, which contains the main functionalities and the web app. To read more on details of core, visit [here](core/). 
- - A Learner, which acts as a toy system to be evaluated against core, visit [here](learner/). 
+ - [The OpenEval core](core/), which contains the main functionalities and the web app. 
+ - [A Learner](learner/), which acts as a toy system to be evaluated against core. 
 
 ## Quick Guide on Running the Apps
 Your will need Java 8 in order to run App. openjdk on Ubuntu seems to have issues.
@@ -36,4 +36,9 @@ First, run `sbt` from the parent directory.
 - Inside each project you can `compile` it, or `run` it. 
 
 If you `run` the core you can browse to `localhost:9000`. To run on specific port simply add the port number after `run`. 
-You also should not have to start it multiple times. You can just save code, and refresh the page.
+You also should not have to start it multiple times. You can just save code, and refresh the page. 
+
+Note: OpenEval server needs to store its backend information in a SQL database. If you want to run it on your machine 
+  first create a SQL DB, rename `core/conf/application.conf.sample` to `core/conf/application.conf`, and add the 
+  DB information (url, username and password).
+   
