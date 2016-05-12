@@ -107,11 +107,6 @@ public class RedactorTest {
             
             // Make sure all relations are removed.
             Assert.assertEquals("Not all relations removed", Collections.EMPTY_LIST, reView.getRelations());
-            
-            // Make sure all constituent labels have been removed.
-            for (Constituent c : reView.getConstituents()) {
-                Assert.assertEquals("", c.getLabel());
-            }
         }
     }
     

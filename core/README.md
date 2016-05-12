@@ -44,6 +44,7 @@ solved or predicted values of an NLP problem.
 ## Database
 
 To deploy this application, you'll need to have an SQL database set up.  We've provided an SQL script (TODO: this) that will set up the empty tables you'll need to get started.  In the `core.properties` file, you'll need to fill out the database URL, username, and password.
+The information about the DB (url, username, password) need to be included inside `conf/application.conf`. 
 
 #### Tables
 

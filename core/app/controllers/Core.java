@@ -1,26 +1,20 @@
 package controllers;
 
-import java.util.List;
-
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
-import models.LearnerSettings;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-
 import controllers.readers.Reader;
-import edu.illinois.cs.cogcomp.core.datastructures.ViewNames;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation;
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.View;
 import edu.illinois.cs.cogcomp.core.experiments.ClassificationTester;
+import edu.illinois.cs.cogcomp.core.experiments.evaluators.Evaluator;
 import edu.illinois.cs.cogcomp.core.experiments.EvaluationRecord;
-import edu.illinois.cs.cogcomp.core.experiments.evaluators.ConstituentLabelingEvaluator;
 import models.Configuration;
-import models.Job;
-import models.LearnerInterface;
 import models.LearnerSettings;
-import play.libs.ws.WSResponse;
+import models.LearnerInterface;
+import models.Job;
+
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
+import java.util.List;
 
 /**
  * This class connects all the back-end modules, i.e. the solver, the evaluation
@@ -39,8 +33,7 @@ public class Core {
         catch(Exception e){
             return new LearnerSettings("You have entered an invalid url");
         }
-        LearnerSettings settings = learner.getInfo();
-        return settings;
+        return learner.getInfo();
     }
 
     /**
@@ -108,8 +101,7 @@ public class Core {
      */
     private static Configuration getConfigurationFromDb(String conf_id) {
         FrontEndDBInterface f = new FrontEndDBInterface();
-        Configuration config = f.getConfigInformation(Integer.parseInt(conf_id));
-        return config;
+        return f.getConfigInformation(Integer.parseInt(conf_id));
     }
     
     public static Evaluator getEvaluator(String conf_id) throws Exception{
@@ -141,8 +133,7 @@ public class Core {
     private static List<TextAnnotation> getInstancesFromDb(Configuration runConfig) {
         Reader reader = new Reader();
         System.out.println("Retrieving instances from db");
-        List<TextAnnotation> TextAnnotations = reader.getTextAnnotationsFromDB(runConfig.dataset);
-        return TextAnnotations;
+        return reader.getTextAnnotationsFromDB(runConfig.dataset);
     }
 
     /**
