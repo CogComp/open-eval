@@ -43,7 +43,7 @@ solved or predicted values of an NLP problem.
 
 ## Database
 
-To deploy this application, you'll need to have an SQL database set up.  We've provided an SQL script (TODO: this) that will set up the empty tables you'll need to get started.  In the `core.properties` file, you'll need to fill out the database URL, username, and password.
+To deploy this application, you'll need to have an SQL database set up.  We've provided a [SQL script](https://github.com/dshine2/open-eval-1/blob/master/CreateTables.sql) that will set up the empty tables you'll need to get started. To run this script, type "SOURCE <`pathToScript`>" in the MySQL command prompt. In the `core.properties` file, you'll need to fill out the database URL, username, and password.
 The information about the DB (url, username, password) need to be included inside `conf/application.conf`. 
 
 Some notes on the tables:
