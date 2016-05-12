@@ -46,130 +46,30 @@ solved or predicted values of an NLP problem.
 To deploy this application, you'll need to have an SQL database set up.  We've provided an SQL script (TODO: this) that will set up the empty tables you'll need to get started.  In the `core.properties` file, you'll need to fill out the database URL, username, and password.
 The information about the DB (url, username, password) need to be included inside `conf/application.conf`. 
 
-#### Tables
+Some notes on the tables:
 
 **users**: 
-  - Contains all information about a specific user. 
   - Passwords are stored as a SHA-256 hash.
   - isSuper is a boolean indicating whether the user is allowed to see and run all configurations i.e., the admin user. 
-  - teamName is a foreign key referencing "name" of the "teams" table. 
-
-CREATE TABLE users (
-  username varchar(50) NOT NULL DEFAULT '',
-  password char(64) DEFAULT NULL,
-  teamName varchar(50) DEFAULT NULL,
-  isSuper tinyint(1) DEFAULT NULL,
-  PRIMARY KEY (username),
-  UNIQUE KEY username (username),
-  KEY teamName (teamName)
-);
-
-**teams**:  
-  - Contains names and passwords of a team. 
-
-CREATE TABLE teams (
-  name varchar(50) NOT NULL DEFAULT '',
-  password char(64) DEFAULT NULL,
-  PRIMARY KEY (name),
-  UNIQUE KEY name (name)
-);
 
 **datasets**: 
   - Specifies which datasets are available for which tasks. The acutal data (text annotations) are in the textannotations table.
-  - task is a foreign key referencing "name" of the "tasks" table. 
-
-CREATE TABLE datasets (
-  name varchar(50) NOT NULL DEFAULT '',
-  task varchar(50) NOT NULL,
-  KEY fk_task (task)
-);
-
-**textAnnotations**: 
-  - Contains all the text annotations in the database along with the corresponding dataset they belong to.
-  - dataset_name is a foreign key referencing "name" of the "datasets" table.  
-
-CREATE TABLE textannotations (
-  textAnnotation mediumtext,
-  dataset_name varchar(50) DEFAULT NULL,
-  KEY dataset_name (dataset_name)
-);
 
 **configurations**: 
-  - Contains all information regarding a configuration.
   - The evaluator field was used before, but now it is obsolete and the evaluator is specified in the "taskMappings" table. 
   - "teamName" is an old field, but now is treated as the name of the whole configuration. 
-  - team_name is a foreign key referencing "name" of the "teams" table. 
-
-CREATE TABLE configurations (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  datasetName varchar(20) DEFAULT NULL,
-  teamName varchar(50) DEFAULT NULL,
-  description varchar(150) DEFAULT NULL,
-  evaluator varchar(50) DEFAULT NULL,
-  taskType varchar(50) DEFAULT NULL,
-  taskVariant varchar(100) DEFAULT NULL,
-  lastUpdated timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  team_name varchar(50) DEFAULT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY teamName (teamName),
-  KEY fk_team_name (team_name)
-);   
 
 **tasks**: 
-  - Lists all the tasks in the database as well as provides the mapping from (task, task-variant) -> evaluatorView
-
-CREATE TABLE tasks (
-  name varchar(50) NOT NULL,
-  evaluatorView varchar(50) DEFAULT NULL,
-  task_variant varchar(100) DEFAULT NULL
-);
-
-**taskvariants**: 
-  - Specifies for which task, all the available task-variants. 
-  - task_name is a foreign key referencing "name" of the "tasks" table. 
-
-CREATE TABLE taskvariants (
-  name varchar(100) DEFAULT NULL,
-  task_name varchar(50) DEFAULT NULL,
-  KEY task_name (task_name)
-);
+  - Provides the mapping from (task, task-variant) -> evaluatorView.
 
 **taskMappings**:
   - Lists the mappings of (task, task-variant) -> evaluator. 
-  - task_name is a foreign key referencing "name" of the "tasks" table.
 
-CREATE TABLE taskMappings (
-  name varchar(50) DEFAULT NULL,
-  task_name varchar(50) DEFAULT NULL,
-  task_variant varchar(100) DEFAULT NULL,
-  KEY task_name (task_name)
-);
 
-**records**: 
-  - Contains information about a record (a specific run of a configuration).
-  - configuration_id is a foreign key referencing "id" of the "configurations" table. 
+ 
 
-CREATE TABLE records (
-  configuration_id int(11) NOT NULL,
-  record_id int(11) NOT NULL AUTO_INCREMENT,
-  url varchar(250) DEFAULT NULL,
-  date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  comment varchar(150) DEFAULT NULL,
-  repo varchar(250) DEFAULT NULL,
-  author varchar(20) DEFAULT NULL,
-  recall double DEFAULT NULL,
-  f1 double DEFAULT NULL,
-  gold_count int(11) DEFAULT NULL,
-  correct_count int(11) DEFAULT NULL,
-  predicted_count int(11) DEFAULT NULL,
-  missed_count int(11) DEFAULT NULL,
-  extra_count int(11) DEFAULT NULL,
-  precision_score double DEFAULT NULL,
-  isRunning tinyint(1) DEFAULT NULL,
-  avgSolveTime double DEFAULT NULL,
-  PRIMARY KEY (record_id),
-  KEY configuration_id (configuration_id)
-);
+
+
 
 
 ## Overview of Components
