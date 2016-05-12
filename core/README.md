@@ -45,6 +45,30 @@ solved or predicted values of an NLP problem.
 
 To deploy this application, you'll need to have an SQL database set up.  We've provided an [SQL script](https://github.com/dshine2/open-eval-1/blob/master/CreateTables.sql)  that will set up the empty tables you'll need to get started.  To run this, type "SOURCE CreateTables.sql" on the MySQL command line. In the `core.properties` file, you'll need to fill out the database URL, username, and password.
 
+Some notes on the tables:
+
+**users**: 
+  - Passwords are stored as a SHA-256 hash.
+  - isSuper is a boolean indicating whether the user is allowed to see and run all configurations i.e., the admin user. 
+
+**datasets**: 
+  - Specifies which datasets are available for which tasks. The acutal data (text annotations) are in the textannotations table.
+
+**configurations**: 
+  - The evaluator field was used before, but now it is obsolete and the evaluator is specified in the "taskMappings" table. 
+  - "teamName" is an old field, but now is treated as the name of the whole configuration. 
+
+**tasks**: 
+  - Provides the mapping from (task, task-variant) -> evaluatorView.
+
+**taskMappings**:
+  - Lists the mappings of (task, task-variant) -> evaluator. 
+
+
+ 
+
+
+
 
 
 ## Overview of Components
