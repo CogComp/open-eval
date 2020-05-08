@@ -43,8 +43,34 @@ solved or predicted values of an NLP problem.
 
 ## Database
 
-To deploy this application, you'll need to have an SQL database set up.  We've provided an SQL script (TODO: this) that will set up the empty tables you'll need to get started.  In the `core.properties` file, you'll need to fill out the database URL, username, and password.
+To deploy this application, you'll need to have an SQL database set up.  We've provided a [SQL script](https://github.com/dshine2/open-eval-1/blob/master/CreateTables.sql) that will set up the empty tables you'll need to get started. To run this script, type "SOURCE <`pathToScript`>" in the MySQL command prompt. In the `core.properties` file, you'll need to fill out the database URL, username, and password.
 The information about the DB (url, username, password) need to be included inside `conf/application.conf`. 
+
+Some notes on the tables:
+
+**users**: 
+  - Passwords are stored as a SHA-256 hash.
+  - isSuper is a boolean indicating whether the user is allowed to see and run all configurations i.e., the admin user. 
+
+**datasets**: 
+  - Specifies which datasets are available for which tasks. The acutal data (text annotations) are in the textannotations table.
+
+**configurations**: 
+  - The evaluator field was used before, but now it is obsolete and the evaluator is specified in the "taskMappings" table. 
+  - "teamName" is an old field, but now is treated as the name of the whole configuration. 
+
+**tasks**: 
+  - Provides the mapping from (task, task-variant) -> evaluatorView.
+
+**taskMappings**:
+  - Lists the mappings of (task, task-variant) -> evaluator. 
+
+
+ 
+
+
+
+
 
 ## Overview of Components
 
@@ -70,5 +96,8 @@ The information about the DB (url, username, password) need to be included insid
  - Add *the same* evaluator name to the database
 
 ## How to add your own datasets
+ - First, add the name of dataset and its corresponding task into the database using the [method] (https://github.com/dshine2/open-eval-1/blob/master/core/app/controllers/readers/Reader.java) `Reader.insertIntoDatasets(String corpusName, String task)`. If the dataset is associated with multiple tasks, then call the above function for each of those tasks.
+ - Any dataset can be added as long as it can be transformed into a series of Text Annotations, so use a reader to output a `List<TextAnnotation>`.
+ - Then, insert the Text Annotations into the database using [method](https://github.com/IllinoisCogComp/illinois-cogcomp-nlp/blob/master/core-utilities/src/main/java/edu/illinois/cs/cogcomp/core/utilities/SerializationHelper.java)`Reader.storeTextAnnotations(String corpusName, List<TextAnnotation> textAnnotations)` with the same corpusName you used in step 1. 
 
-[TODO]
+
